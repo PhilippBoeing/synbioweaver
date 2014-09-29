@@ -1,0 +1,641 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Tutorial &mdash; AOSB alpha documentation</title>
+    
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     'alpha',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="AOSB alpha documentation" href="index.html" />
+    <link rel="next" title="AOSB Reference" href="modules/index.html" />
+    <link rel="prev" title="AOSB documentation" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="modules/index.html" title="AOSB Reference"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="AOSB documentation"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">AOSB alpha documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="tutorial">
+<h1>Tutorial<a class="headerlink" href="#tutorial" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>This tutorial will introduce the main constructs of the AOSB framework and
+how to use them to build an aspect oriented synthetic biology design. However,
+it is not written as an in-depth tutorial into thinking about synthetic biology
+systems in terms of cross-cutting concern separation and aspect modularization.
+It simply serves as an introduction to the AOSB language defined by the framework.</p>
+</div>
+<div class="section" id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
+<p>AOSB is a framework for Python 2.7. The tutorial assumes at least basic knowledge
+of the Python programming language and object oriented programming as well as a
+conceptual awareness of aspect oriented programming.</p>
+<p>The AOSB package must also be added to the Python path.</p>
+</div>
+<div class="section" id="hello-world">
+<h2>Hello World<a class="headerlink" href="#hello-world" title="Permalink to this headline">¶</a></h2>
+<p>AOSB allows a genetic circuit, i.e. a synthetic biology &#8220;program&#8221; to be defined
+and manipulated in Python. Let us start by creating a simple example. In an empty
+Python file, first import the AOSB framework:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">aosb</span> <span class="kn">import</span> <span class="o">*</span>
+</pre></div>
+</div>
+<p>Next, we will define a simple genetic circuit expressing an undefined Protein:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">SimpleCircuit</span><span class="p">(</span><span class="n">Circuit</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">mainCircuit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addPart</span><span class="p">(</span><span class="n">Promoter</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addPart</span><span class="p">(</span><span class="n">RBS</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addPart</span><span class="p">(</span><span class="n">CodingRegion</span><span class="p">(</span><span class="n">Protein</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addPart</span><span class="p">(</span><span class="n">Terminator</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Every AOSB design must begin with a circuit, and every circuit needs to define
+a mainCircuit() method. Similarly to a main method in most modern programming
+languages, this method defines the beginning of the synthetic biology design.</p>
+<p>The Circuit class provides the addPart method, which we are using to add four parts
+to the design. The order of instruction matters and sets the order in which the parts
+appear in the circuit.</p>
+<p>Lastly, to view the defined genetic circuit, we must &#8220;compile&#8221; our design using
+the AOSB.Weaver:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">compiledDesign</span> <span class="o">=</span> <span class="n">Weaver</span><span class="p">(</span><span class="n">SimpleCircuit</span><span class="p">)</span><span class="o">.</span><span class="n">output</span><span class="p">()</span>
+<span class="k">print</span> <span class="n">compiledDesign</span>
+</pre></div>
+</div>
+<p>Running the entire file should give this output:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">Promoter</span><span class="o">+</span><span class="n">RBS</span><span class="o">+</span><span class="n">CodingRegion</span><span class="p">(</span><span class="n">codesFor</span> <span class="o">=</span> <span class="n">Protein</span><span class="p">)</span><span class="o">+</span><span class="n">Terminator</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="parts-and-molecules">
+<h2>Parts and Molecules<a class="headerlink" href="#parts-and-molecules" title="Permalink to this headline">¶</a></h2>
+<p>In the <a class="reference internal" href="#hello-world">Hello World</a> example, we have used two basic building blocks of AOSB:
+Parts and Molecules.</p>
+<p>Every &#8220;instruction&#8221; in the genetic circuit is a <tt class="docutils literal"><span class="pre">Part</span></tt>, added to the execution flow via <tt class="docutils literal"><span class="pre">addPart()</span></tt>. Parts follow a strict hierarchy, as seen in the UML diagram.</p>
+<div class="figure">
+<img alt="_images/part_uml.png" src="_images/part_uml.png" />
+<p class="caption">Hierarchy of AOSB built in Part classes.</p>
+</div>
+<p>All Parts have the capacity to be connected to a Molecule class. Of the standard parts, <tt class="docutils literal"><span class="pre">CodingRegion</span></tt>, <tt class="docutils literal"><span class="pre">PositivePromoter</span></tt> and <tt class="docutils literal"><span class="pre">Negative</span> <span class="pre">Promoter</span></tt> require a Molecule class to be specified. For example, in the <a class="reference internal" href="#hello-world">Hello World</a> example, the coding region is initialized with <cite>Protein</cite>, a built in sub class of <cite>Molecule</cite>.</p>
+<p>Additionally, the Weaver assigns Part attributes <tt class="docutils literal"><span class="pre">before</span></tt> and <tt class="docutils literal"><span class="pre">after</span></tt>, to refer to the Parts before and
+after it in the Part list, and a <tt class="docutils literal"><span class="pre">namespace</span></tt> attribute, referring to the Circuit or Aspect which added it.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p>Molecules are always used as <strong>classes</strong>, not as objects. This is because they
+represent an interaction of a Part with a <strong>type</strong> of Molecule, not just a specific
+Molecule.</p>
+<p class="last">On the other hand, Parts are always used as objects. However, for syntactic
+convenience, if a Part requires no parameters to be initialized, <tt class="docutils literal"><span class="pre">addPart()</span></tt>
+accepts Part classes and automatically converts them into objects. This can be seen
+in the <a class="reference internal" href="#hello-world">Hello World</a> example: The Promoter, RBS and Terminator Parts are added
+as classes. This is equivalent to adding them as an object, i.e.
+<tt class="docutils literal"><span class="pre">addPart(Promoter())</span></tt>. The <tt class="docutils literal"><span class="pre">CodingRegion</span></tt> class however needs a Molecule to be
+instantiated, and thus needs to be added as an object.</p>
+</div>
+<p>Parts are a central element of AOSB, because they represent the basic building blocks of
+the synthetic biology target.</p>
+<p>Because each part is a class, new or more concrete Parts and Molecules
+can be added in the normal Python way, potentially defining additional attributes:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># Parts Registry RBS (http://parts.igem.org/Help:Ribosome_Binding_Site)</span>
+<span class="k">class</span> <span class="nc">BBa_B0030</span>     <span class="p">(</span><span class="n">RBS</span><span class="p">):</span>
+    <span class="n">sequence</span> <span class="o">=</span> <span class="s">&quot;attaaagaggagaaa&quot;</span>
+    <span class="n">bindingEfficiency</span> <span class="o">=</span> <span class="mf">0.6</span>
+
+<span class="c"># declare that a class of Proteins called exists that are used as markers</span>
+<span class="k">class</span> <span class="nc">ReporterProtein</span> <span class="p">(</span><span class="n">Protein</span><span class="p">):</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+<p>Creating new, specialized Parts and Molecules will be a frequent occurance in an
+AOSB program,
+so the language also provides the <tt class="docutils literal"><span class="pre">declareNewPart</span></tt> and <tt class="docutils literal"><span class="pre">declareNewMolecule</span></tt>
+convenience functions:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">declareNewMolecule</span><span class="p">(</span><span class="s">&quot;GFP&quot;</span><span class="p">,</span><span class="n">ReporterProtein</span><span class="p">)</span>
+<span class="c"># after this line, a new class GFP has been exported to the namespace</span>
+
+<span class="n">declareNewPart</span><span class="p">(</span><span class="s">&quot;GFPCodingRegion&quot;</span><span class="p">,</span><span class="n">CodingRegion</span><span class="p">,</span><span class="n">GFP</span><span class="p">)</span>
+<span class="c"># a new class GFPCodingRegion, subtype of CodingRegion has been created</span>
+<span class="c"># the third parameter can specify a Molecule</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">declareNewMolecule</span></tt> can accept more than one parent class of type Molecule, so that
+a Molecule could be tagged by various classes, e.g. ReporterProtein, FluorescentProtein,
+etc. This will be useful once we start selecting Molecules with point cuts. See the
+reference on <a class="reference internal" href="modules/index.html#aosb.core.declareNewPart" title="aosb.core.declareNewPart"><tt class="xref py py-func docutils literal"><span class="pre">declareNewPart()</span></tt></a> and
+<a class="reference internal" href="modules/index.html#aosb.core.declareNewMolecule" title="aosb.core.declareNewMolecule"><tt class="xref py py-func docutils literal"><span class="pre">declareNewMolecule()</span></tt></a> for more information.</p>
+</div>
+<div class="section" id="aspects">
+<h2>Aspects<a class="headerlink" href="#aspects" title="Permalink to this headline">¶</a></h2>
+<p>The purpose of AOSB is to allow synthetic biology core and cross-cutting concerns
+to be modularized. This requires constructs that define weaving rules, which can be
+used to manipulate the execution flow, i.e. the genetic circuit.</p>
+<p>Weaving rules are bundled into &#8220;Aspect classes&#8221;:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">EmptyAspect</span><span class="p">(</span><span class="n">Aspect</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">mainAspect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c"># advice must be registered here</span>
+        <span class="k">pass</span>
+</pre></div>
+</div>
+<div class="section" id="design-rules-example">
+<h3>Design Rules Example<a class="headerlink" href="#design-rules-example" title="Permalink to this headline">¶</a></h3>
+<p>A simple example shows how an Aspect can be used to automatically weave RBS and
+Terminator parts around Coding Regions:</p>
+<blockquote>
+<div><div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">aosb</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="k">class</span> <span class="nc">CodingGFP</span><span class="p">(</span><span class="n">Circuit</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">mainCircuit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">declareNewMolecule</span><span class="p">(</span><span class="s">&#39;GFP&#39;</span><span class="p">)</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">addPart</span><span class="p">(</span><span class="n">Promoter</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addPart</span><span class="p">(</span><span class="n">CodingRegion</span><span class="p">(</span><span class="n">GFP</span><span class="p">))</span>
+        
+<span class="k">class</span> <span class="nc">DesignRules</span><span class="p">(</span><span class="n">Aspect</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">mainAspect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">anyCodingRegion</span> <span class="o">=</span> <span class="n">PartSignature</span><span class="p">(</span><span class="s">&#39;*.CodingRegion+&#39;</span><span class="p">)</span>
+        
+        <span class="n">beforeCodingRegion</span> <span class="o">=</span> <span class="n">PointCut</span><span class="p">(</span><span class="n">anyCodingRegion</span><span class="p">,</span><span class="n">PointCut</span><span class="o">.</span><span class="n">BEFORE</span><span class="p">)</span>
+        <span class="n">afterCodingRegion</span> <span class="o">=</span> <span class="n">PointCut</span><span class="p">(</span><span class="n">anyCodingRegion</span><span class="p">,</span><span class="n">PointCut</span><span class="o">.</span><span class="n">AFTER</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">addAdvice</span><span class="p">(</span><span class="n">beforeCodingRegion</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">insertRBS</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addAdvice</span><span class="p">(</span><span class="n">afterCodingRegion</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">insertTerminator</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">insertRBS</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">context</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addPart</span><span class="p">(</span><span class="n">RBS</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">insertTerminator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">context</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addPart</span><span class="p">(</span><span class="n">Terminator</span><span class="p">)</span>
+
+<span class="n">compiledDesign</span> <span class="o">=</span> <span class="n">Weaver</span><span class="p">(</span><span class="n">CodingGFP</span><span class="p">,</span><span class="n">DesignRules</span><span class="p">)</span><span class="o">.</span><span class="n">output</span><span class="p">()</span>
+<span class="k">print</span> <span class="n">compiledDesign</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>The output of this program is:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">Promoter</span><span class="o">+</span><span class="n">RBS</span><span class="o">+</span><span class="n">CodingRegion</span><span class="p">(</span><span class="n">codesFor</span> <span class="o">=</span> <span class="n">GFP</span><span class="p">)</span><span class="o">+</span><span class="n">Terminator</span>
+</pre></div>
+</div>
+<p>In the following sections, the constructs introduced in the example will be covered
+in detail.</p>
+<p>The simple defines the &#8220;core concern&#8221;, GFP coded under an unspecified Promoter,
+in the CodingGFP Circuit <em>(lines 3-7)</em>. The DesignRules Aspect <em>(lines 9-23)</em> defines
+two advice methods, <tt class="docutils literal"><span class="pre">insertRBS''</span> <span class="pre">and</span> <span class="pre">``insertTerinator</span></tt>. Each Aspect has to implement
+a <tt class="docutils literal"><span class="pre">mainAspect()</span></tt> method, similarly to a Circuit&#8217;s <tt class="docutils literal"><span class="pre">mainCircuit()</span></tt>. During the
+execution of <tt class="docutils literal"><span class="pre">mainAspect()</span></tt>, all advice of the Aspect must be declared. In the example
+<em>(lines 16 and 17)</em>, the two advice methods are attached two the appropriate PointCut and
+declared using <a class="reference internal" href="modules/index.html#aosb.core.Aspect.addAdvice" title="aosb.core.Aspect.addAdvice"><tt class="xref py py-func docutils literal"><span class="pre">addAdvice()</span></tt></a>.</p>
+<p>Lastly, CodingGFP and DesignRules are given as inputs to the Weaver <em>(lines 25)</em>.</p>
+<p>The Weaver now first constructs the classes and creates a list of all advice, by calling
+DesignRule&#8217;s <tt class="docutils literal"><span class="pre">mainAspect()</span></tt>. Then, it calls CodingGFP&#8217;s <tt class="docutils literal"><span class="pre">mainCircuit()</span></tt> method.
+When the CodingRegion is added <em>(line 7)</em>, the Weaver is able to match the advice from
+DesignRules and inserts a call to <tt class="docutils literal"><span class="pre">insertRBS()</span></tt> before adding the CodingRegion, and a
+call to <tt class="docutils literal"><span class="pre">insertTerminator()</span></tt> after it.</p>
+</div>
+</div>
+<div class="section" id="point-cuts">
+<h2>Point Cuts<a class="headerlink" href="#point-cuts" title="Permalink to this headline">¶</a></h2>
+<p>A <tt class="docutils literal"><span class="pre">PointCut</span></tt> matches specific join points in the genetic circuit execution flow.</p>
+<p>The <tt class="xref py py-func docutils literal"><span class="pre">Point</span> <span class="pre">Cut</span> <span class="pre">constructor</span></tt> requires a
+PartSignature and an operator of type <tt class="docutils literal"><span class="pre">PointCut.BEFORE</span></tt> / <tt class="docutils literal"><span class="pre">AFTER</span></tt> or <tt class="docutils literal"><span class="pre">REPLACE</span></tt>,
+which specifies how the matching join point should be manipulated.</p>
+<div class="section" id="simple-part-signatures">
+<h3>Simple Part Signatures<a class="headerlink" href="#simple-part-signatures" title="Permalink to this headline">¶</a></h3>
+<p>In the <a class="reference internal" href="#design-rules-example">Design Rules Example</a> we have seen an example of a simple PartSignature:</p>
+<div class="highlight-python"><pre>.. code-block:: python</pre>
+</div>
+<blockquote>
+<div>PartSignature(&#8216;<a href="#id1"><span class="problematic" id="id2">*</span></a>.CodingRegion+&#8217;)</div></blockquote>
+<p>This part matches any part of type (or sub-type) <tt class="docutils literal"><span class="pre">CodingRegion</span></tt>.</p>
+<p>A Part Signature consists of three parts. Firstly, it can specify a namespace of a Part,
+i.e. the Circuit or Aspect which has added it. Secondly, it can specify the part itself.
+Thirdly, it can optionally specify a Molecule the part should be connected to. Matching
+is done on the name of the type.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">NameSpaceTypeName</span><span class="o">.</span><span class="n">PartTypeName</span><span class="p">(</span><span class="n">MoleculeName</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Additionally, the wild card operator <tt class="docutils literal"><span class="pre">*</span></tt> will match any name, and the <tt class="docutils literal"><span class="pre">+</span></tt> will make
+any type or subtype a match. Furthermore, a <tt class="docutils literal"><span class="pre">!</span></tt> at the beginning of any element of the
+signature will invert it.</p>
+<p><strong>Examples</strong></p>
+<div class="highlight-python"><div class="highlight"><pre><span class="s">&quot;Circuit+.BB*(*)&quot;</span>
+</pre></div>
+</div>
+<p>will match any part, which has been added by a Circuit (i.e. not by an Aspect) and whose
+type name begins with &#8220;BB&#8221; (e.g. by naming convention, a BioBrick part). The molecule
+connection is irrelevant, so <tt class="docutils literal"><span class="pre">(*)</span></tt> for the molecule element of the signature is
+equivalent to leavning it out.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="s">&quot;Aspect+.Promoter+(TranscriptionFactor+)&quot;</span>
+</pre></div>
+</div>
+<p>will match any Promoter (including subtypes such as NegativePromoter, PositivePromoter,
+any any user-defined types) that has been added by an Aspect and is regulated by a
+TranscriptionFactor.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="s">&quot;!SimpleAspect.*(!GFP)&quot;</span>
+</pre></div>
+</div>
+<p>will match any Part not being connected to GFP which has not been added by an Aspect
+called SimpleAspect.</p>
+<p>Thus, by constructing a sensible typing hierarchy of Parts and Molecules and by
+establishing a rigorous naming convention, Point Cuts are able to select groups of
+Parts based on precise features.</p>
+</div>
+<div class="section" id="point-cut-expressions">
+<h3>Point Cut Expressions<a class="headerlink" href="#point-cut-expressions" title="Permalink to this headline">¶</a></h3>
+<p>Additionally, Part Signatures can be connected into expressions, using the <tt class="docutils literal"><span class="pre">&amp;</span></tt>, <tt class="docutils literal"><span class="pre">|</span></tt>
+and <tt class="docutils literal"><span class="pre">%</span></tt> operators, which stand for boolean-and, boolean-or and concatenation,
+respectively.</p>
+<p><strong>Examples</strong></p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">PartSelector</span><span class="p">(</span><span class="s">&#39;*.NegativePromoter+&#39;</span><span class="p">)</span> <span class="o">|</span> <span class="n">PartSelector</span><span class="p">(</span><span class="s">&#39;*.PositivePromoter+&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>will match any part whose (sub)type is either <tt class="docutils literal"><span class="pre">NegativePromoter</span></tt> or <tt class="docutils literal"><span class="pre">PositivePromoter</span></tt>.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">PartSelector</span><span class="p">(</span><span class="s">&#39;*.*(TranscriptionFactor+)&#39;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">PartSelector</span><span class="p">(</span><span class="s">&#39;*.*(ReporterProtein+))</span>
+</pre></div>
+</div>
+<p>will match any part whose molecule is both a TranscriptionFactor and a ReporterProtein.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">PartSelector</span><span class="p">(</span><span class="s">&#39;*.RBS+&#39;</span><span class="p">)</span> <span class="o">%</span> <span class="n">PartSelector</span><span class="p">(</span><span class="s">&#39;*.CodingRegion+&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>will match any CodingRegion, which has an RBS part immediately before it.</p>
+<p>Using these operators, complex Point Cut expressions can be built.
+All operators are left-associative, so there is no clear precedence between operators.
+Rather, precedence should be explicitly defined using parentheses.</p>
+<p>Additionally, parts of a formula can be inverted using a <tt class="docutils literal"><span class="pre">PointCutExpressionNot()</span></tt> node,
+which does not have an overloaded Python operator:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">PointCutExpressionNot</span><span class="p">(</span><span class="s">&#39;*.Terminator+&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>will match any Part not matched by <tt class="docutils literal"><span class="pre">'*.Terminator+'</span></tt></p>
+</div>
+</div>
+<div class="section" id="advice">
+<h2>Advice<a class="headerlink" href="#advice" title="Permalink to this headline">¶</a></h2>
+<p>Advice is the code woven into the execution flow.  An <tt class="docutils literal"><span class="pre">Advice</span></tt> consists of a PointCut,
+to select the location of where the code should be inserted, and a method of the Aspect.</p>
+<p>An advice method belongs to the Aspect, and can access and store attributes via the <tt class="docutils literal"><span class="pre">self</span></tt> parameter. An advice method must also accept a second Parameter called <tt class="docutils literal"><span class="pre">context</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">adviceMethod</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">context</span><span class="p">):</span>
+    <span class="c"># self.addPart() could be used here</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">context</span></tt> is of type <a class="reference internal" href="modules/index.html#aosb.core.PointCutContext" title="aosb.core.PointCutContext"><tt class="xref py py-class docutils literal"><span class="pre">PointCutContext</span></tt></a>, which has
+a <tt class="docutils literal"><span class="pre">PointCutContext.part</span></tt> attribute, referencing the part that was matched by the
+PointCut of the advice.</p>
+<p>Additionally, <tt class="docutils literal"><span class="pre">context</span></tt> has an <a class="reference internal" href="modules/index.html#aosb.core.PointCutContext.isWithin" title="aosb.core.PointCutContext.isWithin"><tt class="xref py py-class docutils literal"><span class="pre">isWithin()</span></tt></a> method, which
+can be used to search for Circuits or Aspects on the advice call stack. For example, this can be used to
+make sure that an advice is not recursively executing on itself.</p>
+<div class="section" id="example-print-advice-stack">
+<h3>Example: Print Advice Stack<a class="headerlink" href="#example-print-advice-stack" title="Permalink to this headline">¶</a></h3>
+<p>Based on the previous <a class="reference internal" href="#design-rules-example">Design Rules Example</a> we can quickly add an aspect to print a stack trace:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">aosb</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="k">class</span> <span class="nc">CodingGFP</span><span class="p">(</span><span class="n">Circuit</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">mainCircuit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">declareNewMolecule</span><span class="p">(</span><span class="s">&#39;GFP&#39;</span><span class="p">)</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">addPart</span><span class="p">(</span><span class="n">Promoter</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addPart</span><span class="p">(</span><span class="n">CodingRegion</span><span class="p">(</span><span class="n">GFP</span><span class="p">))</span>
+        
+<span class="k">class</span> <span class="nc">DesignRules</span><span class="p">(</span><span class="n">Aspect</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">mainAspect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">anyCodingRegion</span> <span class="o">=</span> <span class="n">PartSignature</span><span class="p">(</span><span class="s">&#39;*.CodingRegion+&#39;</span><span class="p">)</span>
+        
+        <span class="n">beforeCodingRegion</span> <span class="o">=</span> <span class="n">PointCut</span><span class="p">(</span><span class="n">anyCodingRegion</span><span class="p">,</span><span class="n">PointCut</span><span class="o">.</span><span class="n">BEFORE</span><span class="p">)</span>
+        <span class="n">afterCodingRegion</span> <span class="o">=</span> <span class="n">PointCut</span><span class="p">(</span><span class="n">anyCodingRegion</span><span class="p">,</span><span class="n">PointCut</span><span class="o">.</span><span class="n">AFTER</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">addAdvice</span><span class="p">(</span><span class="n">beforeCodingRegion</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">insertRBS</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addAdvice</span><span class="p">(</span><span class="n">afterCodingRegion</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">insertTerminator</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">insertRBS</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">context</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addPart</span><span class="p">(</span><span class="n">RBS</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">insertTerminator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">context</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addPart</span><span class="p">(</span><span class="n">Terminator</span><span class="p">)</span>
+        
+<span class="k">class</span> <span class="nc">PrintStack</span><span class="p">(</span><span class="n">Aspect</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">mainAspect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addAdvice</span><span class="p">(</span><span class="n">PointCut</span><span class="p">(</span><span class="s">&#39;*.*&#39;</span><span class="p">,</span><span class="n">PointCut</span><span class="o">.</span><span class="n">AFTER</span><span class="p">),</span><span class="bp">self</span><span class="o">.</span><span class="n">printStack</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">printStack</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">context</span><span class="p">):</span>
+        <span class="k">print</span> <span class="s">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">within</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">within</span><span class="p">)))</span> <span class="o">+</span> <span class="s">&quot; add: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">part</span><span class="p">)</span>
+    
+
+<span class="n">compiledDesign</span> <span class="o">=</span> <span class="n">Weaver</span><span class="p">(</span><span class="n">CodingGFP</span><span class="p">,</span><span class="n">DesignRules</span><span class="p">,</span><span class="n">PrintStack</span><span class="p">)</span><span class="o">.</span><span class="n">output</span><span class="p">()</span>
+<span class="k">print</span> <span class="n">compiledDesign</span>
+</pre></div>
+</div>
+<p>This will give the following output:</p>
+<div class="highlight-python"><pre>CodingGFP add: Promoter
+CodingGFP,&lt;__main__.DesignRules object at 0x7f8f42987a50&gt; add: RBS
+CodingGFP,&lt;__main__.DesignRules object at 0x7f8f42987a50&gt; add: Terminator
+CodingGFP add: CodingRegion(codesFor = GFP)
+Promoter+RBS+CodingRegion(codesFor = GFP)+Terminator</pre>
+</div>
+<p><tt class="docutils literal"><span class="pre">CodingGFP</span></tt> has a nicer string representation, which it inherits from Part (see Composites).</p>
+</div>
+<div class="section" id="before-and-after-point-cuts">
+<h3>before and after Point Cuts<a class="headerlink" href="#before-and-after-point-cuts" title="Permalink to this headline">¶</a></h3>
+<p>We have already encountered the simpler Before and After Point Cuts. They inject the advice code
+immediately before or after the join point selected by the Point Cut, as would be expected.</p>
+<div class="figure">
+<img alt="_images/point_cut_before.png" src="_images/point_cut_before.png" />
+<p class="caption">Advice weaving at a join point selected by a BEFORE Point Cut</p>
+</div>
+<div class="figure">
+<img alt="_images/point_cut_after.png" src="_images/point_cut_after.png" />
+<p class="caption">Advice weaving at a join point selected by an AFTER Point Cut</p>
+</div>
+</div>
+<div class="section" id="replace-point-cuts">
+<h3>replace Point Cuts<a class="headerlink" href="#replace-point-cuts" title="Permalink to this headline">¶</a></h3>
+<div class="figure">
+<img alt="_images/point_cut_replace.png" src="_images/point_cut_replace.png" />
+<p class="caption">Advice on a replace Point Cut is executed instead of the Part.</p>
+</div>
+</div>
+<div class="section" id="precedence">
+<h3>Precedence<a class="headerlink" href="#precedence" title="Permalink to this headline">¶</a></h3>
+<p>What if more than one Point Cut matches a given Join Point? Unless a precedence is explicitly
+set, the behavior is undefined.</p>
+<p><tt class="docutils literal"><span class="pre">addAdvice()</span></tt> takes an optional third parameter - an integer between <tt class="docutils literal"><span class="pre">Advice.MINPRECEDENCE</span></tt> <em>(0)</em>
+and <tt class="docutils literal"><span class="pre">Advice.MAXPRECEDENCE</span></tt> <em>(100)</em></p>
+<p>Advice which are added without specifying a precedence, are given minimal precedence by default. Higher precedence Advice is are deemed more important than those of low precedence.</p>
+<p>For two Advice sharing a BEFORE Point Cut, this means that the high precedence advice will execute <strong>before</strong> the low precedence one. If both advice have the same precedence, their order is undefined.</p>
+<p>For two Advice sharing an AFTER Point Cut, the high precedence advice will execute <strong>after</strong> the low precedence one. If both advice have the same precedence, their order is undefined.</p>
+<p>For two Advice sharing a REPLACEMENT Point Cut, the high precedence advice will execute, whereas any lower precedence advice will be ignored.</p>
+<p>If many Point Cuts match a Join Point, first the before advice will execute starting from the highest precedence. After the last before advice, the part will be added. Then the lowest precedence after advice will execute until the highest after advice. If a replacement advice occurs at some point, any lower before or after advice will be ignored. However, all after advice of similar or higher precedence will still execute.</p>
+<div class="figure">
+<img alt="_images/point_cut_precedence.png" src="_images/point_cut_precedence.png" />
+<p class="caption">In this example, the low advice and the matched Part will not be executed, as they have been replaced
+by the medium Advice</p>
+</div>
+</div>
+</div>
+<div class="section" id="type-advice">
+<h2>Type Advice<a class="headerlink" href="#type-advice" title="Permalink to this headline">¶</a></h2>
+<p>Apart from normal Advice, which changes the execution flow, it is also possible to modify the Molecule
+and Part types using type advice. For example, one Aspect could add sequence information to a whole range
+of Parts; another could add modelling rules to Parts based on features selected by a <tt class="docutils literal"><span class="pre">PartSignature</span></tt>.</p>
+<p>Analogously to <tt class="docutils literal"><span class="pre">addAdvice()</span></tt>, type advice can be added with</p>
+<div class="section" id="adding-type-advice-to-parts">
+<h3>Adding type advice to Parts<a class="headerlink" href="#adding-type-advice-to-parts" title="Permalink to this headline">¶</a></h3>
+<p>Analogously to adding new Advice with <tt class="docutils literal"><span class="pre">addAdvice()</span></tt>, Type Advice can be
+added via <a class="reference internal" href="modules/index.html#aosb.core.Aspect.addTypeAdvice" title="aosb.core.Aspect.addTypeAdvice"><tt class="xref py py-func docutils literal"><span class="pre">addTypeAdvice()</span></tt></a>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">mainAspect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">addTypeAdvice</span><span class="p">(</span><span class="n">PartSignature</span><span class="p">(</span><span class="s">&#39;*.*&#39;</span><span class="p">),</span><span class="bp">True</span><span class="p">,</span><span class="s">&quot;isPart&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">addTypeAdvice</span></tt> requires three parameters: A <tt class="docutils literal"><span class="pre">PartSignature</span></tt> to select the Part, an
+attribute to add to the Part type, and a name under which this Part should appear.</p>
+<p>If the attribute is a method, it is given two parameters: <tt class="docutils literal"><span class="pre">self</span></tt>, referring to the
+Aspect, and <tt class="docutils literal"><span class="pre">part</span></tt>, referring to the Part object:</p>
+<div class="highlight-python"><pre>class AnAspect(Aspect):
+    def mainAspect(self):
+        self.addTypeAdvice(PartSignature('*.*'),self.typeAdviceMethod,"sayHello")
+
+    def typeAdviceMethod(self,part)
+        print "Hello from "+str(part)</pre>
+</div>
+<p>Type Advice can also be added to <tt class="docutils literal"><span class="pre">Molecules</span></tt> using the same <tt class="docutils literal"><span class="pre">addTypeAdvice()</span></tt> method.
+This requires changing the first parameter to a <a class="reference internal" href="modules/index.html#aosb.core.MoleculeSignature" title="aosb.core.MoleculeSignature"><tt class="xref py py-class docutils literal"><span class="pre">MoleculeSignature</span></tt></a>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">mainAspect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">addTypeAdvice</span><span class="p">(</span><span class="n">MoleculeSignature</span><span class="p">(</span><span class="s">&#39;TranscriptionFactor+&#39;</span><span class="p">),</span><span class="bp">True</span><span class="p">,</span><span class="s">&quot;isTranscriptionFactor&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The <tt class="docutils literal"><span class="pre">MoleculeSignature</span></tt> is simply the element of the PartSignature within the parantheses.</p>
+</div>
+<div class="section" id="type-advice-example">
+<h3>Type Advice Example<a class="headerlink" href="#type-advice-example" title="Permalink to this headline">¶</a></h3>
+<p>Here is a simple example to add a method to Promoter types to print if they are regulated or not.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">aosb</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="k">class</span> <span class="nc">TwoPromoters</span><span class="p">(</span><span class="n">Circuit</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">mainCircuit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addPart</span><span class="p">(</span><span class="n">Promoter</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addPart</span><span class="p">(</span><span class="n">NegativePromoter</span><span class="p">(</span><span class="n">Protein</span><span class="p">))</span>
+        
+<span class="k">class</span> <span class="nc">PromoterTypeAdvice</span><span class="p">(</span><span class="n">Aspect</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">mainAspect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c"># define three signatures</span>
+        <span class="n">nonRegulatedPromoterSignature</span> <span class="o">=</span> <span class="n">PartSignature</span><span class="p">(</span><span class="s">&#39;*.Promoter+()&#39;</span><span class="p">)</span>
+        <span class="n">regulatedPromoterSignature</span> <span class="o">=</span> <span class="n">PartSignature</span><span class="p">(</span><span class="s">&#39;*.Promoter+(Molecule+)&#39;</span><span class="p">)</span>
+        <span class="n">anyPromoterSignature</span> <span class="o">=</span> <span class="n">PartSignature</span><span class="p">(</span><span class="s">&#39;*.Promoter+&#39;</span><span class="p">)</span>
+        
+        <span class="c"># add Boolean Attribute &quot;isRegulated&quot; to two different types of Promoters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addTypeAdvice</span><span class="p">(</span><span class="n">nonRegulatedPromoterSignature</span><span class="p">,</span><span class="bp">False</span><span class="p">,</span><span class="s">&quot;isRegulated&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addTypeAdvice</span><span class="p">(</span><span class="n">regulatedPromoterSignature</span><span class="p">,</span><span class="bp">True</span><span class="p">,</span><span class="s">&quot;isRegulated&quot;</span><span class="p">)</span>
+        
+        <span class="c"># add a type advice method</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addTypeAdvice</span><span class="p">(</span><span class="n">anyPromoterSignature</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">printIsRegulated</span><span class="p">,</span><span class="s">&quot;printIsRegulated&quot;</span><span class="p">)</span>
+        
+    <span class="k">def</span> <span class="nf">printIsRegulated</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">part</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">part</span><span class="o">.</span><span class="n">isRegulated</span> <span class="o">==</span> <span class="bp">False</span><span class="p">:</span>
+            <span class="k">print</span> <span class="nb">str</span><span class="p">(</span><span class="n">part</span><span class="p">)</span><span class="o">+</span><span class="s">&quot; is not regulated by a Molecule.&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">print</span> <span class="nb">str</span><span class="p">(</span><span class="n">part</span><span class="p">)</span><span class="o">+</span><span class="s">&quot; is regulated by a Molecule.&quot;</span>
+
+<span class="n">compiledDesign</span> <span class="o">=</span> <span class="n">Weaver</span><span class="p">(</span><span class="n">TwoPromoters</span><span class="p">,</span><span class="n">PromoterTypeAdvice</span><span class="p">)</span><span class="o">.</span><span class="n">output</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">compiledDesign</span><span class="o">.</span><span class="n">partList</span><span class="p">:</span>
+    <span class="n">part</span><span class="o">.</span><span class="n">printIsRegulated</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The output will be:</p>
+<div class="highlight-python"><pre>Promoter is not regulated by a Molecule.
+NegativePromoter(regulatedBy = Protein) is regulated by a Molecule.</pre>
+</div>
+</div>
+</div>
+<div class="section" id="weaver-output-advice">
+<h2>Weaver Output Advice<a class="headerlink" href="#weaver-output-advice" title="Permalink to this headline">¶</a></h2>
+<p>The last item to cover is the <a class="reference internal" href="modules/index.html#aosb.core.Weaver.WeaverOutput" title="aosb.core.Weaver.WeaverOutput"><tt class="xref py py-class docutils literal"><span class="pre">WeaverOutput</span></tt></a> class, a
+container object holding the results of the Weaver compilation and returned by <tt class="docutils literal"><span class="pre">Weaver.output()</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">compiledDesign</span> <span class="o">=</span> <span class="n">Weaver</span><span class="p">(</span><span class="n">ACircuit</span><span class="p">,</span><span class="n">AnAspect</span><span class="p">,</span><span class="n">AnotherAspect</span><span class="p">)</span><span class="o">.</span><span class="n">output</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>By default, <tt class="docutils literal"><span class="pre">WeaverOutput</span></tt> has two attributes. <tt class="docutils literal"><span class="pre">partList</span></tt>, holding the list of the parts in order of execution,
+and <tt class="docutils literal"><span class="pre">moleculeList</span></tt> a list of all types of Molecules used in the system. The class also overloads <tt class="docutils literal"><span class="pre">__str__</span></tt> to provide
+a nice string output of the compiles design, which we have used in previous examples.</p>
+<p>An Aspect can also declare output advice to the <tt class="docutils literal"><span class="pre">WeaverOutput</span></tt>. For example, this allows an Aspect implementing a rule-based modelling
+concern to define additional <tt class="docutils literal"><span class="pre">WeaverOutput</span></tt> methods, such as <tt class="docutils literal"><span class="pre">printModel()</span></tt>.</p>
+<p>The mechanism is very similar to Type Advice:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">mainAspect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">addWeaverOutput</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">newOutputMethod</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">newOutputMethod</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">weaverOutput</span><span class="p">):</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">addWeaverOutput()</span></tt> has only one parameter which must refer to a method of the Aspect. This weaver output advice method must accept
+two parameters, <tt class="docutils literal"><span class="pre">self</span></tt> to refer to the Aspect, and <tt class="docutils literal"><span class="pre">weaverOutput</span></tt> to refer to the <tt class="docutils literal"><span class="pre">WeaverOutput</span></tt> object. Unlike
+<tt class="docutils literal"><span class="pre">addTypeAdvice()</span></tt>, <tt class="docutils literal"><span class="pre">addWeaverOutput</span></tt> requires no name for the new attribute. Instead, the new method for <tt class="docutils literal"><span class="pre">WeaverOutput</span></tt> will
+automatically have the same name.</p>
+<div class="section" id="example-print-number-of-parts">
+<h3>Example: Print number of parts<a class="headerlink" href="#example-print-number-of-parts" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">aosb</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="k">class</span> <span class="nc">CodingGFP</span><span class="p">(</span><span class="n">Circuit</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">mainCircuit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">declareNewMolecule</span><span class="p">(</span><span class="s">&#39;GFP&#39;</span><span class="p">)</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">addPart</span><span class="p">(</span><span class="n">Promoter</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addPart</span><span class="p">(</span><span class="n">CodingRegion</span><span class="p">(</span><span class="n">GFP</span><span class="p">))</span>
+        
+<span class="k">class</span> <span class="nc">DesignRules</span><span class="p">(</span><span class="n">Aspect</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">mainAspect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">anyCodingRegion</span> <span class="o">=</span> <span class="n">PartSignature</span><span class="p">(</span><span class="s">&#39;*.CodingRegion+&#39;</span><span class="p">)</span>
+        
+        <span class="n">beforeCodingRegion</span> <span class="o">=</span> <span class="n">PointCut</span><span class="p">(</span><span class="n">anyCodingRegion</span><span class="p">,</span><span class="n">PointCut</span><span class="o">.</span><span class="n">BEFORE</span><span class="p">)</span>
+        <span class="n">afterCodingRegion</span> <span class="o">=</span> <span class="n">PointCut</span><span class="p">(</span><span class="n">anyCodingRegion</span><span class="p">,</span><span class="n">PointCut</span><span class="o">.</span><span class="n">AFTER</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">addAdvice</span><span class="p">(</span><span class="n">beforeCodingRegion</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">insertRBS</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addAdvice</span><span class="p">(</span><span class="n">afterCodingRegion</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">insertTerminator</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">insertRBS</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">context</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addPart</span><span class="p">(</span><span class="n">RBS</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">insertTerminator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">context</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addPart</span><span class="p">(</span><span class="n">Terminator</span><span class="p">)</span>
+        
+<span class="k">class</span> <span class="nc">NumberOfPartsAspect</span><span class="p">(</span><span class="n">Aspect</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">mainAspect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addWeaverOutput</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">printNumberOfParts</span><span class="p">)</span>
+        
+    <span class="k">def</span> <span class="nf">printNumberOfParts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">weaverOutput</span><span class="p">):</span>
+        <span class="k">print</span> <span class="s">&quot;The design has &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">weaverOutput</span><span class="o">.</span><span class="n">partList</span><span class="p">))</span><span class="o">+</span><span class="s">&quot; parts.&quot;</span>
+
+<span class="n">compiledDesign</span> <span class="o">=</span> <span class="n">Weaver</span><span class="p">(</span><span class="n">CodingGFP</span><span class="p">,</span><span class="n">DesignRules</span><span class="p">,</span><span class="n">NumberOfPartsAspect</span><span class="p">)</span><span class="o">.</span><span class="n">output</span><span class="p">()</span>
+<span class="n">compiledDesign</span><span class="o">.</span><span class="n">printNumberOfParts</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Tutorial</a><ul>
+<li><a class="reference internal" href="#introduction">Introduction</a></li>
+<li><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
+<li><a class="reference internal" href="#hello-world">Hello World</a></li>
+<li><a class="reference internal" href="#parts-and-molecules">Parts and Molecules</a></li>
+<li><a class="reference internal" href="#aspects">Aspects</a><ul>
+<li><a class="reference internal" href="#design-rules-example">Design Rules Example</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#point-cuts">Point Cuts</a><ul>
+<li><a class="reference internal" href="#simple-part-signatures">Simple Part Signatures</a></li>
+<li><a class="reference internal" href="#point-cut-expressions">Point Cut Expressions</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#advice">Advice</a><ul>
+<li><a class="reference internal" href="#example-print-advice-stack">Example: Print Advice Stack</a></li>
+<li><a class="reference internal" href="#before-and-after-point-cuts">before and after Point Cuts</a></li>
+<li><a class="reference internal" href="#replace-point-cuts">replace Point Cuts</a></li>
+<li><a class="reference internal" href="#precedence">Precedence</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#type-advice">Type Advice</a><ul>
+<li><a class="reference internal" href="#adding-type-advice-to-parts">Adding type advice to Parts</a></li>
+<li><a class="reference internal" href="#type-advice-example">Type Advice Example</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#weaver-output-advice">Weaver Output Advice</a><ul>
+<li><a class="reference internal" href="#example-print-number-of-parts">Example: Print number of parts</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">AOSB documentation</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="modules/index.html"
+                        title="next chapter">AOSB Reference</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/tutorial.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="modules/index.html" title="AOSB Reference"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="AOSB documentation"
+             >previous</a> |</li>
+        <li><a href="index.html">AOSB alpha documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Philipp Boeing, Anthony Finkelstein, Darren Nesbeth, Chris Barnes.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
