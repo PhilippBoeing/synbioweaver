@@ -1440,6 +1440,9 @@ class Aspect(object):
         | mainAspect will be called by the AOSB Weaver."""
         pass
 
+    def __str__(self):
+        return self.__class__.__name__
+
 
 class Weaver(object):
     """The "compiler" that weaves core concerns (circuits) and cross-cutting
@@ -1477,8 +1480,12 @@ class Weaver(object):
             self.parentCircuit = parentCircuit
 
         def __str__(self):
-            result =  self.circuitName + ' Circuit Parts List:\n' + '+'.join(
+            result = self.circuitName + ' Circuit'
+            result = result + '\n--------------------------\n'
+            result = result + 'Parts List:\n' + '+'.join(
                 str(self.partList[i]) for i in range(len(self.partList)))
+            if(len(self.partList) == 0):
+                result = result + "None"
 
             result = result + "\nCircuit Molecule List: \n"
             result = result + self.molecules()
@@ -1491,13 +1498,16 @@ class Weaver(object):
                 for i in range(len(self.wovenCircuitList)):
                     result = result + "Sub Circuit "+str(i+1)+":\n"
                     result = result + str(self.wovenCircuitList[i])
-                    result = result + '\n-----------\n'
+                    result = result + '\n####################\n'
 
 
             return result
 
         def molecules(self):
-            return ', '.join(str(self.moleculeList[i]) for i in range(len(self.moleculeList)))
+            if len(self.moleculeList) == 0:
+                return "None"
+            else:
+                return ', '.join(str(self.moleculeList[i]) for i in range(len(self.moleculeList)))
 
         def moleculeGraph(self):
             result = ''

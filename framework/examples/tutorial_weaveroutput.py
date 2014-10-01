@@ -12,17 +12,24 @@ class DesignRules(Aspect):
         
         beforeCodingRegion = PointCut(anyCodingRegion,PointCut.BEFORE)
         afterCodingRegion = PointCut(anyCodingRegion,PointCut.AFTER)
+
+        self.addTypeAdvice(PartSignature('*.Terminator'),self.terminatorRuleString,'terminatorRuleString')
         
         self.addAdvice(beforeCodingRegion,self.insertRBS)
         self.addAdvice(afterCodingRegion,self.insertTerminator)
-    
+
+    def terminatorRuleString(self,part):
+        print 'hello\n'
+        for before in part.before:
+            print before
+
     def insertRBS(self,context):
         self.addPart(RBS)
     
     def insertTerminator(self,context):
         self.addPart(Terminator)
         
-class NumberOfPartsAspect(object):
+class NumberOfPartsAspect(Aspect):
     def mainAspect(self):
         self.addWeaverOutput(self.printNumberOfParts)
         
