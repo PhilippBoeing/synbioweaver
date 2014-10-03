@@ -1,4 +1,4 @@
-AOSB documentation
+SynBioSoc documentation
 ==================
 
 
