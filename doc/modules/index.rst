@@ -1,4 +1,4 @@
-AOSB Reference
+SynBioWeaver Package (aosb) Reference
 ======================
 
 .. automodule:: aosb.core
