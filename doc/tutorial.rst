@@ -5,27 +5,28 @@ Tutorial
 Introduction
 ============
 
-This tutorial will introduce the main constructs of the AOSB framework and
+This tutorial will introduce the main constructs of the SynBioWeaver framework and
 how to use them to build an aspect oriented synthetic biology design. However,
 it is not written as an in-depth tutorial into thinking about synthetic biology
 systems in terms of cross-cutting concern separation and aspect modularization.
-It simply serves as an introduction to the AOSB language defined by the framework.
+It simply serves as an introduction to the SynBioWeaver language defined by the framework.
 
 Prerequisites
 =============
 
-AOSB is a framework for Python 2.7. The tutorial assumes at least basic knowledge
+SynBioWeaver is a framework for Python 2.7. The tutorial assumes at least basic knowledge
 of the Python programming language and object oriented programming as well as a
 conceptual awareness of aspect oriented programming.
 
-The AOSB package must also be added to the Python path.
+SynBioWeaver is contained in the ``aosb`` (aspect oriented synthetic biology) package. 
+The package should be added to the Python path.
 
 Hello World
 ===========
 
-AOSB allows a genetic circuit, i.e. a synthetic biology "program" to be defined
+SynBioWeaver allows a genetic circuit, i.e. a synthetic biology "program" to be defined
 and manipulated in Python. Let us start by creating a simple example. In an empty
-Python file, first import the AOSB framework::
+Python file, first import the SynBioWeaver framework via the ``aosb`` package::
 
     from aosb import *
 
@@ -59,7 +60,7 @@ Running the entire file should give this output::
 Parts and Molecules
 ===================
 
-In the `Hello World`_ example, we have used two basic building blocks of AOSB: 
+In the `Hello World`_ example, we have used two basic building blocks of SynBioWeaver: 
 Parts and Molecules.
 
 Every "instruction" in the genetic circuit is a ``Part``, added to the execution flow via ``addPart()``. Parts follow a strict hierarchy, as seen in the UML diagram.
@@ -68,10 +69,7 @@ Every "instruction" in the genetic circuit is a ``Part``, added to the execution
     
     Hierarchy of AOSB built in Part classes.
 
-All Parts have the capacity to be connected to a Molecule class. Of the standard parts, ``CodingRegion``, ``PositivePromoter`` and ``Negative Promoter`` require a Molecule class to be specified. For example, in the `Hello World`_ example, the coding region is initialized with `Protein`, a built in sub class of `Molecule`.
-
-Additionally, the Weaver assigns Part attributes ``before`` and ``after``, to refer to the Parts before and
-after it in the Part list, and a ``namespace`` attribute, referring to the Circuit or Aspect which added it.
+All Parts have the capacity to be connected to other parts upstream and downstream of it. Furthermore, parts can have Molecules "before" and "after" it. "Before" and "After" refers to the flow of information in the execution flow of the system. For example, Molecules representing transcription factors that induce or repress a Promoter Part are "before" the Promoter part. Similarly, a GFP Coding Region would have a GFP Molecule "after" it. Of the standard parts, ``CodingRegion``, ``PositivePromoter`` and ``Negative Promoter`` require a Molecule class to be initizliaed. For example, in the `Hello World`_ example, the coding region is initialized with `Protein`, a built in sub class of `Molecule`.
 
 .. warning::
 
@@ -87,7 +85,7 @@ after it in the Part list, and a ``namespace`` attribute, referring to the Circu
    ``addPart(Promoter())``. The ``CodingRegion`` class however needs a Molecule to be
    instantiated, and thus needs to be added as an object.
    
-Parts are a central element of AOSB, because they represent the basic building blocks of
+Parts are a central element of SynBioWeaver, because they represent the basic building blocks of
 the synthetic biology target.
 
 Because each part is a class, new or more concrete Parts and Molecules
@@ -103,16 +101,18 @@ can be added in the normal Python way, potentially defining additional attribute
         pass
 
 Creating new, specialized Parts and Molecules will be a frequent occurance in an 
-AOSB program,
+SynBioWeaver program,
 so the language also provides the ``declareNewPart`` and ``declareNewMolecule``
 convenience functions::
 
     declareNewMolecule("GFP",ReporterProtein)
     # after this line, a new class GFP has been exported to the namespace
     
-    declareNewPart("GFPCodingRegion",CodingRegion,GFP)
+    declareNewPart("GFPCodingRegion",CodingRegion,afterMolecules=[GFP])
     # a new class GFPCodingRegion, subtype of CodingRegion has been created
     # the third parameter can specify a Molecule
+	
+	
     
 ``declareNewMolecule`` can accept more than one parent class of type Molecule, so that
 a Molecule could be tagged by various classes, e.g. ReporterProtein, FluorescentProtein,

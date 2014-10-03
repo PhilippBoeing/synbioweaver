@@ -42,7 +42,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'AOSB'
+project = u'SynBioWeaver'
 copyright = u'2013, Philipp Boeing, Anthony Finkelstein, Darren Nesbeth, Chris Barnes'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -179,7 +179,7 @@ htmlhelp_basename = 'aosbdoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'aosbdoc.tex', u'AOSB Manual',
+  ('index', 'synbioweaver.tex', u'SynBioWeaver Manual',
    u'Philipp Boeing', 'manual'),
 ]
 
@@ -212,6 +212,6 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'aosb', u'AOSB Manual',
+    ('index', 'synbioweaver', u'SynBioWeaver Manual',
      [u'Philipp Boeing'], 1)
 ]
