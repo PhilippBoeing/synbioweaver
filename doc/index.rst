@@ -1,4 +1,4 @@
-SynBioSoc documentation
+SynBioWeaver documentation
 ==================
 
 
