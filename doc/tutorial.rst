@@ -140,7 +140,7 @@ Design Rules Example
 A simple example shows how an Aspect can be used to automatically weave RBS and
 Terminator parts around Coding Regions:
 
-    .. literalinclude:: /../aosb/examples/tutorial_designrules.py
+    .. literalinclude:: /../framework/aosb/examples/tutorial_designrules.py
     
 The output of this program is::
     
@@ -290,7 +290,7 @@ Example: Print Advice Stack
 
 Based on the previous `Design Rules Example`_ we can quickly add an aspect to print a stack trace:
 
-.. literalinclude:: /../aosb/examples/tutorial_printstack.py
+.. literalinclude:: /../framework/aosb/examples/tutorial_printstack.py
 
 This will give the following output::
 
@@ -392,7 +392,7 @@ Type Advice Example
 
 Here is a simple example to add a method to Promoter types to print if they are regulated or not.
 
-.. literalinclude:: /../aosb/examples/tutorial_typeadvice.py
+.. literalinclude:: /../framework/aosb/examples/tutorial_typeadvice.py
 
 The output will be::
 
@@ -430,7 +430,7 @@ automatically have the same name.
 Example: Print number of parts
 ------------------------------
 
-.. literalinclude:: /../aosb/examples/tutorial_weaveroutput.py
+.. literalinclude:: /../framework/aosb/examples/tutorial_weaveroutput.py
         
 
     
