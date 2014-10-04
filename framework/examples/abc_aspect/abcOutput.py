@@ -6,26 +6,6 @@ import matplotlib.pyplot as plt
 import scipy
 from scipy import stats
 
-def setInputVariables(new_epsilon, new_fit, new_particles, new_alpha, new_prior_distribution, new_priors):
-    global epsilon
-    global fit
-    global particles
-    global alpha
-    global simtype
-    global prior_distribution
-    #global init_cond__distribution
-    global priors
-    #global initial_conditions
-    epsilon = new_epsilon
-    fit = new_fit
-    particles = new_particles
-    alpha = new_alpha
-    prior_distribution = new_prior_distribution
-    #init_cond__distribution = new_init_cond__distribution
-    priors = new_priors
-    #initial_conditions = new_initial_conditions
-
-
 class Reaction:
     param_counter = 0
 
@@ -33,8 +13,6 @@ class Reaction:
         react = ' + '.join(map(str, reactants))
         prod = ' + '.join(map(str, products))
         self.reaction = react + ' -> ' + prod
-        #self.degradation = str(products[0]) + '->'
-
 
     def rates(self, reactants):
         Reaction.param_counter += 1
@@ -271,8 +249,6 @@ class CudaOutput(Aspect):
         numpy.savetxt(out_file, stoichiometry_matrix, fmt='%s,', )
 
         out_file.write("};"+"\n"+"\n"+"\n")
-        #This makes ODEs
-        #equns = self.equations(stoichiometry_matrix, rates_list)
 
         out_file.write("__device__ void hazards(int *y, float *h, float t, int tid){ " + "\n")
         eq_count = -1
@@ -350,6 +326,7 @@ class CudaOutput(Aspect):
         extent = [0, self.xmax, 0, self.ymax]
         self.fig = plt.figure()
         ax = self.fig.add_subplot(111)
+        #Uncomment line below if you want filled contours
         #ax.imshow(np.rot90(Z), extent=extent, cmap=cmap, norm=norm)
         v = plt.axis()
         ax.contour(np.rot90(self.Z), hold='on', cmap=cmap, origin='upper', extent=extent, linewidth=.5)
@@ -390,35 +367,26 @@ class CudaOutput(Aspect):
                 rates_list.append(rat)
                 param_list.append(params)
 
-        #for mol in weaverOutput.moleculeList:
-        #    tmp = raw_input("Enter initial condition value for " + str(mol) + " (distribution start end): ")
-        #    tmpinp = tmp.split(" ")
-        #    if len(tmpinp) > 2:
-        #        self.init_cond__distribution.append(tmpinp[0])
-        #        self.initial_conditions.append([tmpinp[1], tmpinp[2]])
-        #    elif len(tmpinp) == 2:
-        #        self.init_cond__distribution.append(tmpinp[0])
-        #        self.initial_conditions.append(tmpinp[1])
+        for mol in weaverOutput.moleculeList:
+            tmp = raw_input("Enter initial condition value for " + str(mol) + " (distribution start end): ")
+            tmpinp = tmp.split(" ")
+            if len(tmpinp) > 2:
+                self.init_cond__distribution.append(tmpinp[0])
+                self.initial_conditions.append([tmpinp[1], tmpinp[2]])
+            elif len(tmpinp) == 2:
+                self.init_cond__distribution.append(tmpinp[0])
+                self.initial_conditions.append(tmpinp[1])
 
-        #for reac in reaction_list:
-        #    #############change text################################################
-        #    tmp = raw_input("Enter value of parameter for " + str(reac) + ": ")
-        #    tmpinp = tmp.split(" ")
-        #    if len(tmpinp) > 2:
-        #        self.prior_distribution.append(tmpinp[0])
-        #        self.priors.append([tmpinp[1], tmpinp[2]])
-        #    elif len(tmpinp) == 2:
-        #        self.prior_distribution.append(tmpinp[0])
-        #        self.priors.append(tmpinp[1])
+        for reac in reaction_list:
+            tmp = raw_input("Enter value of parameter for " + str(reac) + ": ")
+            tmpinp = tmp.split(" ")
+            if len(tmpinp) > 2:
+                self.prior_distribution.append(tmpinp[0])
+                self.priors.append([tmpinp[1], tmpinp[2]])
+            elif len(tmpinp) == 2:
+                self.prior_distribution.append(tmpinp[0])
+                self.priors.append(tmpinp[1])
 
-        self.prior_distribution = ['constant', 'constant', 'constant', 'constant', 'constant', 'constant', 'constant', 'constant', 'constant', 'constant', 'constant', 'constant', 'constant', 'constant']
-        self.init_cond__distribution = ['constant', 'constant', 'constant', 'constant', 'constant', 'constant', 'uniform', 'uniform', 'constant', 'constant', 'constant', 'constant', 'constant', 'constant']
-
-
-        #The same order  as the reactions capable from each part. Dimerisation last. First in compartment so always constant 1
-        self.priors = [0.4, 0.05, 0.4, 0.05, 0.4, 0.05, 0.4, 0.05, 0.005, 0.005, 1, 1, 1, 1]
-        #The same order as the order of self.createMolecule
-        self.initial_conditions = [0, 0, 0, 0, 1, 1, [0, 10], [0, 10], 0, 0, 1, 1, 1]
         self.epsilon = raw_input("Enter value for epsilon: ")
         fit_tmp = str(raw_input("Enter species to fit: "))
         fit_tmpsp = fit_tmp.split(" ")
@@ -438,7 +406,6 @@ class CudaOutput(Aspect):
         self.alpha = raw_input("Enter value for alpha: ")
 
         #Dimerisation: if a molecule is not found in the products list, then you have to create a reaction for it.
-        # This will break though if you have a part that's only in the reactants
         products_list = []
         for reaction in reaction_list:
             splitreactprod = reaction.split('->')
