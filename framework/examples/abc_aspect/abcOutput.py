@@ -213,7 +213,7 @@ class CudaOutput(Aspect):
 
     def stoichiometry(self, moleculeList, reaction_list):
         #Build the stoichiometry matrix
-        self.stoichiometry_matrix = numpy.zeros(shape=(len(moleculeList), len(reaction_list)))
+        self.stoichiometry_matrix = numpy.zeros(shape=(len(reaction_list), len(moleculeList)))
         molecule_counter = 0
         #For each molecule, go through each reaction
         for molecule in moleculeList:
@@ -228,10 +228,10 @@ class CudaOutput(Aspect):
                     splitreactprod = rction.split('->')
                     counterreac = splitreactprod[0].count(str(molecule)) - splitreactprod[0].count('_'+str(molecule))
                     if counterreac > 0:
-                        self.stoichiometry_matrix[molecule_counter,reaction_counter] = self.stoichiometry_matrix[molecule_counter,reaction_counter] - counterreac
+                        self.stoichiometry_matrix[reaction_counter, molecule_counter] = self.stoichiometry_matrix[reaction_counter, molecule_counter] - counterreac
                     counterprod = splitreactprod[1].count(str(molecule)) + splitreactprod[1].count('_'+str(molecule)) - splitreactprod[1].count(str(molecule) + '_')
                     if counterprod > 0:
-                        self.stoichiometry_matrix[molecule_counter,reaction_counter] = self.stoichiometry_matrix[molecule_counter,reaction_counter] + counterprod
+                        self.stoichiometry_matrix[reaction_counter, molecule_counter] = self.stoichiometry_matrix[reaction_counter, molecule_counter] + counterprod
                 if reaction_counter == len(reaction_list)-1:
                     molecule_counter += 1
                     break
@@ -456,6 +456,7 @@ class CudaOutput(Aspect):
                 rate, param = extra_reaction.rates(reactants)
                 rates_list.append(rate)
                 param_list.append(param)
+
         stoichiometry_matrix = self.stoichiometry(weaverOutput.moleculeList, reaction_list)
         cuda_file = self.writeCuda(stoichiometry_matrix, reaction_list, weaverOutput.moleculeList, rates_list, param_list)
         switch_input_file = InputFile('input_file.xml', str(cuda_file), param_list, weaverOutput.moleculeList, self.epsilon, self.fit, self.particles, self.alpha, self.prior_distribution, self.init_cond__distribution, self.priors, self.initial_conditions)
