@@ -26,9 +26,9 @@ Hello World
 
 SynBioWeaver allows a genetic circuit, i.e. a synthetic biology "program" to be defined
 and manipulated in Python. Let us start by creating a simple example. In an empty
-Python file, first import the SynBioWeaver framework via the ``aosb`` package::
+Python file, first import the SynBioWeaver framework via the ``synbioweaver`` package::
 
-    from aosb import *
+    from synbioweaver import *
 
 Next, we will define a simple genetic circuit expressing an undefined Protein::
 
@@ -39,7 +39,7 @@ Next, we will define a simple genetic circuit expressing an undefined Protein::
             self.addPart(CodingRegion(Protein))
             self.addPart(Terminator)
 
-Every AOSB design must begin with a circuit, and every circuit needs to define 
+Every SynBioWeaver design must begin with a circuit, and every circuit needs to define 
 a mainCircuit() method. Similarly to a main method in most modern programming
 languages, this method defines the beginning of the synthetic biology design. 
 
@@ -48,7 +48,7 @@ to the design. The order of instruction matters and sets the order in which the 
 appear in the circuit.
 
 Lastly, to view the defined genetic circuit, we must "compile" our design using
-the AOSB.Weaver::
+the SynBioWeaver.Weaver::
 
     compiledDesign = Weaver(SimpleCircuit).output()
     print compiledDesign
@@ -67,16 +67,17 @@ Every "instruction" in the genetic circuit is a ``Part``, added to the execution
 
 .. figure:: /images/part_uml.png
     
-    Hierarchy of AOSB built in Part classes.
+    Hierarchy of SynBioWeaver built in Part classes.
 
 All Parts have the capacity to be connected to other parts upstream and downstream of it. Furthermore, parts can have Molecules "before" and "after" it. "Before" and "After" refers to the flow of information in the execution flow of the system. For example, Molecules representing transcription factors that induce or repress a Promoter Part are "before" the Promoter part. Similarly, a GFP Coding Region would have a GFP Molecule "after" it. Of the standard parts, ``CodingRegion``, ``PositivePromoter`` and ``Negative Promoter`` require a Molecule class to be initizliaed. For example, in the `Hello World`_ example, the coding region is initialized with `Protein`, a built in sub class of `Molecule`.
 
-.. warning::
-
+.. outdated:
+	.. warning::
+.. 
    Molecules are always used as **classes**, not as objects. This is because they 
    represent an interaction of a Part with a **type** of Molecule, not just a specific
    Molecule. 
-   
+..   
    On the other hand, Parts are always used as objects. However, for syntactic 
    convenience, if a Part requires no parameters to be initialized, ``addPart()``
    accepts Part classes and automatically converts them into objects. This can be seen
@@ -117,8 +118,8 @@ convenience functions::
 ``declareNewMolecule`` can accept more than one parent class of type Molecule, so that
 a Molecule could be tagged by various classes, e.g. ReporterProtein, FluorescentProtein,
 etc. This will be useful once we start selecting Molecules with point cuts. See the
-reference on :py:func:`declareNewPart() <aosb.core.declareNewPart>` and
-:py:func:`declareNewMolecule() <aosb.core.declareNewMolecule>` for more information.
+reference on :py:func:`declareNewPart() <synbioweaver.core.declareNewPart>` and
+:py:func:`declareNewMolecule() <synbioweaver.core.declareNewMolecule>` for more information.
 
 Aspects
 =======
@@ -151,11 +152,11 @@ in detail.
 
 The simple defines the "core concern", GFP coded under an unspecified Promoter,
 in the CodingGFP Circuit *(lines 3-7)*. The DesignRules Aspect *(lines 9-23)* defines 
-two advice methods, ``insertRBS'' and ``insertTerinator``. Each Aspect has to implement
+two advice methods, ``insertRBS`` and ``insertTerinator``. Each Aspect has to implement
 a ``mainAspect()`` method, similarly to a Circuit's ``mainCircuit()``. During the
 execution of ``mainAspect()``, all advice of the Aspect must be declared. In the example
 *(lines 16 and 17)*, the two advice methods are attached two the appropriate PointCut and
-declared using :py:func:`addAdvice() <aosb.core.Aspect.addAdvice>`.
+declared using :py:func:`addAdvice() <synbioweaver.core.Aspect.addAdvice>`.
 
 Lastly, CodingGFP and DesignRules are given as inputs to the Weaver *(lines 25)*.
 
@@ -170,7 +171,7 @@ Point Cuts
 
 A ``PointCut`` matches specific join points in the genetic circuit execution flow.
 
-The :py:func:`Point Cut constructor <aosb.core.PointCut.__init__>` requires a
+The :py:func:`Point Cut constructor <synbioweaver.core.PointCut.__init__>` requires a
 PartSignature and an operator of type ``PointCut.BEFORE`` / ``AFTER`` or ``REPLACE``, 
 which specifies how the matching join point should be manipulated.
 
@@ -277,11 +278,11 @@ An advice method belongs to the Aspect, and can access and store attributes via 
         # self.addPart() could be used here
         pass
 
-``context`` is of type :py:class:`PointCutContext <aosb.core.PointCutContext>`, which has
+``context`` is of type :py:class:`PointCutContext <synbioweaver.core.PointCutContext>`, which has
 a ``PointCutContext.part`` attribute, referencing the part that was matched by the 
 PointCut of the advice. 
 
-Additionally, ``context`` has an :py:class:`isWithin() <aosb.core.PointCutContext.isWithin>` method, which
+Additionally, ``context`` has an :py:class:`isWithin() <synbioweaver.core.PointCutContext.isWithin>` method, which
 can be used to search for Circuits or Aspects on the advice call stack. For example, this can be used to
 make sure that an advice is not recursively executing on itself. 
 
@@ -361,7 +362,7 @@ Adding type advice to Parts
 ---------------------------
 
 Analogously to adding new Advice with ``addAdvice()``, Type Advice can be 
-added via :py:func:`addTypeAdvice() <aosb.core.Aspect.addTypeAdvice>`::
+added via :py:func:`addTypeAdvice() <synbioweaver.core.Aspect.addTypeAdvice>`::
 
     def mainAspect(self):
         self.addTypeAdvice(PartSignature('*.*'),True,"isPart")
@@ -380,7 +381,7 @@ Aspect, and ``part``, referring to the Part object::
             print "Hello from "+str(part)
             
 Type Advice can also be added to ``Molecules`` using the same ``addTypeAdvice()`` method.
-This requires changing the first parameter to a :py:class:`MoleculeSignature <aosb.core.MoleculeSignature>`::
+This requires changing the first parameter to a :py:class:`MoleculeSignature <synbioweaver.core.MoleculeSignature>`::
 
     def mainAspect(self):
         self.addTypeAdvice(MoleculeSignature('TranscriptionFactor+'),True,"isTranscriptionFactor")
@@ -402,7 +403,7 @@ The output will be::
 Weaver Output Advice
 ====================
 
-The last item to cover is the :py:class:`WeaverOutput <aosb.core.Weaver.WeaverOutput>` class, a
+The last item to cover is the :py:class:`WeaverOutput <synbioweaver.core.Weaver.WeaverOutput>` class, a
 container object holding the results of the Weaver compilation and returned by ``Weaver.output()``::
     
     compiledDesign = Weaver(ACircuit,AnAspect,AnotherAspect).output()
