@@ -1,5 +1,5 @@
-from aosb import *
-from designaspects import DesignRules
+from synbioweaver import *
+from synbioweaver.designaspects import DesignRules
 
 declareNewMolecule('MoleculeA',Protein)
 declareNewMolecule('MoleculeB')
@@ -9,7 +9,7 @@ declareNewMolecule('GFP')
 class MoleculeCircuit(Circuit):
     def mainCircuit(self):
         self.addPart(Promoter)
-        self.addPart(CodingRegion(MoleculeA))
+        self.addPart(CodingRegion(MoleculeA() + MoleculeB()))
         self.addPart(Promoter)
         self.addPart(CodingRegion(MoleculeB))
 
