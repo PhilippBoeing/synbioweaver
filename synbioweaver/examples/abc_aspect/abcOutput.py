@@ -1,4 +1,4 @@
-from aosb import *
+from synbioweaver import *
 import numpy
 import os
 import numpy as np

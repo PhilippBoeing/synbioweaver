@@ -1,4 +1,4 @@
-from aosb import *
+from synbioweaver import *
 
 declareNewMolecule('Cl')
 declareNewMolecule('Ara')

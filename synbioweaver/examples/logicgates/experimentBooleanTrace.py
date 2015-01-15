@@ -1,4 +1,4 @@
-from aosb import *
+from synbioweaver import *
 from designRulesAspect import DesignRules
 from booleanTraceAspect import BooleanLogicTrace
 from systemSetup import SystemCircuit

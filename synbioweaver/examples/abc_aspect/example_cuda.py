@@ -1,4 +1,4 @@
-from aosb import *
+from synbioweaver import *
 import abcOutput
 
 class SimpleSwitch(Circuit):
