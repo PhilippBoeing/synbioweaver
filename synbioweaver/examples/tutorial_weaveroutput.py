@@ -1,4 +1,5 @@
-from aosb import *
+from synbioweaver import *
+from synbioweaver.designaspects import DesignRules
 
 class CodingGFP(Circuit):
     def mainCircuit(self):

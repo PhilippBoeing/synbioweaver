@@ -18,7 +18,7 @@ SynBioWeaver is a framework for Python 2.7. The tutorial assumes at least basic 
 of the Python programming language and object oriented programming as well as a
 conceptual awareness of aspect oriented programming.
 
-SynBioWeaver is contained in the ``aosb`` (aspect oriented synthetic biology) package. 
+SynBioWeaver is contained in the ``SynBioWeaver`` (aspect oriented synthetic biology) package. 
 The package should be added to the Python path.
 
 Hello World
@@ -124,9 +124,9 @@ reference on :py:func:`declareNewPart() <synbioweaver.core.declareNewPart>` and
 Aspects
 =======
 
-The purpose of AOSB is to allow synthetic biology core and cross-cutting concerns 
+The purpose of SynBioWeaver is to allow synthetic biology core and cross-cutting concerns 
 to be modularized. This requires constructs that define weaving rules, which can be
-used to manipulate the execution flow, i.e. the genetic circuit.
+used to manipulate the execution flow, e.g. the genetic circuit.
 
 Weaving rules are bundled into "Aspect classes"::
     
@@ -172,13 +172,13 @@ Point Cuts
 A ``PointCut`` matches specific join points in the genetic circuit execution flow.
 
 The :py:func:`Point Cut constructor <synbioweaver.core.PointCut.__init__>` requires a
-PartSignature and an operator of type ``PointCut.BEFORE`` / ``AFTER`` or ``REPLACE``, 
+``PartSignature`` and an operator of type ``PointCut.BEFORE`` / ``AFTER`` or ``REPLACE``, 
 which specifies how the matching join point should be manipulated.
 
 Simple Part Signatures
 ----------------------
 
-In the `Design Rules Example`_ we have seen an example of a simple PartSignature::
+In the `Design Rules Example`_ we have seen an example of a simple PartSignature:
 
 .. code-block:: python
 
