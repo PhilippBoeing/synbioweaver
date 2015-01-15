@@ -1,7 +1,7 @@
-SynBioWeaver Package (aosb) Reference
+SynBioWeaver Package Reference
 ======================
 
-.. automodule:: aosb.core
+.. automodule:: synbioweaver.core
     :members:
     :inherited-members:
     :undoc-members:
