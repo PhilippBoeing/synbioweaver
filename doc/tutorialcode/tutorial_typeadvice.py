@@ -1,4 +1,4 @@
-from aosb import *
+from synbioweaver import *
 
 class TwoPromoters(Circuit):
     def mainCircuit(self):
