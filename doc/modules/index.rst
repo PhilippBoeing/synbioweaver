@@ -1,7 +1,7 @@
 SynBioWeaver Package Reference
 ======================
 
-.. automodule:: synbioweaver
+.. automodule:: synbioweaver.core
     :members:
     :inherited-members:
     :undoc-members:
