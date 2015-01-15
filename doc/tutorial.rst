@@ -237,19 +237,19 @@ respectively.
 
 .. code-block:: python
 
-    PartSelector('*.NegativePromoter+') | PartSelector('*.PositivePromoter+')
+    PartSignature('*.NegativePromoter+') | PartSignature('*.PositivePromoter+')
     
 will match any part whose (sub)type is either ``NegativePromoter`` or ``PositivePromoter``.
 
 .. code-block:: python
 
-    PartSelector('*.*(TranscriptionFactor+)') & PartSelector('*.*(ReporterProtein+))
+    PartSignature('*.*(TranscriptionFactor+)') & PartSignature('*.*(ReporterProtein+))
     
 will match any part whose molecule is both a TranscriptionFactor and a ReporterProtein.
 
 .. code-block:: python
 
-    PartSelector('*.RBS+') % PartSelector('*.CodingRegion+')
+    PartSignature('*.RBS+') % PartSignature('*.CodingRegion+')
 
 will match any CodingRegion, which has an RBS part immediately before it.
 
@@ -262,7 +262,7 @@ Rather, precedence should be explicitly defined using parentheses.
 Additionally, parts of a formula can be inverted using a ``PointCutExpressionNot()`` node,
 which does not have an overloaded Python operator::
 
-    PointCutExpressionNot('*.Terminator+')
+    PointCutExpressionNot(PartSignature('*.Terminator+'))
     
 will match any Part not matched by ``'*.Terminator+'``
 
