@@ -1,4 +1,4 @@
-from core import Aspect,RBS,Terminator,PointCut
+from synbioweaver.core import Aspect,RBS,Terminator,PointCut
 
 
 class DesignRules(Aspect):

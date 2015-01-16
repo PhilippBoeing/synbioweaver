@@ -1,5 +1,5 @@
 from synbioweaver import *
-from synbioweaver.designaspects import DesignRules
+from aspects.design import DesignRules
 
 declareNewMolecule('MoleculeA',Protein)
 declareNewMolecule('MoleculeB')

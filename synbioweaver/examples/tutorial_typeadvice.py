@@ -1,5 +1,5 @@
 from synbioweaver import *
-from synbioweaver.designaspects import DesignRules
+
 
 class TwoPromoters(Circuit):
     def mainCircuit(self):
