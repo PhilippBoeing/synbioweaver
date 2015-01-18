@@ -1,6 +1,10 @@
 from synbioweaver.core import *
-from reactionNetworksAspect import *
-from designRulesAspect import *
+from synbioweaver.aspects.designRulesAspect import *
+from synbioweaver.aspects.promoterMappingAspect import *
+from synbioweaver.aspects.MassActionKineticsProteinAspect import *
+from synbioweaver.aspects.MassActionKineticsRNAAspect import *
+from synbioweaver.aspects.SheaAckersKineticsRNAAspect import *
+from synbioweaver.aspects.printReactionNetworkAspect import *
 
 # this example is based on the toggle switch implemented in Litcofsky et al. Nature Methods (2012)
 
@@ -58,11 +62,11 @@ class SimpleSwitch(Circuit):
         self.reactionFrom(IPTG, LacIn4) >> self.reactionTo( LacIn4_IPTG )
 
 
-compiledDesign1 = Weaver(SimpleSwitch, DesignRules, ReactionNetworks, MassActionKineticsProtein, PrintReactionNetwork).output()
+compiledDesign1 = Weaver(SimpleSwitch, DesignRules, PromoterMapping, MassActionKineticsProtein, PrintReactionNetwork).output()
 compiledDesign1.printReactionNetwork()
 
-compiledDesign2 = Weaver(SimpleSwitch, DesignRules, ReactionNetworks, MassActionKineticsRNA, PrintReactionNetwork).output()
+compiledDesign2 = Weaver(SimpleSwitch, DesignRules, PromoterMapping, MassActionKineticsRNA, PrintReactionNetwork).output()
 compiledDesign2.printReactionNetwork()
 
-compiledDesign3 = Weaver(SimpleSwitch, DesignRules, ReactionNetworks, SheaAckersKineticsRNA, PrintReactionNetwork).output()
+compiledDesign3 = Weaver(SimpleSwitch, DesignRules, PromoterMapping, SheaAckersKineticsRNA, PrintReactionNetwork).output()
 compiledDesign3.printReactionNetwork()

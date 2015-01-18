@@ -1,10 +1,11 @@
 from synbioweaver.core import *
-from synbioweaver.aspects.reactionNetworksAspect import *
+from synbioweaver.aspects.designRulesAspect import *
+from synbioweaver.aspects.promoterMappingAspect import *
+from synbioweaver.aspects.MassActionKineticsRNAAspect import *
+from synbioweaver.aspects.SheaAckersKineticsRNAAspect import *
+from synbioweaver.aspects.printReactionNetworkAspect import *
 
 # this example is based on the inducible lux quorum sensing system
-
-
-
 
 class LuxOperon(Circuit):
     def mainCircuit(self):
@@ -48,8 +49,8 @@ class LuxOperon(Circuit):
 
 
 # Take the compiled design and add Type Advice that generates a mass action model
-compiledDesign1 = Weaver(LuxOperon, ReactionNetworks, MassActionKineticsRNA, PrintReactionNetwork).output()
+compiledDesign1 = Weaver(LuxOperon, PromoterMapping, MassActionKineticsRNA, PrintReactionNetwork).output()
 compiledDesign1.printReactionNetwork()
 
-compiledDesign1 = Weaver(LuxOperon, ReactionNetworks, SheaAckersKineticsRNA, PrintReactionNetwork).output()
-compiledDesign1.printReactionNetwork()
+compiledDesign2 = Weaver(LuxOperon, PromoterMapping, SheaAckersKineticsRNA, PrintReactionNetwork).output()
+compiledDesign2.printReactionNetwork()

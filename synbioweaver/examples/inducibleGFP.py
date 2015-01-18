@@ -1,6 +1,8 @@
 from synbioweaver.core import *
-from synbioweaver.aspects.reactionNetworksAspect import *
+from synbioweaver.aspects.promoterMappingAspect import *
 from synbioweaver.aspects.databaseSearchAspect import *
+from synbioweaver.aspects.SheaAckersKineticsRNAAspect import *
+from synbioweaver.aspects.printReactionNetworkAspect import *
 
 declareNewMolecule('GFP')
 declareNewMolecule('aTc')
@@ -16,11 +18,11 @@ class inducibleGFP(Circuit):
         self.addPart(PTet)
         self.addPart(CodingRegion(GFP))
         
-compiledDesign1 = Weaver(inducibleGFP, ReactionNetworks, SheaAckersKineticsRNA, PrintReactionNetwork).output()
-print "######################## Design2:"
+compiledDesign1 = Weaver(inducibleGFP, PromoterMapping, SheaAckersKineticsRNA, PrintReactionNetwork).output()
+print "######################## Design1:"
 compiledDesign1.printReactionNetwork()
 
-compiledDesign2 = Weaver(inducibleGFP, ReactionNetworks, PromoterSearch, SheaAckersKineticsRNA, PrintReactionNetwork).output()
-print "######################## Design3:"
+compiledDesign2 = Weaver(inducibleGFP, PromoterMapping, PromoterSearch, SheaAckersKineticsRNA, PrintReactionNetwork).output()
+print "######################## Design2:"
 compiledDesign2.printReactionNetwork()
 
