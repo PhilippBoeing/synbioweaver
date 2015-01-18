@@ -15,7 +15,7 @@ class MassActionKineticsProtein(Aspect):
 
     def getReactions(self, weaverOutput):
         self.promoterMap = weaverOutput.buildPromoterMap()
-        self.locatedPromoters = weaverOutput.getLocatedParts()
+        #self.locatedPromoters = weaverOutput.getLocatedParts()
 
         self.getReactionsMassActionProtein()
 
