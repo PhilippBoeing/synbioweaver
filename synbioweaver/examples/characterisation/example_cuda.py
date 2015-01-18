@@ -1,5 +1,5 @@
-from synbioweaver import *
-import abcOutput
+from synbioweaver.core import *
+from synbioweaver.aspects.bayesianCharacterisation import *
 
 class SimpleSwitch(Circuit):
     def mainCircuit(self):
@@ -40,5 +40,5 @@ class SimpleSwitch(Circuit):
         self.reactionFrom(TetR,TetR) >> self.reactionTo(TetR_TetR)
         self.reactionFrom(LacI,LacI) >> self.reactionTo(LacI_LacI)
 
-compiledDesign = Weaver(SimpleSwitch, abcOutput.CudaOutput).output()
+compiledDesign = Weaver(SimpleSwitch, CudaOutput).output()
 print compiledDesign.cudaOutput()

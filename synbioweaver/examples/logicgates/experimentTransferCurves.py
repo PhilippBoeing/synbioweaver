@@ -1,6 +1,6 @@
-from synbioweaver import *
-from designRulesAspect import DesignRules
-from transferFunctionAspect import MoleculeExpressionTrace
+from synbioweaver.core import *
+from synbioweaver.aspects.designRulesAspect import DesignRules
+from synbioweaver.aspects.transferFunctionAspect import MoleculeExpressionTrace
 from systemSetup import SystemCircuit
 
 import numpy as np

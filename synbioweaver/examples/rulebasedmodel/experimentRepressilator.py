@@ -1,7 +1,6 @@
-from aosb import *
-from designRulesAspect import DesignRules
-from pysbRulesAspect import PYSBmodel
-
+from synbioweaver.core import *
+from synbioweaver.aspects.designRulesAspect import DesignRules
+from synbioweaver.aspects.pysbRulesAspect import PYSBmodel
 
 # transcription factor used in the repressilator system
 declareNewMolecule('LacI')

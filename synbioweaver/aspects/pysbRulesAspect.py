@@ -1,4 +1,4 @@
-from aosb import *
+from synbioweaver.core import *
 import pysb
 from pysb import kappa
 import matplotlib.pyplot as plt
