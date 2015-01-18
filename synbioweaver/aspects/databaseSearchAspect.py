@@ -12,10 +12,10 @@ class PromoterSearch(Aspect):
         
         for prm in self.promoterMap:
             if str(prm.prmtr_name) in promoters:
-                #print "located", str(prm.prmtr_name)
+                print "located", str(prm.prmtr_name)
                 
                 class_name = "db" + str(prm.prmtr_name)
-                module = __import__("parts")
+                module = __import__("synbioweaver.parts")
                 class_ = getattr(module, class_name)
                 instance = class_()
                 #print instance.transfer_function()

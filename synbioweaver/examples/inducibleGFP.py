@@ -1,6 +1,6 @@
 from synbioweaver.core import *
-from reactionNetworksAspect import *
-from databaseSearchAspect import *
+from synbioweaver.aspects.reactionNetworksAspect import *
+from synbioweaver.aspects.databaseSearchAspect import *
 
 declareNewMolecule('GFP')
 declareNewMolecule('aTc')

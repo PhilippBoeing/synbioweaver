@@ -1,5 +1,5 @@
-from aosb import *
-from reactionNetworksAspect import *
+from synbioweaver.core import *
+from synbioweaver.aspects.reactionNetworksAspect import *
 
 # this example is based on the inducible lux quorum sensing system
 
