@@ -223,13 +223,14 @@ class NegativePromoter(Promoter):
         self.precompileMoleculesBefore.append( checkAndSetMolecule(regulatedBy) )
 
     def getRegulatedBy(self):
+        """Returns a list of Molecules regulating this Promoter"""
+
         result = self.getBeforeNodes(Molecule)
         if len(result) > 0:
             return result
 
-        #else: not combiled yet
+        #else: not compiled yet
         return self.precompileMoleculesBefore
-
 
 
     def __str__(self):
@@ -252,16 +253,14 @@ class PositivePromoter(Promoter):
         super(PositivePromoter, self).__init__()
         self.precompileMoleculesBefore.append( checkAndSetMolecule(regulatedBy) )
 
-# todo : is this necessary?
-#    def __del__(self):
- #       self.regulatedBy.after.remove(self)
-
     def getRegulatedBy(self):
+        """Returns a list of Molecules regulating this Promoter"""
+
         result = self.getBeforeNodes(Molecule)
         if len(result) > 0:
             return result
 
-        #else: not combiled yet
+        #else: not compiled yet
         return self.precompileMoleculesBefore
 
     def __str__(self):
@@ -271,6 +270,90 @@ class PositivePromoter(Promoter):
         return tmpstr
 
 
+class HybridPromoter(Promoter):
+    """Class for Promoters that are Hybrid Promoters, i.e. with several repressing / inducing operator sites
+
+    like other regulated Promoters (NegativePromoter, PostiivePromoter), its regulators are accessible by
+    getRegulatedBy(). Additionally, getInducers(), getRepressors(), and isInducer(molecule), isRepressor(molecule)
+    give information about the functionality of the Promoter."""
+
+    def __init__(self, regulatedBy, regulatorInfo):
+        """PositivePromoter Constructor
+
+        | *Args:*
+        |     regulatedBy: [] list of regulator Molecules
+        |     regulatorInfo: Dictionary of the form {Molecule: Boolean}, where True: Induce, False: Repress
+        """
+        cleanRegulatorInfo = {}
+
+        if not type(regulatorInfo) is dict:
+            raise ValueError("regulatorInfo must be a dictionary in the form of {Molecule: Boolean}")
+
+        super(HybridPromoter, self).__init__()
+        for mol in regulatedBy:
+            self.precompileMoleculesBefore.append(checkAndSetMolecule(mol))
+            #todo try catch / raise exception if mol not in regulatorInfo
+            cleanRegulatorInfo[mol] = regulatorInfo[mol]
+
+        self.regulatorInfo = cleanRegulatorInfo
+
+    def __str__(self):
+        def printRegulatorInfo(mol):
+            if self.regulatorInfo[mol.__class__] is True:
+                return 'inducer:'
+            else:
+                return 'repressor:'
+
+        tmpstr = super(HybridPromoter, self).__str__() + '(regulatedBy = '
+        tmpstr +=  ','.join(printRegulatorInfo(self.getBeforeNodes(Molecule)[i])+str(self.getBeforeNodes(Molecule)[i]) for i in range(len(self.getBeforeNodes(Molecule))))
+        tmpstr += ')'
+        return tmpstr
+
+    def getRegulatedBy(self):
+        """Returns a list of Molecules regulating this Promoter"""
+
+        result = self.getBeforeNodes(Molecule)
+        if len(result) > 0:
+            return result
+
+        #else: not compiled yet
+        return self.precompileMoleculesBefore
+
+    def getInducers(self):
+        """Returns a list of positively regulating Molecules """
+
+        regulators = self.getRegulatedBy()
+        ret = []
+        for mol in regulators:
+            if self.regulatorInfo[mol.__class__] is True:
+                ret.append(mol)
+
+        return ret
+
+    def getRepressors(self):
+        """Returns a list of negatively regulating Molecules """
+
+        regulators = self.getRegulatedBy()
+        ret = []
+        for mol in regulators:
+            if self.regulatorInfo[mol.__class__] is False:
+                ret.append(mol)
+
+        return ret
+
+    def isInducer(self, molecule):
+        if inspect.isclass(molecule):
+            if self.regulatorInfo[molecule] is True:
+                return True
+        elif self.regulatorInfo[molecule.__class__] is True:
+            return True
+
+    def isRepressor(self, molecule):
+        if inspect.isclass(molecule):
+            if self.regulatorInfo[molecule] is False:
+                return True
+        elif self.regulatorInfo[molecule.__class__] is False:
+            return True
 
 
 
@@ -422,9 +505,11 @@ def declareNewPart(classname, parent=Part, moleculesBefore=[], moleculesAfter = 
     |         The name for the new type
     |     parent : Part
     |         super class for the new type
-    |     moleculeConnection : Molecule
-    |         optional, if the new Part type should be connected to a Molecule type
-    
+    |     moleculesBefore : [Molecule]
+    |         optional, if the new Part type should have Molecule node(s) before it, e.g. regulators of a Promoter
+    |     moleculesAfter : [Molecule]
+    |         optional, if the new Part type should have Molecule node(s) after it, e.g. Proteins created by CodingRegions
+
     | *Returns*
     |     The new Part type
     
