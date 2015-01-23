@@ -497,7 +497,7 @@ class Circuit(Part):
         self.weaver = weaver
 
 
-def declareNewPart(classname, parent=Part, moleculesBefore=[], moleculesAfter = []):
+def declareNewPart(classname, parent=Part, moleculesBefore=[], moleculesAfter = [], regulatorInfoMap={}):
     ''' Returns a new Part type and exports it to the caller's namespace
     
     | *Args*
@@ -509,6 +509,9 @@ def declareNewPart(classname, parent=Part, moleculesBefore=[], moleculesAfter = 
     |         optional, if the new Part type should have Molecule node(s) before it, e.g. regulators of a Promoter
     |     moleculesAfter : [Molecule]
     |         optional, if the new Part type should have Molecule node(s) after it, e.g. Proteins created by CodingRegions
+    |     regulatorInfoMap : Dictionary
+    |         optional, if a parent part needs additional regulator information.
+    |         Necessary for HybridPromoters, who need a map in the form of {Molecule: Boolean}
 
     | *Returns*
     |     The new Part type
@@ -551,20 +554,47 @@ def declareNewPart(classname, parent=Part, moleculesBefore=[], moleculesAfter = 
         result = currentframe.f_back.f_globals.get(classname)
     else:
         result = type(classname,basestuple,{})
-        def newTypeInit(self,recursion = 0):
-            if(recursion == 0):
-                Part.__init__(self)
+        def newTypeInit(self,recursion=0,moleculesBeforeAggregate=[],moleculesAfterAggregate=[],regulatorInfoMapAggregate={}):
+
+            moleculesBeforeAggregate += moleculesBefore
+            moleculesAfterAggregate += moleculesAfter
+            regulatorInfoMapAggregate = dict(regulatorInfoMapAggregate.items() + regulatorInfoMap.items())
+
+            realself = self.__class__
+            for i in range(0,recursion):
+                realself = realself.__bases__[0]
+
             try:
-                realself = self.__class__
-                for i in range(0,recursion):
-                    realself = realself.__bases__[0]
-
-                super(realself,self).__init__(recursion+1)
+                super(realself,self).__init__(recursion+1,moleculesBeforeAggregate,moleculesAfterAggregate)
             except:
-                pass
+                # we'll get an exeption if we've hit a core implemented Part type,
+                # because of the parameter incompatibility
+                if realself.__bases__[0] is PositivePromoter:
+                    super(realself,self).__init__(moleculesBeforeAggregate[0])
+                    # at moment: only allow one regulator, others are lost
+                    # todo: allow multiple regulators for pos and neg promoters?
+                elif realself.__bases__[0] is NegativePromoter:
+                    super(realself,self).__init__(moleculesBeforeAggregate[0])
+                    # at moment: only allow one regulator, others are lost
+                    # todo: allow multiple regulators for pos and neg promoters?
+                elif realself.__bases__[0] is CodingRegion:
+                    super(realself,self).__init__(moleculesAfterAggregate[0])
+                    # at moment: only allow one output molecule, others are lost
+                    # todo: allow multiple?
+                elif realself.__bases__[0] is HybridPromoter:
+                    super(realself,self).__init__(moleculesBeforeAggregate,regulatorInfoMapAggregate)
+                    # at moment: only allow one output molecule, others are lost
+                    # todo: allow multiple?
+                elif realself.__bases__[0] is Part:
+                    super(realself,self).__init__()
+                    #in this case, we'll just add both to follow what the users wants
+                    self.precompileMoleculesBefore += moleculesBeforeAggregate
+                    self.precompileMoleculesAfter += moleculesAfterAggregate
 
-            self.precompileMoleculesBefore += moleculesBefore
-            self.precompileMoleculesAfter += moleculesAfter
+
+
+
+
 
         #this means that parent does not take a moleculeConnection parameter,
         #but the new subtype should have one.

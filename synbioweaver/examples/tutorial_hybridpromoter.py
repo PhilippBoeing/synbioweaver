@@ -11,7 +11,11 @@ class CodingGFP(Circuit):
         self.createMolecule(MoleculeA)
         self.createMolecule(MoleculeB)
         self.createMolecule(MoleculeC)
-        self.addPart(HybridPromoter([MoleculeA,MoleculeB,MoleculeC],{MoleculeA:True,MoleculeB:False,MoleculeC:True}))
+
+        # self.addPart(HybridPromoter([MoleculeA,MoleculeB,MoleculeC],{MoleculeA:True,MoleculeB:False,MoleculeC:True}))
+        declareNewPart("aVeryHybridPromoter",HybridPromoter,[MoleculeA,MoleculeB,MoleculeC],
+                            regulatorInfoMap={MoleculeA:True,MoleculeB:False,MoleculeC:True})
+        self.addPart(aVeryHybridPromoter)
         self.addPart(CodingRegion(GFP))
 
 class DesignRules(Aspect):
