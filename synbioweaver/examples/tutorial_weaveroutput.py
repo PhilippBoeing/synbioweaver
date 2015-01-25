@@ -1,9 +1,10 @@
 from synbioweaver import *
 from aspects.design import DesignRules
 
+declareNewMolecule('GFP')
+
 class CodingGFP(Circuit):
     def mainCircuit(self):
-        declareNewMolecule('GFP') 
         self.addPart(Promoter)
         self.addPart(CodingRegion(GFP))
         

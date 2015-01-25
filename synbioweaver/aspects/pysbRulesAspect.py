@@ -5,6 +5,21 @@ import matplotlib.pyplot as plt
 
 class PYSBmodel(Aspect):
     observableProteins = []
+
+    def __init__(self,rnapCount = 700,ribosomeCount = 18000,operonCount = 1,
+                 rnapBindingHigh = 0.0007,rnapBindingLow=7e-07,
+                 transcriptionRate = 10,transcriptionFactorBinding = 0.01,
+                 transcriptionFactorUnbinding = 0.09,transcriptionFactorUnbindingSole=2.24,
+                 transcriptionFactorFactorDegradation=0.00115,rbsBinding = 0.000166,
+                 translationInitiationRate=0.167,translationRate=10,ribosomeFalloff = 0.01,
+                 rnapFalloffRate=1,rnaDegradation=0.0058):
+        self.rnapCount = rnapCount
+        self.ribosomeCount = ribosomeCount
+        self.operonCount = operonCount
+        self.rnapBindingHigh = rnapBindingHigh
+        self.rnapBindingLow = rnapBindingLow
+        self.transcriptionRate = transcriptionRate
+        self.transcriptionFactorBinding = transcriptionFactorBinding
     def mainAspect(self):
         self.partIdCounter = 0
 

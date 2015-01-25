@@ -1467,11 +1467,10 @@ class Aspect(object):
 
     __metaclass__ = ABCMeta
 
-    def __init__(self):
-        self.adviceList = []
-        self.typeAdviceList = []
-        self.weaverOutputList = []
-        self.weaver = None
+    adviceList = []
+    typeAdviceList = []
+    weaverOutputList = []
+    weaver = None
 
     def importMolecule(self, molecule):
         """Import a particular molecule from the outer compartment to this compartment
@@ -1736,16 +1735,29 @@ class Weaver(object):
 
         self.weaverOutput = None
 
-        if not issubclass(circuit, Circuit):
-            raise CircuitValueError("circuit must be a class of type Circuit.")
+        if not issubclass(circuit, Circuit) and not isinstance(circuit, Circuit):
+            raise CircuitValueError("circuit must be a class or instance of type Circuit.")
 
-        self.circuit = circuit()
+        if inspect.isclass(circuit):
+            try:
+                self.circuit = circuit()
+            except:
+                raise CircuitValueError("Can not initialize Circuit " + circuit + " without parameters")
+        else:
+            self.circuit = circuit
+
         self.circuit.setWeaver(self)
 
         for aspect in aspects:
-            if not issubclass(aspect, Aspect):
-                raise AspectValueError("all aspects must be classes of type Aspect.")
-            self.aspects.append(aspect())
+            if not issubclass(aspect, Aspect) and not isinstance(aspect, Aspect):
+                raise AspectValueError("all aspects must be classes or instances of type Aspect.")
+            if inspect.isclass(aspect):
+                try:
+                    self.aspects.append(aspect())
+                except:
+                    raise AspectValueError("Can not initialize Aspect " + aspect + " without parameters")
+            else:
+                self.aspects.append(aspect)
 
         self.weaverOutput = self.WeaverOutput(self.circuit.__class__.__name__)
 

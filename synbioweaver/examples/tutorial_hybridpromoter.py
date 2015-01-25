@@ -1,13 +1,13 @@
 from synbioweaver import *
 
 # follows tutorial_designrules.py but uses a HybridPromoter
+declareNewMolecule('GFP')
+declareNewMolecule('MoleculeA')
+declareNewMolecule('MoleculeB')
+declareNewMolecule('MoleculeC')
 
 class CodingGFP(Circuit):
     def mainCircuit(self):
-        declareNewMolecule('GFP')
-        declareNewMolecule('MoleculeA')
-        declareNewMolecule('MoleculeB')
-        declareNewMolecule('MoleculeC')
         self.createMolecule(MoleculeA)
         self.createMolecule(MoleculeB)
         self.createMolecule(MoleculeC)
