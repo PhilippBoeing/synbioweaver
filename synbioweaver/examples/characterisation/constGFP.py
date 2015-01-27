@@ -20,10 +20,6 @@ compiledDesign1 = Weaver(constGFP, DesignRules, PromoterMapping, MassActionKinet
 print "######################## Design1:"
 compiledDesign1.printReactionNetwork()
 
-#compiledDesign2 = Weaver(constGFP, DesignRules, PromoterMapping, MassActionKineticsRNA, PrintReactionNetwork).output()
-#print "######################## Design2:"
-#compiledDesign2.printReactionNetwork()
-
-#compiledDesign3 = Weaver(constGFP, DesignRules, PromoterMapping, SheaAckersKineticsRNA, PrintReactionNetwork).output()
-#print "######################## Design3:"
-#compiledDesign3.printReactionNetwork()
+compiledDesign2 = Weaver(constGFP, DesignRules, PromoterMapping, MassActionKineticsRNA,  ExpGrowthAspect, PrintReactionNetwork).output()
+print "######################## Design2:"
+compiledDesign2.printReactionNetwork()

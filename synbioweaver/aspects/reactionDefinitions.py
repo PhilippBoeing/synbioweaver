@@ -2,23 +2,17 @@
 import numpy
 
 # Each reaction is assigned one of these processes
-processes = [ "dnaBind", "dnaUnbind", "rnaTransc", "rnaDeg", "proteinTransl", "proteinExp", "proteinDeg", "complexAss", "complexDiss", "complexDeg" ]
+processes = [ "dnaBind", "dnaUnbind", "rnaTransc", "rnaDeg", "proteinTransl", "proteinExp", "proteinDeg", "complexAss", "complexDiss", "complexDeg", "context" ]
 
 class Reaction:
     param_counter = 0
 
     def __init__(self, reactants, products, process):
         
-        # create a reaction string for output
-        react = ' + '.join(map(str, reactants))
-        prod = ' + '.join(map(str, products))
-        self.reac_string = react + ' -> ' + prod
-        #print self.reac_string
-
         # assign the products and reactants
         self.reactants = map(str, reactants)
         self.products = map(str, products)
-        
+
         # assign a process
         if process in processes:
             self.process = process
@@ -28,6 +22,12 @@ class Reaction:
 
         self.param = ""
         self.rate = ""
+
+    def reactionString(self):
+        # create a reaction string for output
+        react = ' + '.join(map(str, self.reactants))
+        prod = ' + '.join(map(str, self.products))
+        return react + ' -> ' + prod
             
     def assignMassAction(self):
         # assign a parameter number
