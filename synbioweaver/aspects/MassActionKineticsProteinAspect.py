@@ -1,6 +1,6 @@
 from synbioweaver.core import *
 from synbioweaver.aspects.reactionDefinitions import *
-import numpy, os, copy
+import numpy, os, copy, sys
 
 class MassActionKineticsProtein(Aspect):
     
@@ -14,6 +14,10 @@ class MassActionKineticsProtein(Aspect):
         self.stoichiometry_matrix = 0
 
     def getReactions(self, weaverOutput):
+        
+        if getattr(weaverOutput, "buildPromoterMap", None) == None:
+            sys.exit("MassActionKineticsProtein : buildPromoterMap() is unavailable. Quitting"  )
+
         self.promoterMap = weaverOutput.buildPromoterMap()
         #self.locatedPromoters = weaverOutput.getLocatedParts()
 
