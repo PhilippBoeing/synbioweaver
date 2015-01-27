@@ -5,6 +5,7 @@ import numpy, os, copy
 class MassActionKineticsRNA(Aspect):
     
     def mainAspect(self):
+        MassActionKineticsRNA.builtReactions = False
         self.addWeaverOutput(self.getReactions)
 
         self.reactions = []
@@ -14,45 +15,32 @@ class MassActionKineticsRNA(Aspect):
         self.stoichiometry_matrix = 0
 
     def getReactions(self, weaverOutput):
-        self.promoterMap = weaverOutput.buildPromoterMap()
-        self.getReactionsMassActionRNA()
+        
+        if getattr(weaverOutput, "buildPromoterMap", None) == None:
+            sys.exit("MassActionKineticsRNA : buildPromoterMap() is unavailable. Quitting"  )
 
-        for mol in weaverOutput.moleculeList:
-            # This should be done using a molecule Type Advice
-            #mol.generateReactions()
-
-            # Add all molecules to list then do a unique
-            spl = str(mol).split("(")[0]
-            self.species.append(spl)
+        if MassActionKineticsRNA.builtReactions == False:
+            self.promoterMap = weaverOutput.buildPromoterMap()
             
-            #print mol, mol.before, mol.after
+            self.getReactionsMassActionRNA()
+            self.getMolecules(weaverOutput)
 
-            # up until this point we have captured everything other than additional molecule-molecule reactions
-            for j in range(len(mol.before)):
-                # this indicates that downstream is not a part but molecules
-                if type(mol.before[j]) == type(list()):
-                    #print mol.before[j][0], mol.before[j][1], mol
-                    self.reactions.append( Reaction([mol.before[j][0], mol.before[j][1]], [mol], "complexAss" ) )
-                    self.reactions.append( Reaction([mol], [mol.before[j][0], mol.before[j][1]], "complexDiss") )
-                    self.reactions.append( Reaction([mol], [], "complexDeg" ) )
-
-
-        # Remove duplicate species
-        self.species = list( set(self.species) ) 
+            # Remove duplicate species
+            self.species = list( set(self.species) ) 
             
-        # Finalise number of species and reactions
-        self.nreactions = len(self.reactions)
-        self.nspecies = len(self.species)
-        #print "species:", self.species, set(self.species)
-        #print "nreactions/nspecies:", self.nreactions, self.nspecies
+            # Finalise number of species and reactions
+            self.nreactions = len(self.reactions)
+            self.nspecies = len(self.species)
+        
+            # assign mass action rates and parameters
+            for r in self.reactions:
+                r.assignMassAction()
 
-        # assign mass action rates and parameters
-        for r in self.reactions:
-            r.assignMassAction()
+            # calculate stoichiometry
+            self.stoichiometry_matrix = stoichiometry(self.nspecies, self.nreactions, self.species, self.reactions)
+            
+            MassActionKineticsRNA.builtReactions = True
 
-        # calculate stoichiometry
-        self.stoichiometry_matrix = stoichiometry(self.nspecies, self.nreactions, self.species, self.reactions)
-       
         return [self.nspecies, self.nreactions, self.species, self.reactions, self.stoichiometry_matrix]
 
     
@@ -133,3 +121,23 @@ class MassActionKineticsRNA(Aspect):
                         self.reactions.append( Reaction(["m"+str(p)], [p], "proteinTransl") )
                         self.species.append( p )
                         self.species.append( "m"+str(p) )
+
+
+    def getMolecules(self, weaverOutput):
+
+        for mol in weaverOutput.moleculeList:
+            # Add all molecules to list then do a unique
+            spl = str(mol).split("(")[0]
+            self.species.append(spl)
+            
+            #print mol, mol.before, mol.after
+
+            # up until this point we have captured everything other than additional molecule-molecule reactions
+            for j in range(len(mol.before)):
+                # this indicates that downstream is not a part but molecules
+                if type(mol.before[j]) == type(list()):
+                    #print mol.before[j][0], mol.before[j][1], mol
+                    self.reactions.append( Reaction([mol.before[j][0], mol.before[j][1]], [mol], "complexAss") )
+                    self.reactions.append( Reaction([mol], [mol.before[j][0], mol.before[j][1]], "complexDiss") )
+                    self.reactions.append( Reaction([mol], [], "complexDeg" ) )
+                    
