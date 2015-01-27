@@ -577,6 +577,10 @@ def declareNewPart(classname, parent=Part, moleculesBefore=[], moleculesAfter = 
                     super(realself,self).__init__(moleculesBeforeAggregate[0])
                     # at moment: only allow one regulator, others are lost
                     # todo: allow multiple regulators for pos and neg promoters?
+                elif realself.__bases__[0] is ConstitutivePromoter:
+                    super(realself,self).__init__()
+                    # at moment: only allow one regulator, others are lost
+                    # todo: allow multiple regulators for pos and neg promoters?
                 elif realself.__bases__[0] is CodingRegion:
                     super(realself,self).__init__(moleculesAfterAggregate[0])
                     # at moment: only allow one output molecule, others are lost
