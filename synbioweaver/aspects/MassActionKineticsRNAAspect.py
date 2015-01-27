@@ -13,6 +13,7 @@ class MassActionKineticsRNA(Aspect):
         self.species = []
         self.nspecies = 0
         self.stoichiometry_matrix = 0
+        self.parameters = []
 
     def getReactions(self, weaverOutput):
         
@@ -36,12 +37,15 @@ class MassActionKineticsRNA(Aspect):
             for r in self.reactions:
                 r.assignMassAction()
 
+                for k in r.param:
+                    self.parameters.append( k )
+
             # calculate stoichiometry
             self.stoichiometry_matrix = stoichiometry(self.nspecies, self.nreactions, self.species, self.reactions)
             
             MassActionKineticsRNA.builtReactions = True
 
-        return [self.nspecies, self.nreactions, self.species, self.reactions, self.stoichiometry_matrix]
+        return [self.nspecies, self.nreactions, self.species, self.reactions, self.stoichiometry_matrix, self.parameters]
 
     
     def getReactionsMassActionRNA(self):

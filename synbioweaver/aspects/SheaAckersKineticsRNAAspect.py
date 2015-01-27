@@ -13,6 +13,7 @@ class SheaAckersKineticsRNA(Aspect):
         self.species = []
         self.nspecies = 0
         self.stoichiometry_matrix = 0
+        self.parameters = []
         self.locatedParts = {}
 
     def getReactions(self, weaverOutput):
@@ -45,12 +46,15 @@ class SheaAckersKineticsRNA(Aspect):
                    or r.process == "complexAss" or r.process == "complexDeg":
                     r.assignMassAction()
 
+                for k in r.param:
+                    self.parameters.append( k )
+
             # calculate stoichiometry
             self.stoichiometry_matrix = stoichiometry(self.nspecies, self.nreactions, self.species, self.reactions)
        
             SheaAckersKineticsRNA.builtReactions = True
 
-        return [self.nspecies, self.nreactions, self.species, self.reactions, self.stoichiometry_matrix]
+        return [self.nspecies, self.nreactions, self.species, self.reactions, self.stoichiometry_matrix, self.parameters]
 
     def getReactionsSheaAckersRNA(self):
         for key in range( len(self.promoterMap) ):

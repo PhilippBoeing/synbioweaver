@@ -11,14 +11,14 @@ class ExpGrowthAspect(Aspect):
         
         # first access the existing reactions
         if getattr(weaverOutput, "getReactions", None) != None:
-            self.nspecies, self.nreactions, self.species, self.reactions, self.stoichiometry_matrix = weaverOutput.getReactions()
+            self.nspecies, self.nreactions, self.species, self.reactions, self.stoichiometry_matrix, self.parameters = weaverOutput.getReactions()
         else:
             print "ExpGrowthAspect : getReactions() is available. Quitting"
             exit()
 
         self.addExpGrowth()
 
-        return [self.nspecies, self.nreactions, self.species, self.reactions, self.stoichiometry_matrix]
+        return [self.nspecies, self.nreactions, self.species, self.reactions, self.stoichiometry_matrix, self.parameters]
 
     
     def addExpGrowth(self):
@@ -44,6 +44,8 @@ class ExpGrowthAspect(Aspect):
         newreac.assignMassAction()
         self.reactions.append( newreac )
         self.nreactions += 1
+        for k in newreac.param:
+            self.parameters.append( k )
 
         # add new species
         self.species.append("N")

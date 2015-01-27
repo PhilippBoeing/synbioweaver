@@ -20,26 +20,35 @@ class Reaction:
             print "Error: process undefined:", process
             exit(1)
 
-        self.param = ""
+        self.param = []
         self.rate = ""
 
+    # returns a string representation of the reaction
     def reactionString(self):
         # create a reaction string for output
         react = ' + '.join(map(str, self.reactants))
         prod = ' + '.join(map(str, self.products))
         return react + ' -> ' + prod
-            
+
+    # returns a string representation of the parameters
+    def paramString(self):
+        return ', '.join(self.param)
+
     def assignMassAction(self):
         # assign a parameter number
         Reaction.param_counter += 1
-        self.param = 'p'+str(Reaction.param_counter)
+        
+        # here there is only one parameter per reactions
+        par = 'p'+str(Reaction.param_counter)
+
+        self.param.append( par )
 
         # assign a rate
         if len(self.reactants) > 0:
             rt = '*'.join(map(str, self.reactants))
-            self.rate = rt+'*'+self.param
+            self.rate = rt+'*' + par
         else:
-            self.rate = self.param
+            self.rate = par 
 
     def assignSA(self, prmtrMapping):
         totalregs = len( prmtrMapping.regulators )
@@ -47,14 +56,14 @@ class Reaction:
         Reaction.param_counter += 1
         par = "p"+str(Reaction.param_counter)
 
-        self.param = par
+        self.param.append( par )
 
         num = "( " + par;
         denom = "/( 1 + " + par 
         for i in range(0,totalregs):
             Reaction.param_counter += 1
             par = "p"+str(Reaction.param_counter)
-            self.param = self.param + ", " + par
+            self.param.append( par )
 
             denom = denom + " + " + par + "*" + str( prmtrMapping.regulators[i] )
                 

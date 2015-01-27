@@ -11,10 +11,10 @@ class PrintReactionNetwork(Aspect):
         # We are expecting either a set of reactions or a context
 
         if getattr(weaverOutput, "getContext", None) != None:
-            self.nspecies, self.nreactions, self.species, self.reactions, self.stoichiometry_matrix = weaverOutput.getContext()
+            self.nspecies, self.nreactions, self.species, self.reactions, self.stoichiometry_matrix, self.parameters = weaverOutput.getContext()
         else:
             if getattr(weaverOutput, "getReactions", None) != None:
-                self.nspecies, self.nreactions, self.species, self.reactions, self.stoichiometry_matrix = weaverOutput.getReactions()
+                self.nspecies, self.nreactions, self.species, self.reactions, self.stoichiometry_matrix, self.parameters = weaverOutput.getReactions()
             else:
                 print "printReactionNetwork : Neither getContext() or getReactions() is available. Quitting"
                 exit()
@@ -26,7 +26,7 @@ class PrintReactionNetwork(Aspect):
         print "\n\nGenerated set of reactions:"
         for i in range(self.nreactions):
             print self.reactions[i].reactionString().rjust(45," "), "\t\t\t", self.reactions[i].rate.rjust(35," "), \
-                "\t\t\t", self.reactions[i].param.rjust(10," "), "\t\t\t", self.reactions[i].process.rjust(15," ")
+                "\t\t\t", self.reactions[i].paramString().rjust(10," "), "\t\t\t", self.reactions[i].process.rjust(15," ")
         
     def printStoichiometryMatrix(self):
         print "\n\nGenerated stoichiometry matrix:"

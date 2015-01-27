@@ -13,6 +13,7 @@ class MassActionKineticsProtein(Aspect):
         self.species = []
         self.nspecies = 0
         self.stoichiometry_matrix = 0
+        self.parameters = []
 
     def getReactions(self, weaverOutput):
         
@@ -30,20 +31,23 @@ class MassActionKineticsProtein(Aspect):
             # Remove duplicate species
             self.species = list( set(self.species) ) 
             
-            # Finalise number of species and reactions
+            # Finalise number of species, reactions, parameters
             self.nreactions = len(self.reactions)
             self.nspecies = len(self.species)
         
             # assign mass action rates and parameters
             for r in self.reactions:
                 r.assignMassAction()
+                
+                for k in r.param:
+                    self.parameters.append( k )
 
             # calculate stoichiometry
             self.stoichiometry_matrix = stoichiometry(self.nspecies, self.nreactions, self.species, self.reactions)
        
             MassActionKineticsProtein.builtReactions = True
 
-        return [self.nspecies, self.nreactions, self.species, self.reactions, self.stoichiometry_matrix]
+        return [self.nspecies, self.nreactions, self.species, self.reactions, self.stoichiometry_matrix, self.parameters]
 
     
     def getReactionsMassActionProtein(self):
