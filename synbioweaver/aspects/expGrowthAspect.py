@@ -5,6 +5,7 @@ import numpy, os, copy
 class ExpGrowthAspect(Aspect):
     
     def mainAspect(self):
+        ExpGrowthAspect.builtReactions = False
         self.addWeaverOutput(self.getContext)
 
     def getContext(self,weaverOutput):
@@ -16,7 +17,10 @@ class ExpGrowthAspect(Aspect):
             print "ExpGrowthAspect : getReactions() is available. Quitting"
             exit()
 
-        self.addExpGrowth()
+        if ExpGrowthAspect.builtReactions == False:
+            self.addExpGrowth()
+
+            ExpGrowthAspect.builtReactions = True
 
         return [self.nspecies, self.nreactions, self.species, self.reactions, self.stoichiometry_matrix, self.parameters]
 
@@ -33,6 +37,7 @@ class ExpGrowthAspect(Aspect):
         # in this particular example we should be able to modify the reactions in place
         # this probably isn't true in general
 
+        print self.parameters
         for r in self.reactions:
             if r.process == "proteinExp" or r.process == "rnaTransc":
                 r.products.append("N")
