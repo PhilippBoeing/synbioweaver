@@ -40,7 +40,9 @@ class ExpGrowthAspect(Aspect):
                 r.rate = r.rate+"*N"
 
         # add new reactions
-        self.reactions.append( Reaction(["N"], ["N","N"], "context") )
+        newreac =  Reaction(["N"], ["N","N"], "context")
+        newreac.assignMassAction()
+        self.reactions.append( newreac )
         self.nreactions += 1
 
         # add new species
