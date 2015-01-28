@@ -114,12 +114,6 @@ class WriteInputFile(Aspect):
 
     def mainAspect(self):
         self.addWeaverOutput(self.writeInputFile)
-        #self.nspecies = 0
-        #self.nreactions = 0
-        #self.species = []
-        #self.reactions = []
-        #self.stoichiometry_matrix = []
-
 
     def writeInputFile(self, weaverOutput):
         self.nspecies, self.nreactions, self.species, self.reactions, self.stoichiometry_matrix, self.parameters = weaverOutput.getReactions()
@@ -129,41 +123,19 @@ class WriteInputFile(Aspect):
         self.prior_distribution = []
         self.priors = []
         self.rates = []
-        #self.params = []
         for i in range(self.nreactions):
             self.rates.append(self.reactions[i].rate)
-            #self.params.append(self.reactions[i].param)
             self.reaction_list.append(self.reactions[i])
 
         for mol in weaverOutput.moleculeList:
-            #tmp = raw_input("Enter initial condition value for " + str(mol) + " (distribution start end): ")
-            #tmpinp = tmp.split(" ")
-            #if len(tmpinp) > 2:
                 self.init_cond_distribution.append('uniform')
-                #self.initial_conditions.append([0, 10])
-                #self.init_cond_distribution.append(tmpinp[0])
                 tmp = '0 1'
                 tmpinp = tmp.split(" ")
                 self.initial_conditions.append([tmpinp[0], tmpinp[1]])
-            #elif len(tmpinp) == 2:
-
-                #self.init_cond_distribution.append(tmpinp[0])
-                #self.initial_conditions.append(tmpinp[1])
 
         for reac in self.reaction_list:
-            #tmp = raw_input("Enter value of parameter for " + str(reac) + ": ")
-            #tmpinp = tmp.split(" ")
-            #if len(tmpinp) > 2:
                 self.prior_distribution.append('uniform')
                 self.priors.append([0, 10])
-            #elif len(tmpinp) == 2:
-                #self.prior_distribution.append(tmpinp[0])
-                #self.priors.append(tmpinp[1])
-
-        #self.particles = raw_input("Enter value for particles: ")
-        #self.alpha = raw_input("Enter value for alpha: ")
-        #self.epsilon = raw_input("Enter value for epsilon: ")
-        #fit_tmp = str(raw_input("Enter species to fit: "))
 
         self.epsilon = 1.0
         fit_tmp = 'GFP'
