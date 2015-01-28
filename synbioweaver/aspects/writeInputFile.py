@@ -1,5 +1,6 @@
 from synbioweaver.core import *
 from synbioweaver.aspects.printReactionNetworkAspect import *
+from synbioweaver.aspects.reactionDefinitions import *
 
 class InputFile:
     def __init__(self, input_file_name, params, molecule_list, epsilon, fit, particles, alpha, prior_distribution, init_cond_distribution, priors, initial_conditions):
@@ -153,8 +154,5 @@ class WriteInputFile(Aspect):
             self.fit = ""
             for i in range(len(fit_tmpsp)):
                 self.fit += 'species' + str(mol_strings.index(str(fit_tmpsp[i]))) + " "
-
-
-        switch_input_file = InputFile('input_file.xml', self.params, weaverOutput.moleculeList, self.epsilon, self.fit, self.particles, self.alpha, self.prior_distribution, self.init_cond_distribution, self.priors, self.initial_conditions)
+        switch_input_file = InputFile('input_file.xml', self.parameters, weaverOutput.moleculeList, self.epsilon, self.fit, self.particles, self.alpha, self.prior_distribution, self.init_cond_distribution, self.priors, self.initial_conditions)
         switch_input_file.writeInput()
-        #return switch_input_file.input_file_name

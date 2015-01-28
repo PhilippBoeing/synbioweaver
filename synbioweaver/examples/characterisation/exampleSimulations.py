@@ -2,9 +2,9 @@ from synbioweaver.core import *
 from synbioweaver.aspects.designRulesAspect import *
 from synbioweaver.aspects.promoterMappingAspect import *
 from synbioweaver.aspects.MassActionKineticsProteinAspect import *
-from synbioweaver.aspects.MassActionKineticsRNAAspect import *
-from synbioweaver.aspects.SheaAckersKineticsRNAAspect import *
-from synbioweaver.aspects.printReactionNetworkAspect import *
+from synbioweaver.aspects.runCudaSim import *
+from synbioweaver.aspects.writeCudaFile import *
+from synbioweaver.aspects.writeInputFile import *
 
 # this example is based on the toggle switch implemented in Litcofsky et al. Nature Methods (2012)
 
@@ -62,7 +62,8 @@ class SimpleSwitch(Circuit):
         self.reactionFrom(IPTG, LacIn4) >> self.reactionTo( LacIn4_IPTG )
 
 
-compiledDesign5 = Weaver(SimpleSwitch, DesignRules, PromoterMapping, MassActionKineticsProtein, PrintReactionNetwork, WriteInputFile, WriteCudaFile).output()
+compiledDesign5 = Weaver(SimpleSwitch, DesignRules, PromoterMapping, MassActionKineticsProtein, PrintReactionNetwork, WriteInputFile, WriteCudaFile, RunCudaSim).output()
 
 compiledDesign5.writeInputFile()
 compiledDesign5.writeCudaFile()
+compiledDesign5.runCudaSim()

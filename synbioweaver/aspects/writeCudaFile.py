@@ -1,8 +1,5 @@
 from synbioweaver.core import *
 import numpy
-#from synbioweaver.aspects.reactionDefinitions import *
-from synbioweaver.aspects.printReactionNetworkAspect import *
-from synbioweaver.aspects.WriteInputFile import *
 
 
 class WriteCudaFile(Aspect):
@@ -15,7 +12,7 @@ class WriteCudaFile(Aspect):
         self.name = 'model'
         out_file = open(self.cuda_file,'w')
         out_file.write("#define NSPECIES " + str(nspecies) + "\n")
-        out_file.write("#define NPARAM " + str(nreactions) + "\n")
+        out_file.write("#define NPARAM " + str(nreactions+1) + "\n")
         out_file.write("#define NREACT " + str(len(reaction_list)) + "\n")
         out_file.write("\n")
         out_file.write('#define leq(a,b) a<=b' + '\n')
@@ -53,14 +50,7 @@ class WriteCudaFile(Aspect):
 
     def writeCudaFile(self, weaverOutput):
         self.nspecies, self.nreactions, self.species, self.reactions, self.stoichiometry_matrix, self.parameters = weaverOutput.getReactions()
-
-        #self.reaction_list = []
         self.rates = []
-        #self.params = []
-
-        for i in range(0, self.nreactions):
+        for i in range(self.nreactions):
             self.rates.append(self.reactions[i].rate)
-            #self.params.append(self.reactions[i].param)
-            #self.reaction_list.append(self.reactions[i])
-        cuda_file = self.writeCuda(self.stoichiometry_matrix, self.reactions, self.species, self.rates, self.params, self.nspecies, self.nreactions)
-        #return cuda_file
+        self.writeCuda(self.stoichiometry_matrix, self.reactions, self.species, self.rates, self.parameters, self.nspecies, self.nreactions)
