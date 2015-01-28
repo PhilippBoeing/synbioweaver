@@ -28,50 +28,63 @@ def check(value, message):
        return
 
 def addSpecies(model,sid):
-    s = model.createSpecies()
-    check(s,                                 'create species s1')
-    check(s.setId(sid),                      'set species s1 id')
-    check(s.setCompartment('c1'),            'set species s1 compartment')
-    check(s.setConstant(False),              'set "constant" attribute on s1')
-    check(s.setInitialAmount(0),             'set initial amount for s1')
-    check(s.setSubstanceUnits('mole'),       'set substance units for s1')
-    check(s.setBoundaryCondition(False),     'set "boundaryCondition" on s1')
-    check(s.setHasOnlySubstanceUnits(False), 'set "hasOnlySubstanceUnits" on s1')
+   s = model.createSpecies()
+   check(s,                                 'create species s1')
+   check(s.setId(sid),                      'set species s1 id')
+   check(s.setCompartment('c1'),            'set species s1 compartment')
+   check(s.setConstant(False),              'set "constant" attribute on s1')
+   check(s.setInitialAmount(0),             'set initial amount for s1')
+   check(s.setSubstanceUnits('mole'),       'set substance units for s1')
+   check(s.setBoundaryCondition(False),     'set "boundaryCondition" on s1')
+   check(s.setHasOnlySubstanceUnits(False), 'set "hasOnlySubstanceUnits" on s1')
 
 def addParameter(model,pid):
-    p = model.createParameter()
-    check(p,                                  'create parameter k')
-    check(p.setId(pid),                       'set parameter k id')
-    check(p.setConstant(True),                'set parameter k "constant"')
-    check(p.setValue(1),                      'set parameter k value')
-    check(p.setUnits('per_minute'),           'set parameter k units')
+   p = model.createParameter()
+   check(p,                                  'create parameter k')
+   check(p.setId(pid),                       'set parameter k id')
+   check(p.setConstant(True),                'set parameter k "constant"')
+   check(p.setValue(1),                      'set parameter k value')
+   check(p.setUnits('per_minute'),           'set parameter k units')
  
 def addReaction(model,rid,reactants,products,rateLaw):
-    reac = model.createReaction()
-    check(reac,                                 'create reaction')
-    check(reac.setId(rid),                      'set reaction id')
-    check(reac.setReversible(False),            'set reaction reversibility flag')
-    check(reac.setFast(False),                  'set reaction "fast" attribute')
 
-    for rt in reactants:
-        species_refr = reac.createReactant()
-        check(species_refr,                        'create reactant')
-        check(species_refr.setSpecies(rt),         'assign reactant species')
-        check(species_refr.setConstant(False),     'set "constant" on species ref 1')
-        check(species_refr.setStoichiometry(1.0),  'set stochiometry')
+   # first identify unique reactants and products
+   ureactants = list(set(reactants))
+   rstoich = [ reactants.count(x) for x in ureactants ]
+   
+   uproducts = list(set(products))
+   pstoich = [ products.count(x) for x in uproducts ]
 
-    for pd in products:
-        species_refp = reac.createProduct()
-        check(species_refp,                        'create reactant')
-        check(species_refp.setSpecies(pd),         'assign reactant species')
-        check(species_refp.setConstant(False),     'set "constant" on species ref 1')
-        check(species_refp.setStoichiometry(1.0),  'set stochiometry')
+   #print rid, "reactants:", reactants, ureactants, rstoich
+   #print rid, "products:", products, uproducts, pstoich
+   
+   reac = model.createReaction()
+   check(reac,                                 'create reaction')
+   check(reac.setId(rid),                      'set reaction id')
+   check(reac.setReversible(False),            'set reaction reversibility flag')
+   check(reac.setFast(False),                  'set reaction "fast" attribute')
 
-    math_ast = parseL3Formula(rateLaw)
-    check(math_ast,                           'create AST for rate expression')
-    kinetic_law = reac.createKineticLaw()
-    check(kinetic_law,                        'create kinetic law')
-    check(kinetic_law.setMath(math_ast),      'set math on kinetic law')
+   for i in range(len(ureactants)):
+      rt = ureactants[i]
+      species_refr = reac.createReactant()
+      check(species_refr,                               'create reactant')
+      check(species_refr.setSpecies(rt),                'assign reactant species')
+      check(species_refr.setConstant(False),            'set "constant" on species ref 1')
+      check(species_refr.setStoichiometry(rstoich[i]),  'set stochiometry')
+
+   for i in range(len(uproducts)):
+      pd = uproducts[i]
+      species_refp = reac.createProduct()
+      check(species_refp,                               'create reactant')
+      check(species_refp.setSpecies(pd),                'assign reactant species')
+      check(species_refp.setConstant(False),            'set "constant" on species ref 1')
+      check(species_refp.setStoichiometry(pstoich[i]),  'set stochiometry')
+
+   math_ast = parseL3Formula(rateLaw)
+   check(math_ast,                           'create AST for rate expression')
+   kinetic_law = reac.createKineticLaw()
+   check(kinetic_law,                        'create kinetic law')
+   check(kinetic_law.setMath(math_ast),      'set math on kinetic law')
 
 
 class WriteSBMLModel(Aspect):
@@ -128,21 +141,13 @@ class WriteSBMLModel(Aspect):
       check(c1.setSpatialDimensions(3),         'set compartment dimensions')
       check(c1.setUnits('litre'),               'set compartment size units')
 
-      # original test model
-      #addSpecies(model, "s1")
-      #addSpecies(model, "s2")
-      #addParameter(model, "k")
-      #addReaction(model, "r1", ["s1"], ["s2"], "k * s1 * c1")
-
       for sp in self.species:
          addSpecies(model, str(sp) )
          
-      
-      for rn in self.reactions:
-         addReaction(model, "r", rn.reactants, rn.products, rn.rate)
-         print rn.rate
-
-      print self.parameters 
+      for i in range(len(self.reactions)):
+         rn = self.reactions[i]
+         addReaction(model, "r"+str(i+1), rn.reactants, rn.products, rn.rate)
+       
       for pt in self.parameters:
          addParameter(model, pt)
          
