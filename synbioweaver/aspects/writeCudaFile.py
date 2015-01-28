@@ -52,24 +52,15 @@ class WriteCudaFile(Aspect):
         return self.name
 
     def writeCudaFile(self, weaverOutput):
-        #self.nspecies, self.nreactions, self.species, self.reactions, self.stoichiometry_matrix = weaverOutput.bayesianCharacterisation()
+        self.nspecies, self.nreactions, self.species, self.reactions, self.stoichiometry_matrix, self.parameters = weaverOutput.getReactions()
 
-        self.nspecies = weaverOutput.gtSpecies()
-
-        #self.nspecies = weaverOutput.WriteInputFile.nspecies
-        self.nreactions = weaverOutput.WriteInputFile.nreactions
-        self.species = weaverOutput.WriteInputFile.species
-        self.reactions = weaverOutput.WriteInputFile.reactions
-        self.stoichiometry_matrix = weaverOutput.WriteInputFile.stoichiometry_matrix
-
-        print self.nreactions
         #self.reaction_list = []
         self.rates = []
-        self.params = []
+        #self.params = []
 
         for i in range(0, self.nreactions):
             self.rates.append(self.reactions[i].rate)
-            self.params.append(self.reactions[i].param)
+            #self.params.append(self.reactions[i].param)
             #self.reaction_list.append(self.reactions[i])
         cuda_file = self.writeCuda(self.stoichiometry_matrix, self.reactions, self.species, self.rates, self.params, self.nspecies, self.nreactions)
         #return cuda_file

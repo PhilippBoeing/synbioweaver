@@ -122,24 +122,17 @@ class WriteInputFile(Aspect):
 
 
     def writeInputFile(self, weaverOutput):
-        self.nspecies, self.nreactions, self.species, self.reactions, self.stoichiometry_matrix = weaverOutput.getReactions()
-
-        ##self.nspecies = weaverOutput.PrintReactionNetwork.nspecies
-        #self.nreactions = weaverOutput.printReactionNetwork.nreactions
-        #self.species = weaverOutput.printReactionNetwork.species
-        #self.reactions = weaverOutput.printReactionNetwork.reactions
-        #self.stoichiometry_matrix = weaverOutput.printReactionNetwork.stoichiometry_matrix
-
+        self.nspecies, self.nreactions, self.species, self.reactions, self.stoichiometry_matrix, self.parameters = weaverOutput.getReactions()
         self.reaction_list = []
         self.initial_conditions = []
         self.init_cond_distribution = []
         self.prior_distribution = []
         self.priors = []
         self.rates = []
-        self.params = []
+        #self.params = []
         for i in range(self.nreactions):
             self.rates.append(self.reactions[i].rate)
-            self.params.append(self.reactions[i].param)
+            #self.params.append(self.reactions[i].param)
             self.reaction_list.append(self.reactions[i])
 
         for mol in weaverOutput.moleculeList:
