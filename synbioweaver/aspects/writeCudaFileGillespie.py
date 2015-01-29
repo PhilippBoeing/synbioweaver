@@ -2,10 +2,10 @@ from synbioweaver.core import *
 import numpy
 
 
-class WriteCudaFile(Aspect):
+class WriteCudaFileGillespie(Aspect):
 
     def mainAspect(self):
-        self.addWeaverOutput(self.writeCudaFile)
+        self.addWeaverOutput(self.writeCudaFileGillepsie)
 
     def writeCuda(self, stoichiometry_matrix, reaction_list, molecule_list, rates_list, params, nspecies, nreactions):
         self.cuda_file = str('model.cu')
@@ -48,7 +48,7 @@ class WriteCudaFile(Aspect):
         out_file.close()
         return self.name
 
-    def writeCudaFile(self, weaverOutput):
+    def writeCudaFileGillespie(self, weaverOutput):
         if getattr(weaverOutput, "getContext", None) != None:
             self.nspecies, self.nreactions, self.species, self.reactions, self.stoichiometry_matrix, self.parameters = weaverOutput.getContext()
         else:

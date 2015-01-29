@@ -120,17 +120,17 @@ class InputFile:
 
 
 
-class WriteABCInputFile(Aspect):
+class WriteABCInputFileGillepsie(Aspect):
 
     def mainAspect(self):
-        self.addWeaverOutput(self.writeABCInputFile)
+        self.addWeaverOutput(self.writeABCInputFileGillepsie)
 
     def readData(self):
         data = np.genfromtxt('data.txt', comments='#', delimiter=' ')
         #time species1 species1sigma species2 species2sigma
         return data
 
-    def writeABCInputFile(self, weaverOutput):
+    def writeABCInputFileGillepsie(self, weaverOutput):
         if getattr(weaverOutput, "getContext", None) != None:
             self.nspecies, self.nreactions, self.species, self.reactions, self.stoichiometry_matrix, self.parameters = weaverOutput.getContext()
         else:
