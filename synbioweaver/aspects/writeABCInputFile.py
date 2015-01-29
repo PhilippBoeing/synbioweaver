@@ -1,11 +1,12 @@
 from synbioweaver.core import *
-import os
+from synbioweaver.aspects.printReactionNetworkAspect import *
 from synbioweaver.aspects.reactionDefinitions import *
+import numpy as np
 
 class InputFile:
-    def __init__(self, input_file_name, cuda_file_name, params, molecule_list, epsilon, fit, particles, alpha, prior_distribution, init_cond__distribution, priors, initial_conditions):
+    def __init__(self, input_file_name, params, molecule_list, epsilon, fit, particles, alpha, prior_distribution, init_cond_distribution, priors, initial_conditions, data):
         self.input_file_name = input_file_name
-        self.cuda_file_name = cuda_file_name
+        self.cuda_file_name = 'model'
         self.params = params
         self.molecule_list = molecule_list
         self.epsilon = epsilon
@@ -14,9 +15,10 @@ class InputFile:
         self.alpha = alpha
         self.simtype = 'Gillespie'
         self.prior_distribution = prior_distribution
-        self.init_cond__distribution = init_cond__distribution
+        self.init_cond_distribution = init_cond_distribution
         self.priors = priors
         self.initial_conditions = initial_conditions
+        self.data = data
 
     def writeInput(self):
         out_file = open(self.input_file_name, 'w')
@@ -50,13 +52,20 @@ class InputFile:
         out_file.write('<data>' + '\n')
         out_file.write('# times: For ABC SMC, times must be a whitespace delimited list'+ '\n')
         out_file.write('# In simulation mode these are the timepoints for which the simulations will be output' + '\n')
-        out_file.write('<times>   0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100  </times>' + '\n')
+        out_file.write('<times> ')
+        for i in self.data:
+             out_file.write(str(i[0]) + ' ')
+        out_file.write('</times>' + '\n')
         out_file.write('# variables: For ABC SMC, whitespace delimited lists of concentrations (ODE or SDE) or molecule numbers (Gillespie)' + '\n')
         out_file.write('# Denote your data via tags <v1> </v1> or <var1> </var1> or <v2> </v2> etc. The tags are ignored and the data read in order' + '\n')
         out_file.write('# For simulation these data are ignored'+ '\n')
         out_file.write('# See fitting instruction below if the dimensionality of your data sets differ from the dimensionality of your model' + '\n')
         out_file.write('<variables>' + '\n')
-        out_file.write(' <var1> </var1>' + '\n')
+        for i in range(1, self.data.shape[1], 2):
+            out_file.write(' <var' + str(i)+'> ')
+            for k in self.data:
+                out_file.write(str(k[i]) + ' ')
+            out_file.write('</var' + str(i)+'> ' + '\n')
         out_file.write('</variables>' + '\n')
         out_file.write('</data>' + '\n')
         out_file.write('<models>' + '\n')
@@ -85,9 +94,9 @@ class InputFile:
             if '(' in str(species):
                 species, regulator = str(species).split('(')
             if len(str(self.initial_conditions[init_cond_count]).split()) > 1:
-                out_file.write('<' + str(species) + '> ' + self.init_cond__distribution[init_cond_count] + ' ' + str(self.initial_conditions[init_cond_count][0]) + ' ' + str(self.initial_conditions[init_cond_count][1]) + ' </' + str(species) + '>' + '\n')
+                out_file.write('<' + str(species) + '> ' + self.init_cond_distribution[init_cond_count] + ' ' + str(self.initial_conditions[init_cond_count][0]) + ' ' + str(self.initial_conditions[init_cond_count][1]) + ' </' + str(species) + '>' + '\n')
             elif len(str(self.initial_conditions[init_cond_count]).split()) == 1:
-                out_file.write('<' + str(species) + '> ' + self.init_cond__distribution[init_cond_count] + ' ' + str(self.initial_conditions[init_cond_count]) + ' </' + str(species) + '>' + '\n')
+                out_file.write('<' + str(species) + '> ' + self.init_cond_distribution[init_cond_count] + ' ' + str(self.initial_conditions[init_cond_count]) + ' </' + str(species) + '>' + '\n')
         out_file.write('</initial>' + '\n')
         out_file.write('\n')
         out_file.write('<parameters>' + '\n')
@@ -110,119 +119,38 @@ class InputFile:
         return self.input_file_name
 
 
-class CudaOutput(Aspect):
+
+class WriteABCInputFile(Aspect):
 
     def mainAspect(self):
-        self.addWeaverOutput(self.cudaOutput)
+        self.addWeaverOutput(self.writeInputFile)
 
-    def writeCuda(self, stoichiometry_matrix, reaction_list, molecule_list, rates_list, params):
+    def readData(self):
+        data = np.genfromtxt('data.txt', comments='#', delimiter=' ')
+        #time species1 species1sigma species2 species2sigma
+        return data
 
-        self.cuda_file = str('CudaOutput.cu')
-        self.name = 'CudaOutput'
-        out_file = open(self.cuda_file,'w')
-        out_file.write("#define NSPECIES " + str(len(molecule_list)) + "\n")
-        out_file.write("#define NPARAM " + str(len(rates_list)+1) + "\n")
-        out_file.write("#define NREACT " + str(len(reaction_list)) + "\n")
-        out_file.write("\n")
-        out_file.write('#define leq(a,b) a<=b' + '\n')
-        out_file.write('#define neq(a,b) a!=b' + '\n')
-        out_file.write('#define geq(a,b) a>=b' + '\n')
-        out_file.write('#define lt(a,b) a<b' + '\n')
-        out_file.write('#define gt(a,b) a>b' + '\n')
-        out_file.write('#define eq(a,b) a==b' + '\n')
-        out_file.write('#define and_(a,b) a&&b' + '\n')
-        out_file.write('#define or_(a,b) a||b' + '\n')
-        out_file.write("\n")
-        for i in range(len(molecule_list)):
-            if '(' in str(molecule_list[i]):
-                name, regulator = str(molecule_list[i]).split('(')
-                out_file.write("#define " + str(name) + " y[" + str(i) + "]" + "\n")
-            else:
-                out_file.write("#define " + str(molecule_list[i]) + " y[" + str(i) + "]" + "\n")
-        out_file.write("\n")
-        out_file.write("#define p0 tex2D(param_tex,0,tid)" + "\n")
-        for i in range(len(params)):
-            out_file.write("#define " + str(params[i]) + " tex2D(param_tex," + str(i+1) + ",tid)" + "\n")
-        out_file.write("\n")
-        out_file.write("__constant__ int smatrix[]={"+"\n")
-
-        numpy.savetxt(out_file, stoichiometry_matrix, fmt='%s,', )
-
-        out_file.write("};"+"\n"+"\n"+"\n")
-
-        out_file.write("__device__ void hazards(int *y, float *h, float t, int tid){ " + "\n")
-        eq_count = -1
-        for i in rates_list:
-            if i is not None:
-                eq_count += 1
-                out_file.write("\t" + "h[" + str(eq_count) + "] = p0*" + str(i) + ';' +"\n")
-        out_file.write("}")
-        out_file.close()
-        return self.name
-
-
-    def runCudaSim(self):
-        runfile=open('out.sh', 'w')
-        runfile.write('export PYTHONPATH=$PYTHONPATH:/home/ucbtle1/abc-sysbio-code/:/home/ucbtle1/cuda-sim-code/' + '\n')
-        runfile.write('exe=/home/ucbtle1/abc-sysbio-code/scripts/run-abc-sysbio' + '\n')
-        runfile.write('\n')
-        runfile.write('python -u $exe --localcode  -S --infile input_file.xml -f -of=results_simulation --cuda')
-        runfile.close()
-        os.chmod('out.sh', 0777)
-        os.system('nohup ./out.sh &')
-        return runfile
-
-
-    def cudaOutput(self, weaverOutput):
-        self.nspecies, self.nreactions, self.species, self.reactions, self.stoichiometry_matrix = weaverOutput.getReactions()
-
+    def writeInputFile(self, weaverOutput):
+        self.nspecies, self.nreactions, self.species, self.reactions, self.stoichiometry_matrix, self.parameters = weaverOutput.getReactions()
         self.reaction_list = []
         self.initial_conditions = []
-        self.init_cond__distribution = []
+        self.init_cond_distribution = []
         self.prior_distribution = []
         self.priors = []
         self.rates = []
-        self.params = []
         for i in range(self.nreactions):
             self.rates.append(self.reactions[i].rate)
-            self.params.append(self.reactions[i].param)
             self.reaction_list.append(self.reactions[i])
 
-        """
-        For each part, go to 'mainAspect' and check for what kind of part it is. Then for each one get the reaction and the rate and then calculate the stoichiometry matrix
-        If its a negative promoter, get the regulator and make the repression reaction. Regulator + Promoter -> Regulator_promoter complex. *!*manually set the _ in complex*!*
-        If its a coding region, get the promoter (before part) and the name of what the coding region codes for. Promoter -> CodesFor + Promoter
-        """
-
         for mol in weaverOutput.moleculeList:
-            #tmp = raw_input("Enter initial condition value for " + str(mol) + " (distribution start end): ")
-            #tmpinp = tmp.split(" ")
-            #if len(tmpinp) > 2:
-                self.init_cond__distribution.append('uniform')
-                #self.initial_conditions.append([0, 10])
-                #self.init_cond__distribution.append(tmpinp[0])
+                self.init_cond_distribution.append('uniform')
                 tmp = '0 1'
                 tmpinp = tmp.split(" ")
                 self.initial_conditions.append([tmpinp[0], tmpinp[1]])
-            #elif len(tmpinp) == 2:
-
-                #self.init_cond__distribution.append(tmpinp[0])
-                #self.initial_conditions.append(tmpinp[1])
 
         for reac in self.reaction_list:
-            #tmp = raw_input("Enter value of parameter for " + str(reac) + ": ")
-            #tmpinp = tmp.split(" ")
-            #if len(tmpinp) > 2:
                 self.prior_distribution.append('uniform')
                 self.priors.append([0, 10])
-            #elif len(tmpinp) == 2:
-                #self.prior_distribution.append(tmpinp[0])
-                #self.priors.append(tmpinp[1])
-
-        #self.particles = raw_input("Enter value for particles: ")
-        #self.alpha = raw_input("Enter value for alpha: ")
-        #self.epsilon = raw_input("Enter value for epsilon: ")
-        #fit_tmp = str(raw_input("Enter species to fit: "))
 
         self.epsilon = 1.0
         fit_tmp = 'GFP'
@@ -241,10 +169,6 @@ class CudaOutput(Aspect):
             for i in range(len(fit_tmpsp)):
                 self.fit += 'species' + str(mol_strings.index(str(fit_tmpsp[i]))) + " "
 
-        cuda_file = self.writeCuda(self.stoichiometry_matrix, self.reactions, weaverOutput.moleculeList, self.rates, self.params)
-        switch_input_file = InputFile('input_file.xml', str(cuda_file), self.params, weaverOutput.moleculeList, self.epsilon, self.fit, self.particles, self.alpha, self.prior_distribution, self.init_cond__distribution, self.priors, self.initial_conditions)
+        self.data = self.readData()
+        switch_input_file = InputFile('input_file.xml', self.parameters, weaverOutput.moleculeList, self.epsilon, self.fit, self.particles, self.alpha, self.prior_distribution, self.init_cond_distribution, self.priors, self.initial_conditions, self.data)
         switch_input_file.writeInput()
-        simulation = self.runCudaSim()
-        return cuda_file, switch_input_file.input_file_name
-
-
