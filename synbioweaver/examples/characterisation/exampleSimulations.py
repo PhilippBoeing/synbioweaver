@@ -64,6 +64,6 @@ class SimpleSwitch(Circuit):
 
 compiledDesign5 = Weaver(SimpleSwitch, DesignRules, PromoterMapping, MassActionKineticsProtein, WriteABCInputFile, WriteCudaFile, RunCudaSim).output()
 
-compiledDesign5.writeInputFile()
+compiledDesign5.writeABCInputFile()
 #compiledDesign5.writeCudaFile()
 #compiledDesign5.runCudaSim()

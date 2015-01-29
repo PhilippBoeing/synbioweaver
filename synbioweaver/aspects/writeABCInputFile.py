@@ -123,14 +123,14 @@ class InputFile:
 class WriteABCInputFile(Aspect):
 
     def mainAspect(self):
-        self.addWeaverOutput(self.writeInputFile)
+        self.addWeaverOutput(self.writeABCInputFile)
 
     def readData(self):
         data = np.genfromtxt('data.txt', comments='#', delimiter=' ')
         #time species1 species1sigma species2 species2sigma
         return data
 
-    def writeInputFile(self, weaverOutput):
+    def writeABCInputFile(self, weaverOutput):
         if getattr(weaverOutput, "getContext", None) != None:
             self.nspecies, self.nreactions, self.species, self.reactions, self.stoichiometry_matrix, self.parameters = weaverOutput.getContext()
         else:
@@ -146,19 +146,40 @@ class WriteABCInputFile(Aspect):
             self.rates.append(self.reactions[i].rate)
             self.reaction_list.append(self.reactions[i])
 
-        #for i in
-        #        self.reactions[i].process
-
-
         for mol in weaverOutput.moleculeList:
-                self.init_cond_distribution.append('uniform')
-                tmp = '0 1'
-                tmpinp = tmp.split(" ")
-                self.initial_conditions.append([tmpinp[0], tmpinp[1]])
+            self.init_cond_distribution.append('uniform')
+            tmp2 = '0 1'
+            tmpinp2 = tmp2.split(" ")
+            self.initial_conditions.append([tmpinp2[0], tmpinp2[1]])
 
-        for reac in self.reaction_list:
-                self.prior_distribution.append('uniform')
-                self.priors.append([0, 10])
+        for i in range(len(self.reaction_list)):
+
+            if self.reactions[i].process == "dnaBind":
+                tmp = '0 1'
+            elif self.reactions[i].process == "dnaUnbind":
+                tmp = '2 3'
+            elif self.reactions[i].process == "rnaTransc":
+                tmp = '4 5'
+            elif self.reactions[i].process == "rnaDeg":
+                tmp = '6 7'
+            elif self.reactions[i].process == "proteinTransl":
+                tmp = '8 9'
+            elif self.reactions[i].process == "proteinExp":
+                tmp = '10 11'
+            elif self.reactions[i].process == "proteinDeg":
+                tmp = '12 13'
+            elif self.reactions[i].process == "complexAss":
+                tmp = '14 15'
+            elif self.reactions[i].process == "complexDiss":
+                tmp = '16 17'
+            elif self.reactions[i].process == "complexDeg":
+                tmp = '18 19'
+            elif self.reactions[i].process == "context":
+                tmp = '20 21'
+
+            self.prior_distribution.append('uniform')
+            tmpinp = tmp.split(" ")
+            self.priors.append([tmpinp[0], tmpinp[1]])
 
         self.epsilon = 1.0
         fit_tmp = 'GFP'
