@@ -131,7 +131,11 @@ class WriteABCInputFile(Aspect):
         return data
 
     def writeInputFile(self, weaverOutput):
-        self.nspecies, self.nreactions, self.species, self.reactions, self.stoichiometry_matrix, self.parameters = weaverOutput.getReactions()
+        if getattr(weaverOutput, "getContext", None) != None:
+            self.nspecies, self.nreactions, self.species, self.reactions, self.stoichiometry_matrix, self.parameters = weaverOutput.getContext()
+        else:
+            if getattr(weaverOutput, "getReactions", None) != None:
+                self.nspecies, self.nreactions, self.species, self.reactions, self.stoichiometry_matrix, self.parameters = weaverOutput.getReactions()
         self.reaction_list = []
         self.initial_conditions = []
         self.init_cond_distribution = []
@@ -141,6 +145,10 @@ class WriteABCInputFile(Aspect):
         for i in range(self.nreactions):
             self.rates.append(self.reactions[i].rate)
             self.reaction_list.append(self.reactions[i])
+
+        #for i in
+        #        self.reactions[i].process
+
 
         for mol in weaverOutput.moleculeList:
                 self.init_cond_distribution.append('uniform')
