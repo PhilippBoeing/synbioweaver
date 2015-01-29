@@ -22,7 +22,7 @@ class SheaAckersKineticsRNA(Aspect):
             sys.exit("SheaAckersKineticsRNA : buildPromoterMap() is unavailable. Quitting"  )
 
         if SheaAckersKineticsRNA.builtReactions == False:
-            self.promoterMap = weaverOutput.buildPromoterMap()
+            self.promoterMap, self.circuitMap = weaverOutput.buildPromoterMap()
 
             if getattr(weaverOutput, "getLocatedParts", None) != None:
                 self.locatedParts = weaverOutput.getLocatedParts()

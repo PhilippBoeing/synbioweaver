@@ -22,7 +22,7 @@ class MassActionKineticsProtein(Aspect):
 
         if MassActionKineticsProtein.builtReactions == False:
             
-            self.promoterMap = weaverOutput.buildPromoterMap()
+            self.promoterMap, self.circuitMap = weaverOutput.buildPromoterMap()
             #self.locatedPromoters = weaverOutput.getLocatedParts()
 
             self.getReactionsMassActionProtein()
@@ -49,6 +49,10 @@ class MassActionKineticsProtein(Aspect):
 
         return [self.nspecies, self.nreactions, self.species, self.reactions, self.stoichiometry_matrix, self.parameters]
 
+
+    def fullRegulatorName(self, regulator, prmtr_name ):
+        return str(regulator)
+        #return self.circuitMap[prmtr_name] + "." + str(name)
     
     def getReactionsMassActionProtein(self):
         for key in range( len(self.promoterMap) ):
@@ -73,13 +77,13 @@ class MassActionKineticsProtein(Aspect):
                     self.species.append( p )
             else:
                 # This is a regulated promoter
-                complx = partname + '_' + str(regulator)
+                complx = partname + '_' + self.fullRegulatorName(regulator, partname)
                 
                 # the binding/unbinding reactions Pr + R <-> Pr_R
                 self.reactions.append( Reaction([partname, regulator], [complx], "dnaBind") )
-                self.reactions.append( Reaction([complx], [partname, regulator], "dnaUnbind") )
+                self.reactions.append( Reaction([complx], [partname, self.fullRegulatorName(regulator, partname) ], "dnaUnbind") )
                 self.species.append( partname )
-                self.species.append( str(regulator) )
+                self.species.append( self.fullRegulatorName(regulator, partname) )
                 self.species.append( complx )
 
                 # if positive promoter then the bound complex expresses
@@ -107,9 +111,19 @@ class MassActionKineticsProtein(Aspect):
 
         for mol in weaverOutput.moleculeList:
             # Add all molecules to list then do a unique
-            spl = str(mol).split("(")[0]
+            #for i in range( len(mol.before) ):
+            #    print "scope:", str(mol), mol.before[i].scope
+            #
+            #for i in range( len(mol.after) ):
+            #    print "scope:", str(mol), mol.after[i].scope
+
+            print "scope:", str(mol), mol.before[0].scope.circuitName
+
+            circuitName = mol.before[0].scope.circuitName
+            spl = circuitName + "." + str(mol).split("(")[0]
             self.species.append(spl)
-            
+            print "newname:", spl 
+
             #print mol, mol.before, mol.after
 
             # up until this point we have captured everything other than additional molecule-molecule reactions

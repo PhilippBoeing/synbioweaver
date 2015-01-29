@@ -21,7 +21,7 @@ class MassActionKineticsRNA(Aspect):
             sys.exit("MassActionKineticsRNA : buildPromoterMap() is unavailable. Quitting"  )
 
         if MassActionKineticsRNA.builtReactions == False:
-            self.promoterMap = weaverOutput.buildPromoterMap()
+            self.promoterMap, self.circuitMap = weaverOutput.buildPromoterMap()
             
             self.getReactionsMassActionRNA()
             self.getMolecules(weaverOutput)
