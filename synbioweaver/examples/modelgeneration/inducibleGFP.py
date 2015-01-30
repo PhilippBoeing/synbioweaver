@@ -22,7 +22,9 @@ compiledDesign1 = Weaver(inducibleGFP, PromoterMapping, SheaAckersKineticsRNA, P
 print "######################## Design1:"
 compiledDesign1.printReactionNetwork()
 
-compiledDesign2 = Weaver(inducibleGFP, PromoterMapping, PromoterSearch, SheaAckersKineticsRNA, PrintReactionNetwork).output()
-print "######################## Design2:"
-compiledDesign2.printReactionNetwork()
+#compiledDesign2 = Weaver(inducibleGFP, PromoterMapping, PromoterSearch, SheaAckersKineticsRNA, PrintReactionNetwork).output()
+#print "######################## Design2:"
+#compiledDesign2.printReactionNetwork()
+
+
 

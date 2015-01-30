@@ -16,7 +16,6 @@ class SimpleSwitch(Circuit):
         declareNewMolecule('mCherry')
         declareNewMolecule('GFP')
         declareNewMolecule('TetRn2')
-        declareNewMolecule('LacIn2')
         declareNewMolecule('LacIn4')
         declareNewPart('PLtetO', NegativePromoter, [TetRn2])
         declareNewPart('Ptrc_2', NegativePromoter, [LacIn4])
@@ -26,13 +25,13 @@ class SimpleSwitch(Circuit):
         declareNewMolecule('TetR_aTc')
         declareNewMolecule('IPTG')
         declareNewMolecule('LacIn4_IPTG')
+        declareNewMolecule('zero')
 
         self.createMolecule(TetR)
         self.createMolecule(LacI)
         self.createMolecule(mCherry)
         self.createMolecule(GFP)
         self.createMolecule(TetRn2)
-        self.createMolecule(LacIn2)
         self.createMolecule(LacIn4)
         self.createMolecule(Ptrc_2)
         self.createMolecule(PLtetO)
@@ -53,10 +52,10 @@ class SimpleSwitch(Circuit):
         self.addPart(PLtetO)
         self.addPart(CodingRegion(GFP))
 
-        # these each add 2X -> X2, X2 -> 2X and X2 -> 0
         self.reactionFrom(TetR, TetR) >> self.reactionTo( TetRn2 )
-        self.reactionFrom(LacI, LacI) >> self.reactionTo( LacIn2 )
-        self.reactionFrom(LacIn2, LacIn2) >> self.reactionTo( LacIn4 )
+        self.reactionFrom(LacI, LacI, LacI, LacI) >> self.reactionTo( LacIn4 )
+        self.reactionFrom(TetRn2) >> self.reactionTo( zero )
+        self.reactionFrom(LacIn4) >> self.reactionTo( zero )
 
         self.reactionFrom(aTc, TetR) >> self.reactionTo( TetR_aTc )
         self.reactionFrom(IPTG, LacIn4) >> self.reactionTo( LacIn4_IPTG )
