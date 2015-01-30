@@ -1,6 +1,7 @@
 from synbioweaver.core import *
 from synbioweaver.aspects.reactionDefinitions import *
 from synbioweaver.aspects.molecularReactions import *
+from synbioweaver.aspects.promoterMappingAspect import *
 import numpy, os, copy, sys
 
 class MassActionKineticsProtein(Aspect, MolecularReactions):
@@ -25,6 +26,8 @@ class MassActionKineticsProtein(Aspect, MolecularReactions):
             
             self.promoterMap, self.circuitMap = weaverOutput.buildPromoterMap()
             #self.locatedPromoters = weaverOutput.getLocatedParts()
+
+            #print "Multiple comps :", PromoterMapping.multiComp
 
             self.getReactionsMassActionProtein()
             self.getMolecules(weaverOutput)
@@ -62,11 +65,11 @@ class MassActionKineticsProtein(Aspect, MolecularReactions):
     def getReactionsMassActionProtein(self):
         for key in range( len(self.promoterMap) ):
             mapping = self.promoterMap[key]
-            partname = str( mapping.prmtr_name )
-            regulator = mapping.regulators[0]
-            codings = [str(x) for x in mapping.coding ]
-            #print partname, regulator, codings
 
+            partname = mapping.getId()
+            regulator = mapping.getRegulators()[0]
+            codings = mapping.getCodings()
+           
             if regulator == None:
                 # This is a const promoter
                 # Add the promoter itself, no need for complexes

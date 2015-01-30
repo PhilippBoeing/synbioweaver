@@ -8,9 +8,9 @@ from synbioweaver.aspects.printReactionNetworkAspect import *
 declareNewMolecule('TetR')
 declareNewMolecule('TetRn2')
 declareNewMolecule('AHL')
-declareNewMolecule('AHLn2')
 declareNewMolecule('AHLn4')
 declareNewMolecule('GFP')
+declareNewMolecule('zero')
 declareNewPart('PTet', NegativePromoter, [TetRn2])
 declareNewPart('PLux', PositivePromoter, [AHLn4] )
 
@@ -20,11 +20,18 @@ class sn(Circuit):
         self.createMolecule(TetR)
         self.createMolecule(TetRn2)
         self.createMolecule(AHL) 
+        self.createMolecule(AHLn4) 
+
         self.addPart(PTet)
         self.addPart(CodingRegion(AHL))
-        self.exportMolecule(AHL)
-
+       
+        self.reactionFrom(AHL, AHL, AHL, AHL) >> self.reactionTo( AHLn4 )
+        self.reactionFrom( AHLn4 ) >> self.reactionTo( zero )
+        
         self.reactionFrom(TetR, TetR) >> self.reactionTo( TetRn2 )
+        self.reactionFrom( TetRn2 ) >> self.reactionTo( zero )
+        
+        self.exportMolecule(AHLn4)
 
 # the GFP Circuit compartment expresses GFP induced by Molecule A.
 # it can import Molecule A from its environment
@@ -39,12 +46,6 @@ class rc(Circuit):
 # It contains Molecule A, secreted by Express Circuit
 class System(Circuit):
     def mainCircuit(self):
-        self.createMolecule(AHL) 
-        self.createMolecule(AHLn2) 
-        self.createMolecule(AHLn4) 
-        self.reactionFrom(AHL,AHL) >> self.reactionTo( AHLn2 )
-        self.reactionFrom(AHLn2,AHLn2) >> self.reactionTo( AHLn4 )
-
         self.addCircuit(sn)
         self.addCircuit(rc)
 

@@ -1,8 +1,9 @@
 from synbioweaver.core import *
 from synbioweaver.aspects.reactionDefinitions import *
+from synbioweaver.aspects.promoterMappingAspect import *
 
 # This class handles the molecular interactions for the reaction abstractions
-# Shoudl prob
+# Should probably be a proper abstract base class
 
 class MolecularReactions:
     
@@ -41,6 +42,11 @@ class MolecularReactions:
             else:
                 print "\tdetected after sing:", mol.after[j]
 
+    def getMoleculeId(self, mol):
+        if PromoterMapping.multiComp == True:
+            return str(mol.scope.circuitName) + "." + str(mol)
+        else:
+            return str(mol)
 
     def addMolecularReaction(self, mol):
         # BEFORE -> mol
@@ -51,14 +57,14 @@ class MolecularReactions:
                 reacs = []
                 for k in range( len(mol.before[j]) ):
                     #print mol.before[j][k].scope.circuitName, mol.before[j][k],
-                    reacs.append( mol.before[j][k] )
+                    reacs.append( self.getMoleculeId(mol.before[j][k]) )
 
-                self.reactions.append( Reaction(reacs, [str(mol)], "complexAss") )
+                self.reactions.append( Reaction(reacs, [self.getMoleculeId(mol)], "complexAss") )
             else:
                 # check here that it isn't a part -> molecule reaction which we will handle separately
                 if isinstance(mol.before[j], Molecule) == True:
                     #print "\tdetected before sing:", mol.before[j].scope.circuitName, mol.before[j]
-                    self.reactions.append( Reaction([mol.before[j]], [str(mol)], "complexAss") )
+                    self.reactions.append( Reaction([ self.getMoleculeId(mol.before[j]) ], [ self.getMoleculeId(mol) ], "complexAss") )
 
         
         # mol -> AFTER
@@ -68,14 +74,15 @@ class MolecularReactions:
                 prods = []
                 for k in range( len(mol.after[j]) ):
                     #print mol.after[j][k].scope.circuitName, mol.after[j][k],
-                    prods.append( mol.after[j][k] )
+                    #prods.append( mol.after[j][k] )
+                    prods.append( self.getMoleculeId(mol.after[j][k]) )
                 
-                self.reactions.append( Reaction([str(mol)], prods, "complexDiss") )
+                self.reactions.append( Reaction([ self.getMoleculeId(mol) ], prods, "complexDiss") )
             else:
                 # check here that it isn't a part -> molecule reaction which we will handle separately
                 if isinstance(mol.after[j], Molecule) == True:
                     #print "\tdetected before sing:", mol.after[j].scope.circuitName, mol.after[j]
-                    self.reactions.append( Reaction([str(mol)], [mol.after[j]], "complexDiss") )
+                    self.reactions.append( Reaction([ self.getMoleculeId(mol) ], [ self.getMoleculeId(mol.after[j]) ], "complexDiss") )
 
     def removeDuplicateReactions(self):
         
@@ -96,20 +103,16 @@ class MolecularReactions:
             
         for i in range(len(weaverOutput.moleculeList)):
             # Add all molecules to list then do a unique
-            spl = str(weaverOutput.moleculeList[i]).split("(")[0]
-            self.species.append(spl)
+            self.species.append( self.getMoleculeId(weaverOutput.moleculeList[i]) )
 
             #self.examineContext( weaverOutput.moleculeList[i] )
-            #self.addDimerisationReactions(weaverOutput.moleculeList[i])
             self.addMolecularReaction(weaverOutput.moleculeList[i])
 
         if len(weaverOutput.wovenCircuitList) > 0:
             for circ in weaverOutput.wovenCircuitList:
                 for i in range(len(circ.moleculeList)):
-                    spl = str(circ.moleculeList[i]).split("(")[0]
-                    self.species.append(spl)
+                    self.species.append(self.getMoleculeId(circ.moleculeList[i]) )
                     #self.examineContext( circ.moleculeList[i] )
-                    #self.addDimerisationReactions(circ.moleculeList[i])
                     self.addMolecularReaction(circ.moleculeList[i])
 
         # transfer reactions A -> B will appear twice so may need to remove duplicate reactions
