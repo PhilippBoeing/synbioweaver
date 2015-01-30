@@ -101,8 +101,10 @@ def stoichiometry(nspecies, nreactions, species, reactions ):
     for j in range(nreactions):
         reactants = reactions[j].reactants
         for k in reactants:
-            # The += allows for multimerisation
-            inputs[j, species_map[k] ] += 1
+            # forget anything not in the species map ie zero for example
+            if k.strip() in species_map:
+                # The += allows for multimerisation
+                inputs[j, species_map[k] ] += 1
         
     # loop over and calculate the products
     for j in range(nreactions):
@@ -110,7 +112,9 @@ def stoichiometry(nspecies, nreactions, species, reactions ):
         for k in products:
             # handle empty string
             if len(k) > 0:
-                # The += allows for multimerisation
-                outputs[j, species_map[k.strip()] ] += 1
+                # forget anything not in the species map ie zero for example
+                if k.strip() in species_map:
+                    # The += allows for multimerisation
+                    outputs[j, species_map[k.strip()] ] += 1
                     
     return outputs - inputs

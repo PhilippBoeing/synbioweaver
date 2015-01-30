@@ -1,8 +1,9 @@
 from synbioweaver.core import *
 from synbioweaver.aspects.reactionDefinitions import *
+from synbioweaver.aspects.molecularReactions import *
 import numpy, os, copy
 
-class SheaAckersKineticsRNA(Aspect):
+class SheaAckersKineticsRNA(Aspect, MolecularReactions):
     
     def mainAspect(self):
         SheaAckersKineticsRNA.builtReactions = False
@@ -32,10 +33,14 @@ class SheaAckersKineticsRNA(Aspect):
 
             self.getReactionsSheaAckersRNA()
             self.getMolecules(weaverOutput)
-
+            
             # Remove duplicate species
             self.species = list( set(self.species) ) 
             
+            # Remove zero species
+            if "zero" in self.species:
+                self.species.remove("zero")
+
             # Finalise number of species and reactions
             self.nreactions = len(self.reactions)
             self.nspecies = len(self.species)
@@ -137,24 +142,3 @@ class SheaAckersKineticsRNA(Aspect):
                         self.reactions.append( Reaction(["m"+str(p)], [p], "proteinTransl") )
                         self.species.append( p )
                         self.species.append( "m"+str(p) )
-
-
-    def getMolecules(self, weaverOutput):
-
-        for mol in weaverOutput.moleculeList:
-            # Add all molecules to list then do a unique
-            spl = str(mol).split("(")[0]
-            self.species.append(spl)
-            
-            #print mol, mol.before, mol.after
-
-            # up until this point we have captured everything other than additional molecule-molecule reactions
-            for j in range(len(mol.before)):
-                # this indicates that downstream is not a part but molecules
-                if type(mol.before[j]) == type(list()):
-                    #print mol.before[j][0], mol.before[j][1], mol
-                    self.reactions.append( Reaction([mol.before[j][0], mol.before[j][1]], [mol], "complexAss") )
-                    self.reactions.append( Reaction([mol], [mol.before[j][0], mol.before[j][1]], "complexDiss") )
-                    self.reactions.append( Reaction([mol], [], "complexDeg" ) )
-                    
-

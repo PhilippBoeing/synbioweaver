@@ -1,8 +1,9 @@
 from synbioweaver.core import *
 from synbioweaver.aspects.reactionDefinitions import *
+from synbioweaver.aspects.molecularReactions import *
 import numpy, os, copy, sys
 
-class MassActionKineticsProtein(Aspect):
+class MassActionKineticsProtein(Aspect, MolecularReactions):
     
     def mainAspect(self):
         MassActionKineticsProtein.builtReactions = False
@@ -25,12 +26,16 @@ class MassActionKineticsProtein(Aspect):
             self.promoterMap, self.circuitMap = weaverOutput.buildPromoterMap()
             #self.locatedPromoters = weaverOutput.getLocatedParts()
 
-            self.getMolecules(weaverOutput)
             self.getReactionsMassActionProtein()
-        
+            self.getMolecules(weaverOutput)
+          
             # Remove duplicate species
             self.species = list( set(self.species) ) 
             
+            # Remove zero species
+            if "zero" in self.species:
+                self.species.remove("zero")
+
             # Finalise number of species, reactions, parameters
             self.nreactions = len(self.reactions)
             self.nspecies = len(self.species)
@@ -66,10 +71,6 @@ class MassActionKineticsProtein(Aspect):
                 # This is a const promoter
                 # Add the promoter itself, no need for complexes
                 prods = copy.deepcopy(codings)
-                
-                #prods.append( partname )
-                #self.reactions.append( Reaction([partname], prods, "proteinExp") )
-                #self.species.append( partname )
                 self.reactions.append( Reaction([], prods, "proteinExp") )
 
                 for p in codings:
@@ -107,49 +108,4 @@ class MassActionKineticsProtein(Aspect):
                         self.species.append( p )
 
 
-    def addDimerisationReaction(self, mol):
-        for j in range(len(mol.before)):
-                # this indicates that downstream is not a part but molecules
-                if type(mol.before[j]) == type(list()):
-                    print "detected:", mol.before[j][0], mol.before[j][1], mol
-                    self.reactions.append( Reaction([mol.before[j][0], mol.before[j][1]], [mol], "complexAss") )
-                    self.reactions.append( Reaction([mol], [mol.before[j][0], mol.before[j][1]], "complexDiss") )
-                    self.reactions.append( Reaction([mol], [], "complexDeg" ) )
-
-    def getMolecules(self, weaverOutput):
-            # If there are multiple compartments we must worry about the nature of the molecules
-
-            # for i in range( len(mol.before) ):
-            #    print "scope:", str(mol), mol.before[i].scope
-            #
-            #for i in range( len(mol.after) ):
-            #    print "scope:", str(mol), mol.after[i].scope
-
-            #print "scope:", str(mol), mol.before[0].scope.circuitName
-
-            #circuitName = mol.before[0].scope.circuitName
-            #spl = circuitName + "." + str(mol).split("(")[0]
-            #self.species.append(spl)
-            #print "newname:", spl 
-
-            #print mol, mol.before, mol.after
-
-            # up until this point we have captured everything other than additional molecule-molecule reactions
-        
-        for mol in weaverOutput.moleculeList:
-            # Add all molecules to list then do a unique
-            spl = str(mol).split("(")[0]
-            self.species.append(spl)
-
-            self.addDimerisationReaction(mol)
-        
-
-
-
-#if len(weaver.wovenCircuitList) > 0:
-            # This indicates multiple sub circuits
-            #for i in range(len(weaver.wovenCircuitList)):
-             #   pass
-        #else:
-            
-                    
+  
