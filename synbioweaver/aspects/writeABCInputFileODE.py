@@ -2,7 +2,7 @@ from synbioweaver.core import *
 from synbioweaver.aspects.printReactionNetworkAspect import *
 from synbioweaver.aspects.reactionDefinitions import *
 import numpy as np
-
+import readData
 class InputFile:
     def __init__(self, input_file_name, params, molecule_list, epsilon, fit, particles, alpha, prior_distribution, init_cond_distribution, priors, initial_conditions, data):
         self.input_file_name = input_file_name
@@ -109,7 +109,6 @@ class InputFile:
                 out_file.write('<' + str(param) + '> ' + self.prior_distribution[prior_count] + ' ' + str(self.priors[prior_count][0]) + ' ' + str(self.priors[prior_count][1])  + ' </' + str(param) + '>' + '\n')
             elif len(str(self.priors[prior_count]).split()) == 1:
                 out_file.write('<' + str(param) + '> ' + self.prior_distribution[prior_count] + ' ' + str(self.priors[prior_count]) + ' </' + str(param) + '>' + '\n')
-
         out_file.write('</parameters>' + '\n')
         out_file.write('\n')
         out_file.write('</model1>' + '\n')
@@ -119,16 +118,10 @@ class InputFile:
         return self.input_file_name
 
 
-
 class WriteABCInputFileODE(Aspect):
 
     def mainAspect(self):
         self.addWeaverOutput(self.writeABCInputFileODE)
-
-    def readData(self):
-        data = np.genfromtxt('data.txt', comments='#', delimiter=' ')
-        #time species1 species1sigma species2 species2sigma
-        return data
 
     def writeABCInputFileODE(self, weaverOutput):
         if getattr(weaverOutput, "getContext", None) != None:
@@ -155,7 +148,7 @@ class WriteABCInputFileODE(Aspect):
         for i in range(len(self.reaction_list)):
 
             if self.reactions[i].process == "dnaBind":
-                tmp = '0 1'
+                tmp = '1 2'
             elif self.reactions[i].process == "dnaUnbind":
                 tmp = '2 3'
             elif self.reactions[i].process == "rnaTransc":
@@ -198,6 +191,7 @@ class WriteABCInputFileODE(Aspect):
             for i in range(len(fit_tmpsp)):
                 self.fit += 'species' + str(mol_strings.index(str(fit_tmpsp[i]))) + " "
 
-        self.data = self.readData()
+        dat = readData.DataMatrix('data.txt')
+        self.data = dat.readData()
         switch_input_file = InputFile('input_file.xml', self.parameters, weaverOutput.moleculeList, self.epsilon, self.fit, self.particles, self.alpha, self.prior_distribution, self.init_cond_distribution, self.priors, self.initial_conditions, self.data)
         switch_input_file.writeInput()

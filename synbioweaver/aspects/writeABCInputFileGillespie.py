@@ -2,6 +2,8 @@ from synbioweaver.core import *
 from synbioweaver.aspects.printReactionNetworkAspect import *
 from synbioweaver.aspects.reactionDefinitions import *
 import numpy as np
+import readData
+
 
 class InputFile:
     def __init__(self, input_file_name, params, molecule_list, epsilon, fit, particles, alpha, prior_distribution, init_cond_distribution, priors, initial_conditions, data):
@@ -125,11 +127,6 @@ class WriteABCInputFileGillepsie(Aspect):
     def mainAspect(self):
         self.addWeaverOutput(self.writeABCInputFileGillepsie)
 
-    def readData(self):
-        data = np.genfromtxt('data.txt', comments='#', delimiter=' ')
-        #time species1 species1sigma species2 species2sigma
-        return data
-
     def writeABCInputFileGillepsie(self, weaverOutput):
         if getattr(weaverOutput, "getContext", None) != None:
             self.nspecies, self.nreactions, self.species, self.reactions, self.stoichiometry_matrix, self.parameters = weaverOutput.getContext()
@@ -198,6 +195,7 @@ class WriteABCInputFileGillepsie(Aspect):
             for i in range(len(fit_tmpsp)):
                 self.fit += 'species' + str(mol_strings.index(str(fit_tmpsp[i]))) + " "
 
-        self.data = self.readData()
+        dat = readData.DataMatrix('data.txt')
+        self.data = dat.readData()
         switch_input_file = InputFile('input_file.xml', self.parameters, weaverOutput.moleculeList, self.epsilon, self.fit, self.particles, self.alpha, self.prior_distribution, self.init_cond_distribution, self.priors, self.initial_conditions, self.data)
         switch_input_file.writeInput()
