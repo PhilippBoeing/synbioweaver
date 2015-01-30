@@ -51,16 +51,16 @@ class WriteCudaFileODE(Aspect):
         for sp in range(len(self.species)):
             ode = ''
             for rt in range(len(self.rates)):
-                if self.stoichiometry_matrix.T[sp][rt] < 0:
+                if self.stoichiometry_matrix.T[sp][rt] > 0:
+                    ode +='+'
                     ode += str(self.stoichiometry_matrix.T[sp][rt])
                     ode +=' * '
                     ode += str(self.rates[rt])
-                    ode +=' + '
-                elif self.stoichiometry_matrix.T[sp][rt] > 0:
-                    ode += str(self.stoichiometry_matrix.T[sp][rt])
-                    ode +=' * '
-                    ode += str(self.rates[rt])
+                elif self.stoichiometry_matrix.T[sp][rt] < 0:
                     ode +=' '
+                    ode += str(self.stoichiometry_matrix.T[sp][rt])
+                    ode +='*'
+                    ode += str(self.rates[rt])
                 elif self.stoichiometry_matrix.T[sp][rt] == 0:
                     pass
             self.odes.append(ode)
