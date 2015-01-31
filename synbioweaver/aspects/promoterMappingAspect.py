@@ -30,35 +30,41 @@ class promoterMapping:
         else:
             return [ str(x) for x in self.coding ]
 
+    def getPolarities(self):
+        return self.polarities
+
 class PromoterMapping(Aspect):
     
     def mainAspect(self):
         Reaction.param_counter = 0
         PromoterMapping.builtMap = False
         PromoterMapping.multiComp = False
-        # The goal of this aspect is to parse the design and generate a set of reactions, rates and parameters
+       
         self.addTypeAdvice(PartSignature('*.*'), self.isPromoter, 'isPromoter')
         self.addTypeAdvice(PartSignature('*.Promoter+'), self.promoterCoding, 'generatePromoterMap')
-
         self.addWeaverOutput(self.buildPromoterMap)
         
         self.promoterMap = []
-        self.circuitMap = {}
-
+   
     def promoterCoding(self, part):
         # set up a structure to hold regulators, type, coding
         prmtr_name = part.__class__.__name__ 
         prmtr_scope = part.scope.circuitName
         
-        if isinstance(part,NegativePromoter):
-            regulator = part.getRegulatedBy()[0]
-            self.promoterMap.append( promoterMapping( prmtr_name, prmtr_scope, [regulator],[-1],[] ) )
-        elif isinstance(part,PositivePromoter):
-            regulator = part.getRegulatedBy()[0]
-            self.promoterMap.append( promoterMapping( prmtr_name, prmtr_scope, [regulator],[1],[] ) )
+        if not isinstance(part,ConstitutivePromoter):
+            regulators = part.getRegulatedBy()
+            pols = []
+            for regulator in regulators:
+                if isinstance(part,NegativePromoter) or (isinstance(part,HybridPromoter) and regulator in part.getRepressors()) :
+                    pols.append(-1)
+                if isinstance(part,PositivePromoter) or (isinstance(part,HybridPromoter) and regulator in part.getInducers()) :
+                    pols.append(+1)
+                
+            # print prmtr_name, regulator, pol
+            self.promoterMap.append( promoterMapping( prmtr_name, prmtr_scope, regulators, pols, [] ) )
         else:
-            self.promoterMap.append( promoterMapping( prmtr_name, prmtr_scope, [None],[],[] ) )
-    
+            self.promoterMap.append( promoterMapping( prmtr_name, prmtr_scope, [],[],[] ) )
+
         # loop over and get all coding regions until at end of parts list or we reach another promoter        
         nextpart = part.getAfterPart()
         while nextpart != None and isinstance(nextpart,Promoter) == False:
@@ -90,7 +96,10 @@ class PromoterMapping(Aspect):
                         if part.isPromoter() == True:
                             part.generatePromoterMap()
             
+            #for pr in self.promoterMap:
+            #    print pr.getId(), pr.getRegulators(), pr.getCodings(), pr.getPolarities()
+                            
             PromoterMapping.builtMap = True 
 
-        return [self.promoterMap, self.circuitMap]
+        return self.promoterMap
         

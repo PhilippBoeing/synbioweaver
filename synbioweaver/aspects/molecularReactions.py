@@ -43,7 +43,7 @@ class MolecularReactions:
                 print "\tdetected after sing:", mol.after[j]
 
     def getMoleculeId(self, mol):
-        if PromoterMapping.multiComp == True:
+        if PromoterMapping.multiComp == True and str(mol) != "zero":
             return str(mol.scope.circuitName) + "." + str(mol)
         else:
             return str(mol)
@@ -103,7 +103,9 @@ class MolecularReactions:
             
         for i in range(len(weaverOutput.moleculeList)):
             # Add all molecules to list then do a unique
-            self.species.append( self.getMoleculeId(weaverOutput.moleculeList[i]) )
+            sp = self.getMoleculeId(weaverOutput.moleculeList[i])
+            # cleave off the regulated by
+            self.species.append( sp.split("(")[0] )
 
             #self.examineContext( weaverOutput.moleculeList[i] )
             self.addMolecularReaction(weaverOutput.moleculeList[i])

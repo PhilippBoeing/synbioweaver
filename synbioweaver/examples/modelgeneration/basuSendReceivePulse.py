@@ -26,8 +26,7 @@ class sn(Circuit):
         self.addPart(CodingRegion(AHL))
        
         self.reactionFrom(AHL, AHL, AHL, AHL) >> self.reactionTo( AHLn4 )
-        self.reactionFrom( AHLn4 ) >> self.reactionTo( zero )
-        
+      
         self.reactionFrom(TetR, TetR) >> self.reactionTo( TetRn2 )
         self.reactionFrom( TetRn2 ) >> self.reactionTo( zero )
         
@@ -49,11 +48,10 @@ class System(Circuit):
         self.addCircuit(sn)
         self.addCircuit(rc)
 
-#compiledDesign = Weaver(ExpressCircuit, PromoterMapping, MassActionKineticsProtein, PrintReactionNetwork).output()
-#compiledDesign = Weaver(GFPCircuit, PromoterMapping, MassActionKineticsProtein, PrintReactionNetwork).output()
+        # the environmental AHL tetramer degrades
+        self.reactionFrom( AHLn4 ) >> self.reactionTo( zero )
 
 compiledDesign = Weaver(System, PromoterMapping, MassActionKineticsProtein, PrintReactionNetwork).output()
-#compiledDesign = Weaver(System, PromoterMapping, SheaAckersKineticsRNA, PrintReactionNetwork).output()
 
 #print compiledDesign
 compiledDesign.printReactionNetwork()

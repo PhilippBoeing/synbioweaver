@@ -51,7 +51,7 @@ class Reaction:
             self.rate = par 
 
     def assignSA(self, prmtrMapping):
-        totalregs = len( prmtrMapping.regulators )
+        totalregs = len( prmtrMapping.getRegulators() )
         totalpos = 0
         Reaction.param_counter += 1
         par = "p"+str(Reaction.param_counter)
@@ -65,16 +65,20 @@ class Reaction:
             par = "p"+str(Reaction.param_counter)
             self.param.append( par )
 
-            denom = denom + " + " + par + "*" + str( prmtrMapping.regulators[i] )
+            denom = denom + " + " + par + "*" + str( prmtrMapping.getRegulators()[i] )
                 
-            if prmtrMapping.polarities[i] == +1:
+            if prmtrMapping.getPolarities()[i] == +1:
                 totalpos += 1
-                num = num + " + " + par + "*" + str( prmtrMapping.regulators[i] )
+                num = num + " + " + par + "*" + str( prmtrMapping.getRegulators()[i] )
 
         num = num + " )"
         denom = denom + " )"
     
-        self.rate = num+denom
+        Reaction.param_counter += 1
+        par = "p"+str(Reaction.param_counter)
+        self.param.append( par )
+
+        self.rate = par + "*( " +  num+denom + ")"
         
 
 # This helper class associates promoters with downstream coding regions, regulators and polarities

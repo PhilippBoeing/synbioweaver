@@ -24,7 +24,7 @@ class MassActionKineticsProtein(Aspect, MolecularReactions):
 
         if MassActionKineticsProtein.builtReactions == False:
             
-            self.promoterMap, self.circuitMap = weaverOutput.buildPromoterMap()
+            self.promoterMap = weaverOutput.buildPromoterMap()
             #self.locatedPromoters = weaverOutput.getLocatedParts()
 
             #print "Multiple comps :", PromoterMapping.multiComp
@@ -57,20 +57,15 @@ class MassActionKineticsProtein(Aspect, MolecularReactions):
 
         return [self.nspecies, self.nreactions, self.species, self.reactions, self.stoichiometry_matrix, self.parameters]
 
-
-    def fullRegulatorName(self, regulator, prmtr_name ):
-        return str(regulator)
-        #return self.circuitMap[prmtr_name] + "." + str(name)
-    
     def getReactionsMassActionProtein(self):
         for key in range( len(self.promoterMap) ):
             mapping = self.promoterMap[key]
 
             partname = mapping.getId()
-            regulator = mapping.getRegulators()[0]
+            regulators = mapping.getRegulators()
             codings = mapping.getCodings()
            
-            if regulator == None:
+            if len(regulators) == 0:
                 # This is a const promoter
                 # Add the promoter itself, no need for complexes
                 prods = copy.deepcopy(codings)
@@ -79,36 +74,40 @@ class MassActionKineticsProtein(Aspect, MolecularReactions):
                 for p in codings:
                     self.reactions.append( Reaction([p], [], "proteinDeg") )
                     self.species.append( p )
-            else:
-                # This is a regulated promoter
-                complx = partname + '_' + self.fullRegulatorName(regulator, partname)
-                
-                # the binding/unbinding reactions Pr + R <-> Pr_R
-                self.reactions.append( Reaction([partname, regulator], [complx], "dnaBind") )
-                self.reactions.append( Reaction([complx], [partname, self.fullRegulatorName(regulator, partname) ], "dnaUnbind") )
-                self.species.append( partname )
-                self.species.append( self.fullRegulatorName(regulator, partname) )
-                self.species.append( complx )
-
-                # if positive promoter then the bound complex expresses
-                if mapping.regulators[0] == 1:
-                    prods = copy.deepcopy(codings)
-                    prods.append(complx)
                     
-                    self.reactions.append( Reaction([complx], prods, "proteinExp") )
-                    for p in codings:
-                        self.reactions.append( Reaction([p], [], "proteinDeg" ) )
-                        self.species.append( p )
+            else:
+                for i in range(len(regulators)):
+                    regulator = regulators[i]
+                    
+                    complx = partname + '_' + str(regulator)
 
-                # if negative promoter then just the promoter expresses
-                else:
-                    prods = copy.deepcopy(codings)
-                    prods.append(partname)
-                    self.reactions.append( Reaction([partname], prods, "proteinExp") )
+                    # the binding/unbinding reactions Pr + R <-> Pr_R
+                    self.reactions.append( Reaction([partname, regulator], [complx], "dnaBind") )
+                    self.reactions.append( Reaction([complx], [partname, str(regulator) ], "dnaUnbind") )
+                    self.species.append( partname )
+                    self.species.append( str(regulator) )
+                    self.species.append( complx )
 
-                    for p in codings:
-                        self.reactions.append( Reaction([p], [], "proteinDeg") )
-                        self.species.append( p )
+                    # if positive promoter then the bound complex expresses
+                    if mapping.getPolarities()[i] == 1:
+                        prods = copy.deepcopy(codings)
+                        prods.append(complx)
+                        
+                        self.reactions.append( Reaction([complx], prods, "proteinExp") )
+                        for p in codings:
+                            self.reactions.append( Reaction([p], [], "proteinDeg" ) )
+                            self.species.append( p )
+
+                    # if negative promoter then just the promoter expresses
+                    else:
+                        #print "here", codings
+                        prods = copy.deepcopy(codings)
+                        prods.append(partname)
+                        self.reactions.append( Reaction([partname], prods, "proteinExp") )
+
+                        for p in codings:
+                            self.reactions.append( Reaction([p], [], "proteinDeg") )
+                            self.species.append( p )
 
 
   

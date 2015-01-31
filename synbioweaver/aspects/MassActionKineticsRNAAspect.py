@@ -22,7 +22,7 @@ class MassActionKineticsRNA(Aspect, MolecularReactions):
             sys.exit("MassActionKineticsRNA : buildPromoterMap() is unavailable. Quitting"  )
 
         if MassActionKineticsRNA.builtReactions == False:
-            self.promoterMap, self.circuitMap = weaverOutput.buildPromoterMap()
+            self.promoterMap = weaverOutput.buildPromoterMap()
           
             self.getReactionsMassActionRNA()
             self.getMolecules(weaverOutput)
@@ -56,12 +56,12 @@ class MassActionKineticsRNA(Aspect, MolecularReactions):
     def getReactionsMassActionRNA(self):
         for key in range( len(self.promoterMap) ):
             mapping = self.promoterMap[key]
-            partname = str( mapping.prmtr_name )
-            regulator = mapping.regulators[0]
-            codings = [str(x) for x in mapping.coding ]
-            #print partname, regulator, codings
 
-            if regulator == None:
+            partname = mapping.getId()
+            regulators = mapping.getRegulators()
+            codings = mapping.getCodings()
+
+            if len(regulators) == 0:
                 # This is a const promoter
                 # need to add:
                 # pr -> mX + pr, mX -> X, mX -> 0, X -> 0 
@@ -91,43 +91,45 @@ class MassActionKineticsRNA(Aspect, MolecularReactions):
                     self.reactions.append( Reaction([p], [], "proteinDeg") )
 
             else:
-                # This is a regulated promoter
-                complx = partname + '_' + str(regulator)
+                for i in range(len(regulators)):
+                    regulator = regulators[i]
+
+                    complx = partname + '_' + str(regulator)
                 
-                # the binding/unbinding reactions Pr + R <-> Pr_R
-                self.reactions.append( Reaction([partname, regulator], [complx], "dnaBind" ) )
-                self.reactions.append( Reaction([complx], [partname, regulator], "dnaUnbind") )
-                self.species.append( partname )
-                self.species.append( str(regulator) )
-                self.species.append( complx )
+                    # the binding/unbinding reactions Pr + R <-> Pr_R
+                    self.reactions.append( Reaction([partname, regulator], [complx], "dnaBind" ) )
+                    self.reactions.append( Reaction([complx], [partname, regulator], "dnaUnbind") )
+                    self.species.append( partname )
+                    self.species.append( str(regulator) )
+                    self.species.append( complx )
 
-                # if positive promoter then the bound complex expresses
-                if mapping.regulators[0] == 1:
-                    prods = copy.deepcopy(codings)
+                    # if positive promoter then the bound complex expresses
+                    if mapping.getPolarities()[i] == 1:
+                        prods = copy.deepcopy(codings)
                     
-                    mprods = ["m"+str(x) for x in prods]
-                    mprods.append(complx)
+                        mprods = ["m"+str(x) for x in prods]
+                        mprods.append(complx)
 
-                    self.reactions.append( Reaction([complx], mprods, "rnaTransc") )
-                    for p in codings:
-                        self.reactions.append( Reaction([p], [], "proteinDeg") )
-                        self.reactions.append( Reaction(["m"+str(p)], [], "rnaDeg") )
-                        self.reactions.append( Reaction(["m"+str(p)], [p], "proteinTransl") )
-                        self.species.append( p )
-                        self.species.append( "m"+str(p) )
+                        self.reactions.append( Reaction([complx], mprods, "rnaTransc") )
+                        for p in codings:
+                            self.reactions.append( Reaction([p], [], "proteinDeg") )
+                            self.reactions.append( Reaction(["m"+str(p)], [], "rnaDeg") )
+                            self.reactions.append( Reaction(["m"+str(p)], [p], "proteinTransl") )
+                            self.species.append( p )
+                            self.species.append( "m"+str(p) )
 
-                # if negative promoter then just the promoter expresses
-                else:
-                    prods = copy.deepcopy(codings)
+                    # if negative promoter then just the promoter expresses
+                    else:
+                        prods = copy.deepcopy(codings)
                     
-                    mprods = ["m"+str(x) for x in prods]
-                    mprods.append(partname)
-                    self.reactions.append( Reaction([partname], mprods,"rnaTransc") )
+                        mprods = ["m"+str(x) for x in prods]
+                        mprods.append(partname)
+                        self.reactions.append( Reaction([partname], mprods,"rnaTransc") )
 
-                    for p in codings:
-                        self.reactions.append( Reaction([p], [], "proteinDeg") )
-                        self.reactions.append( Reaction(["m"+str(p)], [], "rnaDeg") )
-                        self.reactions.append( Reaction(["m"+str(p)], [p], "proteinTransl") )
-                        self.species.append( p )
-                        self.species.append( "m"+str(p) )
+                        for p in codings:
+                            self.reactions.append( Reaction([p], [], "proteinDeg") )
+                            self.reactions.append( Reaction(["m"+str(p)], [], "rnaDeg") )
+                            self.reactions.append( Reaction(["m"+str(p)], [p], "proteinTransl") )
+                            self.species.append( p )
+                            self.species.append( "m"+str(p) )
 
