@@ -102,9 +102,11 @@ class InputFile:
         out_file.write('<parameters>' + '\n')
         prior_count = -1
         out_file.write('<p0> constant 1 </p0>' + '\n')
-
+        print 'priors', self.priors
+        print 'params', self.params
         for param in self.params:
             prior_count += 1
+            print prior_count
             if len(str(self.priors[prior_count]).split()) > 1:
                 out_file.write('<' + str(param) + '> ' + self.prior_distribution[prior_count] + ' ' + str(self.priors[prior_count][0]) + ' ' + str(self.priors[prior_count][1])  + ' </' + str(param) + '>' + '\n')
             elif len(str(self.priors[prior_count]).split()) == 1:
@@ -145,7 +147,7 @@ class WriteABCInputFileODE(Aspect):
             tmpinp2 = tmp2.split(" ")
             self.initial_conditions.append([tmpinp2[0], tmpinp2[1]])
 
-        for i in range(len(self.reaction_list)):
+        for i in range(len(self.reactions)):
 
             if self.reactions[i].process == "dnaBind":
                 tmp = '1 2'
@@ -170,9 +172,10 @@ class WriteABCInputFileODE(Aspect):
             elif self.reactions[i].process == "context":
                 tmp = '20 21'
 
-            self.prior_distribution.append('uniform')
-            tmpinp = tmp.split(" ")
-            self.priors.append([tmpinp[0], tmpinp[1]])
+            for i in range(len(self.reactions[i].paramString().split(','))):
+                    self.prior_distribution.append('uniform')
+                    tmpinp = tmp.split(" ")
+                    self.priors.append([tmpinp[0], tmpinp[1]])
 
         self.epsilon = 1.0
         fit_tmp = 'GFP'

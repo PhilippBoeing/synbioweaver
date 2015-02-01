@@ -149,10 +149,10 @@ class WriteABCInputFileGillepsie(Aspect):
             tmpinp2 = tmp2.split(" ")
             self.initial_conditions.append([tmpinp2[0], tmpinp2[1]])
 
-        for i in range(len(self.reaction_list)):
+        for i in range(len(self.reactions)):
 
             if self.reactions[i].process == "dnaBind":
-                tmp = '0 1'
+                tmp = '1 2'
             elif self.reactions[i].process == "dnaUnbind":
                 tmp = '2 3'
             elif self.reactions[i].process == "rnaTransc":
@@ -174,9 +174,11 @@ class WriteABCInputFileGillepsie(Aspect):
             elif self.reactions[i].process == "context":
                 tmp = '20 21'
 
-            self.prior_distribution.append('uniform')
-            tmpinp = tmp.split(" ")
-            self.priors.append([tmpinp[0], tmpinp[1]])
+            for i in range(len(self.reactions[i].paramString().split(','))):
+                    self.prior_distribution.append('uniform')
+                    tmpinp = tmp.split(" ")
+                    self.priors.append([tmpinp[0], tmpinp[1]])
+
 
         self.epsilon = 1.0
         fit_tmp = 'GFP'

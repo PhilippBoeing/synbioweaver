@@ -34,34 +34,40 @@ class constGFP(Circuit):
 #compiledDesign1.printReactionNetwork()
 #modelStr = compiledDesign1.writeSBMLModel()
 
-print "####### circuit + exp growth"
-compiledDesign1 = Weaver(constGFP, DesignRules, PromoterMapping, MassActionKineticsProtein, PrintReactionNetwork, ExpGrowthAspect, WriteSBMLModel).output()
-compiledDesign1.printReactionNetwork()
-modelStr = compiledDesign1.writeSBMLModel()
+#print "####### circuit + exp growth"
+#compiledDesign1 = Weaver(constGFP, DesignRules, PromoterMapping, MassActionKineticsProtein, PrintReactionNetwork, ExpGrowthAspect, WriteSBMLModel).output()
+#compiledDesign1.printReactionNetwork()
+#modelStr = compiledDesign1.writeSBMLModel()
 
 # write an SBML model out
-sbmlFile = open("constGFP_exp.sbml","w")
-print >>sbmlFile, modelStr
-sbmlFile.close()
+#sbmlFile = open("constGFP_exp.sbml","w")
+#print >>sbmlFile, modelStr
+#sbmlFile.close()
+
+#print "####### circuit + logistic growth"
+#compiledDesign1 = Weaver(constGFP, DesignRules, PromoterMapping, MassActionKineticsProtein, PrintReactionNetwork, LogisticGrowthAspect, WriteSBMLModel).output()
+#compiledDesign1.printReactionNetwork()
+#modelStr = compiledDesign1.writeSBMLModel()
+
+# write an SBML model out
+#sbmlFile = open("constGFP_log.sbml","w")
+#print >>sbmlFile, modelStr
+#sbmlFile.close()
+
+#print "####### circuit + lag logistic growth"
+#compiledDesign1 = Weaver(constGFP, DesignRules, PromoterMapping, MassActionKineticsProtein, PrintReactionNetwork, LagLogisticGrowthAspect, WriteSBMLModel).output()
+#compiledDesign1.printReactionNetwork()
+#modelStr = compiledDesign1.writeSBMLModel()
+
+# write an SBML model out
+#sbmlFile = open("constGFP_lag.sbml","w")
+#print >>sbmlFile, modelStr
+#sbmlFile.close()
+
 
 print "####### circuit + logistic growth"
-compiledDesign1 = Weaver(constGFP, DesignRules, PromoterMapping, MassActionKineticsProtein, PrintReactionNetwork, LogisticGrowthAspect, WriteSBMLModel).output()
-compiledDesign1.printReactionNetwork()
-modelStr = compiledDesign1.writeSBMLModel()
-
-# write an SBML model out
-sbmlFile = open("constGFP_log.sbml","w")
-print >>sbmlFile, modelStr
-sbmlFile.close()
-
-print "####### circuit + lag logistic growth"
-compiledDesign1 = Weaver(constGFP, DesignRules, PromoterMapping, MassActionKineticsProtein, PrintReactionNetwork, LagLogisticGrowthAspect, WriteSBMLModel).output()
-compiledDesign1.printReactionNetwork()
-modelStr = compiledDesign1.writeSBMLModel()
-
-# write an SBML model out
-sbmlFile = open("constGFP_lag.sbml","w")
-print >>sbmlFile, modelStr
-sbmlFile.close()
-
-
+compiledDesign5 = Weaver(constGFP, DesignRules, PromoterMapping, MassActionKineticsProtein, PrintReactionNetwork, LogisticGrowthAspect, WriteABCInputFileODE, WriteCudaFileODE, RunCudaSim).output()
+compiledDesign5.printReactionNetwork()
+compiledDesign5.writeABCInputFileODE()
+compiledDesign5.writeCudaFileODE()
+compiledDesign5.runCudaSim()
