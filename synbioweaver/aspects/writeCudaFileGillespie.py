@@ -12,7 +12,7 @@ class WriteCudaFileGillespie(Aspect):
         self.name = 'model'
         out_file = open(self.cuda_file,'w')
         out_file.write("#define NSPECIES " + str(nspecies) + "\n")
-        out_file.write("#define NPARAM " + str(nreactions+1) + "\n")
+        out_file.write("#define NPARAM " + str(len(params)+1) + "\n")
         out_file.write("#define NREACT " + str(len(reaction_list)) + "\n")
         out_file.write("\n")
         out_file.write('#define leq(a,b) a<=b' + '\n')
@@ -44,7 +44,7 @@ class WriteCudaFileGillespie(Aspect):
             if i is not None:
                 eq_count += 1
                 out_file.write("\t" + "h[" + str(eq_count) + "] = p0*" + str(i) + ';' +"\n")
-        out_file.write("}")
+        out_file.write("}"+"\n")
         out_file.close()
         return self.name
 

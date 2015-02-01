@@ -58,4 +58,3 @@ class ExpGrowthAspect(Aspect):
 
         # recalculate stoichiometry matrix
         self.stoichiometry_matrix = stoichiometry(self.nspecies, self.nreactions, self.species, self.reactions)
-        

@@ -12,7 +12,7 @@ class WriteCudaFileODE(Aspect):
         self.name = 'model'
         out_file = open(self.cuda_file,'w')
         out_file.write("#define NSPECIES " + str(nspecies) + "\n")
-        out_file.write("#define NPARAM " + str(nreactions+1) + "\n")
+        out_file.write("#define NPARAM " + str(len(params)+1) + "\n")
         out_file.write("#define NREACT " + str(len(reaction_list)) + "\n")
         out_file.write("\n")
         out_file.write('#define leq(a,b) a<=b' + '\n')
@@ -35,20 +35,22 @@ class WriteCudaFileODE(Aspect):
         for i in range(len(params)):
             out_file.write("#define " + str(params[i]) + " tex2D(param_tex," + str(i+1) + ",tid)" + "\n")
         out_file.write("\n")
+        out_file.write("struct myFex{" + '\n')
         out_file.write("__device__ void operator()(int *neq, double *t, double *y, double *ydot/*, void *otherData*/){ " + "\n")
-
+        out_file.write("int tid = blockDim.x * blockIdx.x + threadIdx.x;" + "\n")
         for i in range(len(self.odes)):
-            out_file.write('ydot[' + str(i) + ']=(' + self.odes[i] + ')' + '\n')
-        out_file.write("};")
+            out_file.write('ydot[' + str(i) + "] = p0*(" + self.odes[i] + ');' + '\n')
+        out_file.write("}" + "\n")
+        out_file.write("};" + "\n")
         out_file.write("struct myJex{" + "\n")
         out_file.write("__device__ void operator()(int *neq, double *t, double *y, int ml, int mu, double *pd, int nrowpd/*, void *otherData*/){"+"\n")
-        out_file.write("return; "+"\n"+"}"+"\n"+"};")
+        out_file.write("return; "+"\n"+"}"+"\n"+"};"+"\n")
         out_file.close()
         return self.name
 
     def calculateODEs(self):
         self.odes = []
-        for sp in range(len(self.species)):
+        for sp in range(self.nspecies):
             ode = ''
             for rt in range(len(self.rates)):
                 if self.stoichiometry_matrix.T[sp][rt] > 0:
@@ -69,8 +71,7 @@ class WriteCudaFileODE(Aspect):
     def writeCudaFileODE(self, weaverOutput):
         if getattr(weaverOutput, "getContext", None) != None:
             self.nspecies, self.nreactions, self.species, self.reactions, self.stoichiometry_matrix, self.parameters = weaverOutput.getContext()
-        else:
-            if getattr(weaverOutput, "getReactions", None) != None:
+        elif getattr(weaverOutput, "getReactions", None) != None:
                 self.nspecies, self.nreactions, self.species, self.reactions, self.stoichiometry_matrix, self.parameters = weaverOutput.getReactions()
         self.rates = []
         for i in range(self.nreactions):

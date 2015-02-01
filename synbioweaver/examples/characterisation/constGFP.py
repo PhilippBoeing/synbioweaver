@@ -9,7 +9,11 @@ from synbioweaver.aspects.logisticGrowthAspect import *
 from synbioweaver.aspects.lagLogisticGrowthAspect import *
 from synbioweaver.aspects.printReactionNetworkAspect import *
 from synbioweaver.aspects.writeSBMLModelAspect import *
-
+from synbioweaver.aspects.runCudaSim import *
+from synbioweaver.aspects.writeCudaFileODE import *
+from synbioweaver.aspects.writeABCInputFileODE import *
+from synbioweaver.aspects.writeCudaFileGillespie import *
+from synbioweaver.aspects.writeABCInputFileGillespie import *
 
 declareNewMolecule('GFP')
 
