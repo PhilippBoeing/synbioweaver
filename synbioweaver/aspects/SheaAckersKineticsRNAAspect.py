@@ -109,37 +109,22 @@ class SheaAckersKineticsRNA(Aspect, MolecularReactions):
                     self.reactions.append( Reaction([p], [], "proteinDeg") )
 
             else:
+
+                # assign the transcription reaction
+                prods = copy.deepcopy(codings)
+                mprods = ["m"+str(x) for x in prods]
+                Rprod = Reaction([], mprods, "rnaTransc")
+                Rprod.assignSA(mapping)
+                self.reactions.append(Rprod)
+                
                 for i in range(len(regulators)):
                     regulator = regulators[i]
 
                     complx = partname + '_' + str(regulator)
-                
-                    # if positive promoter
-                    if mapping.getPolarities()[i] == 1:
-                        prods = copy.deepcopy(codings)
-                        mprods = ["m"+str(x) for x in prods]
-                        Rprod = Reaction([], mprods, "rnaTransc")
-                        Rprod.assignSA(mapping)
-                        self.reactions.append(Rprod)
+                    for p in codings:
+                        self.reactions.append( Reaction([p], [], "proteinDeg") )
+                        self.reactions.append( Reaction(["m"+str(p)], [], "rnaDeg") )
+                        self.reactions.append( Reaction(["m"+str(p)], [p], "proteinTransl") )
+                        self.species.append( p )
+                        self.species.append( "m"+str(p) )
 
-                        for p in codings:
-                            self.reactions.append( Reaction([p], [], "proteinDeg") )
-                            self.reactions.append( Reaction(["m"+str(p)], [], "rnaDeg") )
-                            self.reactions.append( Reaction(["m"+str(p)], [p], "proteinTransl") )
-                            self.species.append( p )
-                            self.species.append( "m"+str(p) )
-
-                    # if negative promoter then just the promoter expresses
-                    else:
-                        prods = copy.deepcopy(codings)
-                        mprods = ["m"+str(x) for x in prods]
-                        Rprod = Reaction([], mprods, "rnaTransc" )
-                        Rprod.assignSA(mapping)
-                        self.reactions.append(Rprod)
-
-                        for p in codings:
-                            self.reactions.append( Reaction([p], [], "proteinDeg") )
-                            self.reactions.append( Reaction(["m"+str(p)], [], "rnaDeg") )
-                            self.reactions.append( Reaction(["m"+str(p)], [p], "proteinTransl") )
-                            self.species.append( p )
-                            self.species.append( "m"+str(p) )
