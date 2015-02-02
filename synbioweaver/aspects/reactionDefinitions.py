@@ -82,13 +82,13 @@ class Reaction:
         
 
 # This helper class associates promoters with downstream coding regions, regulators and polarities
-class promoterMapping:
-
-    def __init__(self, prmtr_name, regulators, polarities, coding):
-        self.prmtr_name = prmtr_name
-        self.regulators = regulators
-        self.polarities = polarities
-        self.coding = coding
+#class promoterMapping:
+#
+#    def __init__(self, prmtr_name, regulators, polarities, coding):
+#        self.prmtr_name = prmtr_name
+#        self.regulators = regulators
+#        self.polarities = polarities
+#        self.coding = coding
 
 # general calculation of a stochiometry matrix from a list of species and a list of reactions
 def stoichiometry(nspecies, nreactions, species, reactions ):
