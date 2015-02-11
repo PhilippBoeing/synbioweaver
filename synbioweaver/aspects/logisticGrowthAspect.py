@@ -49,7 +49,7 @@ class LogisticGrowthAspect(Aspect):
         par1 = 'p'+str(Reaction.param_counter)
         Reaction.param_counter += 1
         par2 = 'p'+str(Reaction.param_counter)
-        newreac.rate = par1 + "*( 1 - N/" + par2 + ")"
+        newreac.rate = par1 + "*N*( 1 - N/" + par2 + ")"
         newreac.param.append(par1)
         newreac.param.append(par2)
 
