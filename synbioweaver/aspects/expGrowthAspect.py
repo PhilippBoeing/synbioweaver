@@ -2,10 +2,10 @@ from synbioweaver.core import *
 from synbioweaver.aspects.reactionDefinitions import *
 import numpy, os, copy
 
-class ExpGrowthAspect(Aspect):
+class ExpGrowth(Aspect):
     
     def mainAspect(self):
-        ExpGrowthAspect.builtReactions = False
+        ExpGrowth.builtReactions = False
         self.addWeaverOutput(self.getContext)
 
     def getContext(self,weaverOutput):
@@ -14,13 +14,13 @@ class ExpGrowthAspect(Aspect):
         if getattr(weaverOutput, "getReactions", None) != None:
             self.nspecies, self.nreactions, self.species, self.reactions, self.stoichiometry_matrix, self.parameters = weaverOutput.getReactions()
         else:
-            print "ExpGrowthAspect : getReactions() is available. Quitting"
+            print "ExpGrowth : getReactions() is available. Quitting"
             exit()
 
-        if ExpGrowthAspect.builtReactions == False:
+        if ExpGrowth.builtReactions == False:
             self.addExpGrowth()
 
-            ExpGrowthAspect.builtReactions = True
+            ExpGrowth.builtReactions = True
 
         return [self.nspecies, self.nreactions, self.species, self.reactions, self.stoichiometry_matrix, self.parameters]
 

@@ -2,10 +2,10 @@ from synbioweaver.core import *
 from synbioweaver.aspects.reactionDefinitions import *
 import numpy, os, copy
 
-class LagLogisticGrowthAspect(Aspect):
+class LagLogisticGrowth(Aspect):
     
     def mainAspect(self):
-        LagLogisticGrowthAspect.builtReactions = False
+        LagLogisticGrowth.builtReactions = False
         self.addWeaverOutput(self.getContext)
 
     def getContext(self,weaverOutput):
@@ -14,13 +14,13 @@ class LagLogisticGrowthAspect(Aspect):
         if getattr(weaverOutput, "getReactions", None) != None:
             self.nspecies, self.nreactions, self.species, self.reactions, self.stoichiometry_matrix, self.parameters = weaverOutput.getReactions()
         else:
-            print "LagLogisticGrowthAspect : getReactions() is available. Quitting"
+            print "LagLogisticGrowth : getReactions() is available. Quitting"
             exit()
 
-        if LagLogisticGrowthAspect.builtReactions == False:
+        if LagLogisticGrowth.builtReactions == False:
             self.addLagLogisticGrowth()
 
-            LagLogisticGrowthAspect.builtReactions = True
+            LagLogisticGrowth.builtReactions = True
 
         return [self.nspecies, self.nreactions, self.species, self.reactions, self.stoichiometry_matrix, self.parameters]
 
