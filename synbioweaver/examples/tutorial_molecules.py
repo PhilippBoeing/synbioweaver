@@ -1,24 +1,27 @@
-from synbioweaver import *
-from aspects.design import DesignRules
+from synbioweaver.core import *
+from synbioweaver.aspects.designRulesAspect import DesignRules
 
-declareNewMolecule('MoleculeA',Protein)
+declareNewMolecule('MoleculeA')
 declareNewMolecule('MoleculeB')
 declareNewMolecule('MoleculeAB')
 declareNewMolecule('GFP')
 
 class MoleculeCircuit(Circuit):
     def mainCircuit(self):
+
+        # molecule instances in this circuit must be created
+        self.createMolecule(MoleculeA)
+        self.createMolecule(MoleculeB)
+        self.createMolecule(MoleculeAB)
+
         self.addPart(Promoter)
-        self.addPart(CodingRegion(MoleculeA() + MoleculeB()))
+        self.addPart(CodingRegion(MoleculeA))
         self.addPart(Promoter)
         self.addPart(CodingRegion(MoleculeB))
 
-        # of course, this reaction could also be added by an aspect
-        # for example, an aspect could check if MoleculeAB is needed
-        # and insert the reaction
+        # add a reaction A + B -> AB
         self.reactionFrom(MoleculeA, MoleculeB) >> self.reactionTo(MoleculeAB)
 
-        # should declare molecule?
         self.addPart(PositivePromoter(MoleculeAB))
         self.addPart(CodingRegion(GFP))
 
