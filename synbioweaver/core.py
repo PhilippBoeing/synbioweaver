@@ -1659,7 +1659,8 @@ class Weaver(object):
             self.parentCircuit = parentCircuit
 
         def __str__(self):
-            result = self.circuitName + ' Circuit'
+            result = "\n\n"
+            result = result + self.circuitName + ' Circuit'
             result = result + '\n--------------------------\n'
             result = result + 'Parts List:\n' + '+'.join(
                 str(self.partList[i]) for i in range(len(self.partList)))
@@ -1679,7 +1680,7 @@ class Weaver(object):
                     result = result + str(self.wovenCircuitList[i])
                     result = result + '\n####################\n'
 
-
+            result = result + "\n\n"
             return result
 
         def molecules(self):
