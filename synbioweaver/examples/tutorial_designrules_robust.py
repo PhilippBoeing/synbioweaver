@@ -36,7 +36,6 @@ class DesignRulesRobust(Aspect):
         self.addPart(Terminator)
 
     def replaceTerminator(self,context):
-        print "HERE:"
         if all( isinstance(x,Terminator) == False for x in context.part.before):
             return False #in this case, don't replace the terminator
         else:
