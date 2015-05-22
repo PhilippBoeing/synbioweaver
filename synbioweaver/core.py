@@ -1903,10 +1903,11 @@ class Weaver(object):
                     while numberOfMatchingParts > 1:
                         self.currentWeaverOutput.partList.pop()
                         numberOfMatchingParts -= 1
-                    advice.adviceMethod(PointCutContext(self.withinStack, part))
+                    # Advice should return False if not replaced, True if Replaced
+                    AdviceResult = advice.adviceMethod(PointCutContext(self.withinStack, part))
 
                     self.runAfterAdvice(callingObject, part, advice.precedence)
-                    return False
+                    return not AdviceResult
                 advice.adviceMethod(PointCutContext(self.withinStack, part))
 
         return True
