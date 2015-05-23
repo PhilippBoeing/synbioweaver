@@ -72,7 +72,7 @@ class Part(ExecutionNode):
     __metaclass__ = ABCMeta
 
     def __init__(self):
-        super(Part,self).__init__()
+        super(Part, self).__init__()
         self.precompileMoleculesBefore = []
         self.precompileMoleculesAfter = []
 
@@ -128,12 +128,13 @@ class Part(ExecutionNode):
             mol.after.append(self)
 
         for afterMol in self.precompileMoleculesAfter:
-            mol = weaver.getMoleculeObject(self.scope, afterMol,True)
+            mol = weaver.getMoleculeObject(self.scope, afterMol, True)
             self.after.append(mol)
             mol.before.append(self)
 
     def __str__(self):
         return self.__class__.__name__
+
 
 class Molecule(ExecutionNode):
     """Abstract Superclass for all Molecules
@@ -151,6 +152,7 @@ class Molecule(ExecutionNode):
 
     def __str__(self):
         return self.__class__.__name__
+
 
 class Protein(Molecule):
     """Class for Molecules that are Proteins"""
@@ -208,7 +210,6 @@ def checkAndSetMolecule(molecule):
         raise MoleculeValueError("molecule must be a class of (sub)type Molecule")
 
 
-
 class NegativePromoter(Promoter):
     """Class for Promoters that are Negative Promoters"""
 
@@ -220,7 +221,7 @@ class NegativePromoter(Promoter):
         """
 
         super(NegativePromoter, self).__init__()
-        self.precompileMoleculesBefore.append( checkAndSetMolecule(regulatedBy) )
+        self.precompileMoleculesBefore.append(checkAndSetMolecule(regulatedBy))
 
     def getRegulatedBy(self):
         """Returns a list of Molecules regulating this Promoter"""
@@ -229,13 +230,13 @@ class NegativePromoter(Promoter):
         if len(result) > 0:
             return result
 
-        #else: not compiled yet
+        # else: not compiled yet
         return self.precompileMoleculesBefore
 
 
     def __str__(self):
-        tmpstr =  super(NegativePromoter, self).__str__() + '(regulatedBy = '
-        tmpstr +=  'm'.join(str(self.getBeforeNodes(Molecule)[i]) for i in range(len(self.getBeforeNodes(Molecule))))
+        tmpstr = super(NegativePromoter, self).__str__() + '(regulatedBy = '
+        tmpstr += 'm'.join(str(self.getBeforeNodes(Molecule)[i]) for i in range(len(self.getBeforeNodes(Molecule))))
         tmpstr += ')'
         return tmpstr
 
@@ -251,7 +252,7 @@ class PositivePromoter(Promoter):
         """
 
         super(PositivePromoter, self).__init__()
-        self.precompileMoleculesBefore.append( checkAndSetMolecule(regulatedBy) )
+        self.precompileMoleculesBefore.append(checkAndSetMolecule(regulatedBy))
 
     def getRegulatedBy(self):
         """Returns a list of Molecules regulating this Promoter"""
@@ -260,12 +261,12 @@ class PositivePromoter(Promoter):
         if len(result) > 0:
             return result
 
-        #else: not compiled yet
+        # else: not compiled yet
         return self.precompileMoleculesBefore
 
     def __str__(self):
-        tmpstr =  super(PositivePromoter, self).__str__() + '(regulatedBy = '
-        tmpstr +=  ','.join(str(self.getBeforeNodes(Molecule)[i]) for i in range(len(self.getBeforeNodes(Molecule))))
+        tmpstr = super(PositivePromoter, self).__str__() + '(regulatedBy = '
+        tmpstr += ','.join(str(self.getBeforeNodes(Molecule)[i]) for i in range(len(self.getBeforeNodes(Molecule))))
         tmpstr += ')'
         return tmpstr
 
@@ -292,7 +293,7 @@ class HybridPromoter(Promoter):
         super(HybridPromoter, self).__init__()
         for mol in regulatedBy:
             self.precompileMoleculesBefore.append(checkAndSetMolecule(mol))
-            #todo try catch / raise exception if mol not in regulatorInfo
+            # todo try catch / raise exception if mol not in regulatorInfo
             cleanRegulatorInfo[mol] = regulatorInfo[mol]
 
         self.regulatorInfo = cleanRegulatorInfo
@@ -305,7 +306,9 @@ class HybridPromoter(Promoter):
                 return 'repressor:'
 
         tmpstr = super(HybridPromoter, self).__str__() + '(regulatedBy = '
-        tmpstr +=  ','.join(printRegulatorInfo(self.getBeforeNodes(Molecule)[i])+str(self.getBeforeNodes(Molecule)[i]) for i in range(len(self.getBeforeNodes(Molecule))))
+        tmpstr += ','.join(
+            printRegulatorInfo(self.getBeforeNodes(Molecule)[i]) + str(self.getBeforeNodes(Molecule)[i]) for i in
+            range(len(self.getBeforeNodes(Molecule))))
         tmpstr += ')'
         return tmpstr
 
@@ -316,7 +319,7 @@ class HybridPromoter(Promoter):
         if len(result) > 0:
             return result
 
-        #else: not compiled yet
+        # else: not compiled yet
         return self.precompileMoleculesBefore
 
     def getInducers(self):
@@ -356,7 +359,6 @@ class HybridPromoter(Promoter):
             return True
 
 
-
 class CodingRegion(Part):
     """Class for parts that are Coding Regions"""
 
@@ -367,13 +369,14 @@ class CodingRegion(Part):
         |     codesFor: sets moleculeConnection
         """
         super(CodingRegion, self).__init__()
-        self.precompileMoleculesAfter.append( checkAndSetMolecule(codesFor) )
+        self.precompileMoleculesAfter.append(checkAndSetMolecule(codesFor))
 
 
 
- # todo : is this necessary?
-#    def __del__(self):
- #       self.codesFor.before.remove(self)
+        # todo : is this necessary?
+
+    # def __del__(self):
+    #       self.codesFor.before.remove(self)
 
 
     def getCodingFor(self):
@@ -385,8 +388,8 @@ class CodingRegion(Part):
         return self.precompileMoleculesAfter
 
     def __str__(self):
-        tmpstr =  super(CodingRegion, self).__str__() + '(codesFor = '
-        tmpstr +=  'm'.join(str(self.getAfterNodes(Molecule)[i]) for i in range(len(self.getAfterNodes(Molecule))))
+        tmpstr = super(CodingRegion, self).__str__() + '(codesFor = '
+        tmpstr += 'm'.join(str(self.getAfterNodes(Molecule)[i]) for i in range(len(self.getAfterNodes(Molecule))))
         tmpstr += ')'
         return tmpstr
 
@@ -413,7 +416,10 @@ class Circuit(Part):
     """
 
     __metaclass__ = ABCMeta
-    weaver = None
+
+    def __init__(self):
+        self.weaver = None
+
 
     @abstractmethod
     def mainCircuit(self):
@@ -429,7 +435,7 @@ class Circuit(Part):
         | *Args:*
         |    molecule
         """
-        self.weaver.importMolecule(self,molecule)
+        self.weaver.importMolecule(self, molecule)
 
     def exportMolecule(self, molecule):
         """Export a particular molecule from this compartment to the outer compartment
@@ -437,7 +443,7 @@ class Circuit(Part):
         | *Args:*
         |    molecule
         """
-        self.weaver.exportMolecule(self,molecule)
+        self.weaver.exportMolecule(self, molecule)
 
     def createMolecule(self, molecule):
         """Declare that a particular molecule exists in the current scope
@@ -445,7 +451,7 @@ class Circuit(Part):
         | *Args:*
         |    molecule
         """
-        self.weaver.createMolecule(self,molecule)
+        self.weaver.createMolecule(self, molecule)
 
     def addCircuit(self, circuit):
         """Add a circuit as a sub-compartment in the current compartment
@@ -453,7 +459,7 @@ class Circuit(Part):
         | *Args:*
         |    circuit: Circuit to be added as a sub-compartment
         """
-        self.weaver.addCircuit(self,circuit)
+        self.weaver.addCircuit(self, circuit)
 
     def addPart(self, part):
         """Used to add parts to the circuit by passing them on to the AOSB Weaver
@@ -497,7 +503,7 @@ class Circuit(Part):
         self.weaver = weaver
 
 
-def declareNewPart(classname, parent=Part, moleculesBefore=[], moleculesAfter = [], regulatorInfoMap={}):
+def declareNewPart(classname, parent=Part, moleculesBefore=[], moleculesAfter=[], regulatorInfoMap={}):
     ''' Returns a new Part type and exports it to the caller's namespace
     
     | *Args*
@@ -523,19 +529,19 @@ def declareNewPart(classname, parent=Part, moleculesBefore=[], moleculesAfter = 
     | *Warnings*
     |     SymbolExistsWarning - If classname already exists in the namespace'''
 
+    if not issubclass(parent, Part):
+        raise PartValueError("parent must be of type Part")
 
-    if not issubclass(parent,Part):
-        raise PartValueError("parent must be of type Part")   
-    
     validnameregex = re.compile('[a-zA-Z_][a-zA-Z0-9_]*')
-        
-    if not isinstance(classname,str) or not validnameregex.match(classname) or not validnameregex.match(classname).span() == (0,len(classname)):
+
+    if not isinstance(classname, str) or not validnameregex.match(classname) or not validnameregex.match(
+            classname).span() == (0, len(classname)):
         raise InvalidSymbolNameError('name is not a valid symbold name')
 
-    if not isinstance(moleculesBefore,list):
+    if not isinstance(moleculesBefore, list):
         raise ValueError("moleculesBefore must be of type list")
 
-    if not isinstance(moleculesAfter,list):
+    if not isinstance(moleculesAfter, list):
         raise ValueError("moleculesAfter must be of type list")
 
     for mol in moleculesBefore:
@@ -550,62 +556,61 @@ def declareNewPart(classname, parent=Part, moleculesBefore=[], moleculesAfter = 
     # Create warning if name already exists 
     if currentframe.f_back.f_globals.has_key(classname):
         line = currentframe.f_back.f_lineno
-        warnings.warn("Line "+str(line)+": Part "+classname+" already defined. Existing definition will be used",SymbolExistsWarning,2) # 2 = one stack level above this
+        warnings.warn(
+            "Line " + str(line) + ": Part " + classname + " already defined. Existing definition will be used",
+            SymbolExistsWarning, 2)  # 2 = one stack level above this
         result = currentframe.f_back.f_globals.get(classname)
     else:
-        result = type(classname,basestuple,{})
-        def newTypeInit(self,recursion=0,moleculesBeforeAggregate=[],moleculesAfterAggregate=[],regulatorInfoMapAggregate={}):
+        result = type(classname, basestuple, {})
+
+        def newTypeInit(self, recursion=0, moleculesBeforeAggregate=[], moleculesAfterAggregate=[],
+                        regulatorInfoMapAggregate={}):
 
             moleculesBeforeAggregate += moleculesBefore
             moleculesAfterAggregate += moleculesAfter
             regulatorInfoMapAggregate = dict(regulatorInfoMapAggregate.items() + regulatorInfoMap.items())
 
             realself = self.__class__
-            for i in range(0,recursion):
+            for i in range(0, recursion):
                 realself = realself.__bases__[0]
 
             try:
-                super(realself,self).__init__(recursion+1,moleculesBeforeAggregate,moleculesAfterAggregate)
+                super(realself, self).__init__(recursion + 1, moleculesBeforeAggregate, moleculesAfterAggregate)
             except:
                 # we'll get an exeption if we've hit a core implemented Part type,
                 # because of the parameter incompatibility
                 if realself.__bases__[0] is PositivePromoter:
-                    super(realself,self).__init__(moleculesBeforeAggregate[0])
+                    super(realself, self).__init__(moleculesBeforeAggregate[0])
                     # at moment: only allow one regulator, others are lost
                     # todo: allow multiple regulators for pos and neg promoters?
                 elif realself.__bases__[0] is NegativePromoter:
-                    super(realself,self).__init__(moleculesBeforeAggregate[0])
+                    super(realself, self).__init__(moleculesBeforeAggregate[0])
                     # at moment: only allow one regulator, others are lost
                     # todo: allow multiple regulators for pos and neg promoters?
                 elif realself.__bases__[0] is ConstitutivePromoter:
-                    super(realself,self).__init__()
+                    super(realself, self).__init__()
                     # at moment: only allow one regulator, others are lost
                     # todo: allow multiple regulators for pos and neg promoters?
                 elif realself.__bases__[0] is CodingRegion:
-                    super(realself,self).__init__(moleculesAfterAggregate[0])
+                    super(realself, self).__init__(moleculesAfterAggregate[0])
                     # at moment: only allow one output molecule, others are lost
                     # todo: allow multiple?
                 elif realself.__bases__[0] is HybridPromoter:
-                    super(realself,self).__init__(moleculesBeforeAggregate,regulatorInfoMapAggregate)
+                    super(realself, self).__init__(moleculesBeforeAggregate, regulatorInfoMapAggregate)
                     # at moment: only allow one output molecule, others are lost
                     # todo: allow multiple?
                 elif realself.__bases__[0] is Part:
-                    super(realself,self).__init__()
-                    #in this case, we'll just add both to follow what the users wants
+                    super(realself, self).__init__()
+                    # in this case, we'll just add both to follow what the users wants
                     self.precompileMoleculesBefore += moleculesBeforeAggregate
                     self.precompileMoleculesAfter += moleculesAfterAggregate
 
 
-
-
-
-
-        #this means that parent does not take a moleculeConnection parameter,
+        # this means that parent does not take a moleculeConnection parameter,
         #but the new subtype should have one.
-        result = type(classname,basestuple,{'__init__':newTypeInit})
+        result = type(classname, basestuple, {'__init__': newTypeInit})
         currentframe.f_back.f_globals[classname] = result
     return result
-
 
 
 def declareNewMolecule(classname, *parents):
@@ -803,19 +808,19 @@ class PointCutExpressionNot(PointCutExpressionOperator):
 
         self.right = pointcutexpression
 
-    def match(self, part, within = None):
+    def match(self, part, within=None):
         """see PointCutExpressionNode definition"""
 
-        return not self.right.match(part,within)
+        return not self.right.match(part, within)
 
 
 class PointCutExpressionOr(PointCutExpressionOperator):
     """A PointCutExpressionOperator which is an Or"""
 
-    def match(self, part, within = None):
+    def match(self, part, within=None):
         """see PointCutExpressionNode definition"""
 
-        return self.left.match(part,within) or self.right.match(part,within)
+        return self.left.match(part, within) or self.right.match(part, within)
 
 
 class PointCutExpressionAnd(PointCutExpressionOperator):
@@ -936,11 +941,10 @@ class PartSignatureElement(object):
     def __match(self, obj):
         """internal match method, matching without inverse"""
 
-
         objectName = obj.__class__.__name__
-        if(isinstance(obj,str)):
+        if (isinstance(obj, str)):
             objectName = obj
-        if(inspect.isclass(obj)):
+        if (inspect.isclass(obj)):
             objectName = obj.__name__
 
         if ((self.qualifier == self.CLASSONLY) or (self.qualifier == self.SUBCLASS)) and (objectName == self.element):
@@ -950,7 +954,7 @@ class PartSignatureElement(object):
             return True
 
         if (self.qualifier == self.SUBCLASS):
-            if(inspect.isclass(obj)):
+            if (inspect.isclass(obj)):
                 return checkBaseClassesMatch(obj.__bases__, self.element)
             else:
                 return checkBaseClassesMatch(obj.__class__.__bases__, self.element)
@@ -992,6 +996,7 @@ class MoleculeSignatureElement(PartSignatureElement):
                 return False
             return True
         return super(MoleculeSignatureElement, self).match(obj)
+
 
 class MoleculeSignature():
     """A MoleculeSignature, used for Type Advice of Molecules
@@ -1035,26 +1040,25 @@ class MoleculeSignature():
         except:
             raise InvalidSignatureError(typeErrorMessage)
 
-    #split signature into components
+            # split signature into components
         signaturePartRE = re.compile('!?[a-zA-Z_][a-zA-Z0-9_]*[\+\*]?|\*')
 
         splitSignature = signaturePartRE.findall(signature)
 
-        numOfCircuitElements = len(splitSignature)-1;
-
+        numOfCircuitElements = len(splitSignature) - 1;
 
         self.molecule = MoleculeSignatureElement(splitSignature[numOfCircuitElements])
-       # #Circuit Part
-       # self.namespace = PartSignatureElement(splitSignature[0])
+        # #Circuit Part
+        # self.namespace = PartSignatureElement(splitSignature[0])
 
-        #Part ... Part
+        # Part ... Part
 
-        for i in range(0,numOfCircuitElements):
+        for i in range(0, numOfCircuitElements):
             self.namespace.append(PartSignatureElement(splitSignature[i]))
 
     def __str__(self):
 
-        firsthalf =  '.'.join(str(self.namespace[i]) for i in range(len(self.namespace)))
+        firsthalf = '.'.join(str(self.namespace[i]) for i in range(len(self.namespace)))
 
         firsthalf = firsthalf + '.' + str(self.molecule)
 
@@ -1074,7 +1078,7 @@ class MoleculeSignature():
 
         if not isinstance(molecule, Molecule):
             raise MoleculeValueError("Molecule to match must be instance of type Molecule")
-        result = self.molecule.match(molecule) and self.matchNamespaces(self.namespace,molecule.scope)
+        result = self.molecule.match(molecule) and self.matchNamespaces(self.namespace, molecule.scope)
 
         return result
 
@@ -1082,12 +1086,12 @@ class MoleculeSignature():
 class NotOnStack(PointCutExpressionNode):
     def __init__(self, signature):
         self.name = signature
-        #todo all the error checking...
+        # todo all the error checking...
 
     def match(self, part):
         """see PointCutExpressionNode definition"""
 
-        #todo matching here should also support + and *
+        # todo matching here should also support + and *
 
         for withinObject in part.additionStack:
             if withinObject.__class__.__name__ == self.name:
@@ -1095,10 +1099,11 @@ class NotOnStack(PointCutExpressionNode):
 
         return True
 
+
 class OnStack(PointCutExpressionNode):
     def __init__(self, signature):
         self.name = signature
-        #todo all the error checking...
+        # todo all the error checking...
 
     def match(self, part):
         """see PointCutExpressionNode definition"""
@@ -1158,16 +1163,14 @@ class PartSignature(PointCutExpressionNode):
         except:
             raise InvalidSignatureError(typeErrorMessage)
 
-    #split signature into components
+            # split signature into components
         signaturePartRE = re.compile('!?[a-zA-Z_][a-zA-Z0-9_]*[\+\*]?|\*')
 
         splitSignature = signaturePartRE.findall(signature)
 
-        numOfCircuitElements = len(splitSignature)-1;
+        numOfCircuitElements = len(splitSignature) - 1;
 
         signatureMoleculePartRE = re.compile('\(!?(([a-zA-Z_][a-zA-Z0-9_]*[\+\*]?)|\*)?\)')
-
-
 
         moleculePartMatch = signatureMoleculePartRE.search(signature)
         if moleculePartMatch != None:
@@ -1183,26 +1186,19 @@ class PartSignature(PointCutExpressionNode):
             self.nomolecule = False
             self.molecule = MoleculeSignatureElement('*')
 
-
-
         self.part = PartSignatureElement(splitSignature[numOfCircuitElements])
-       # #Circuit Part
-       # self.namespace = PartSignatureElement(splitSignature[0])
+        # #Circuit Part
+        # self.namespace = PartSignatureElement(splitSignature[0])
 
-        #Part ... Part
+        # Part ... Part
 
-        for i in range(0,numOfCircuitElements):
+        for i in range(0, numOfCircuitElements):
             self.namespace.append(PartSignatureElement(splitSignature[i]))
-
-
-
 
 
     def __str__(self):
 
-        firsthalf =  '.'.join(str(self.namespace[i]) for i in range(len(self.namespace)))
-
-
+        firsthalf = '.'.join(str(self.namespace[i]) for i in range(len(self.namespace)))
 
         firsthalf = firsthalf + '.' + str(self.part)
         if self.nomolecule:
@@ -1211,10 +1207,12 @@ class PartSignature(PointCutExpressionNode):
             return firsthalf + '(' + str(self.molecule) + ')'
 
     def matchNamespaces(self, namespace, scope):
+        i = len(scope)
         for name in reversed(namespace):
-            if name.match(scope.circuitName):
-                scope = scope.parentCircuit
-            else:
+            i -= 1
+            if(i < 0):
+                return True;
+            if not name.match(str(scope[i])):
                 return False
 
         # todo edge case, i.e. if need to check * is last, or no match?
@@ -1225,7 +1223,7 @@ class PartSignature(PointCutExpressionNode):
 
         if not isinstance(part, Part):
             raise PartValueError("Part to match must be instance of type Part")
-        result = self.part.match(part) and self.matchNamespaces(self.namespace,part.scope)
+        result = self.part.match(part) and self.matchNamespaces(self.namespace, part.additionStack)  # or scope
 
         if not self.nomolecule:
             # I.E. THERE IS A MOLECULE
@@ -1243,11 +1241,11 @@ class PartSignature(PointCutExpressionNode):
                 result = result and self.molecule.match(mol)
 
         if self.nomolecule:
-            if len(part.getBeforeNodes(Molecule)) != 0 or len(part.getAfterNodes(Molecule)) != 0 or\
+            if len(part.getBeforeNodes(Molecule)) != 0 or len(part.getAfterNodes(Molecule)) != 0 or \
                             len(part.precompileMoleculesAfter) != 0 or len(part.precompileMoleculesBefore) != 0:
                 result = result and False
 
-            #todo this means we could also do more than one molecule, e.g. Promoter(AB || A) or bool and...
+                # todo this means we could also do more than one molecule, e.g. Promoter(AB || A) or bool and...
 
         return result
 
@@ -1471,10 +1469,11 @@ class Aspect(object):
 
     __metaclass__ = ABCMeta
 
-    adviceList = []
-    typeAdviceList = []
-    weaverOutputList = []
-    weaver = None
+    def __init__(self):
+        self.adviceList = []
+        self.typeAdviceList = []
+        self.weaverOutputList = []
+        self.weaver = None
 
     def importMolecule(self, molecule):
         """Import a particular molecule from the outer compartment to this compartment
@@ -1482,7 +1481,7 @@ class Aspect(object):
         | *Args:*
         |    molecule
         """
-        self.weaver.importMolecule(self,molecule)
+        self.weaver.importMolecule(self, molecule)
 
     def exportMolecule(self, molecule):
         """Export a particular molecule from this compartment to the outer compartment
@@ -1490,7 +1489,7 @@ class Aspect(object):
         | *Args:*
         |    molecule
         """
-        self.weaver.exportMolecule(self,molecule)
+        self.weaver.exportMolecule(self, molecule)
 
     def createMolecule(self, molecule):
         """Declare that a particular molecule exists in the current scope
@@ -1498,7 +1497,7 @@ class Aspect(object):
         | *Args:*
         |    molecule
         """
-        self.weaver.createMolecule(self,molecule)
+        self.weaver.createMolecule(self, molecule)
 
     def addCircuit(self, circuit):
         """Add a circuit as a sub-compartment in the current compartment
@@ -1506,7 +1505,7 @@ class Aspect(object):
         | *Args:*
         |    circuit: Circuit to be added as a sub-compartment
         """
-        self.weaver.addCircuit(self,circuit)
+        self.weaver.addCircuit(self, circuit)
 
     def addPart(self, part):
         """Used to add parts to the design by passing them on to the AOSB Weaver
@@ -1664,7 +1663,7 @@ class Weaver(object):
             result = result + '\n--------------------------\n'
             result = result + 'Parts List:\n' + '+'.join(
                 str(self.partList[i]) for i in range(len(self.partList)))
-            if(len(self.partList) == 0):
+            if (len(self.partList) == 0):
                 result = result + "None"
 
             result = result + "\nCircuit Molecule List: \n"
@@ -1676,7 +1675,7 @@ class Weaver(object):
             if len(self.wovenCircuitList) > 0:
                 result = result + '\nSubCircuits:\n'
                 for i in range(len(self.wovenCircuitList)):
-                    result = result + "Sub Circuit "+str(i+1)+":\n"
+                    result = result + "Sub Circuit " + str(i + 1) + ":\n"
                     result = result + str(self.wovenCircuitList[i])
                     result = result + '\n####################\n'
 
@@ -1692,29 +1691,34 @@ class Weaver(object):
         def moleculeGraph(self):
             result = ''
             for i in range(len(self.moleculeList)):
-                if(isinstance(self.moleculeList[i],Part) and self.moleculeList[i].scope != self):
+                if (isinstance(self.moleculeList[i], Part) and self.moleculeList[i].scope != self):
                     continue
                 for j in range(len(self.moleculeList[i].before)):
-                    if (isinstance(self.moleculeList[i].before[j],Molecule)) or isinstance(
+                    if (isinstance(self.moleculeList[i].before[j], Molecule)) or isinstance(
                             self.moleculeList[i].before[j], Part):
-                        if(isinstance(self.moleculeList[i].before[j], Part)
-                           and (self.moleculeList[i].before[j].scope == self)):
-                            result += str(self.moleculeList[i].before[j].scope.circuitName) + '.' + str(self.moleculeList[i].before[j])\
-                                      + '->' +\
-                                      str(self.moleculeList[i].scope.circuitName) + '.'+ str(self.moleculeList[i])+'; '
+                        if (isinstance(self.moleculeList[i].before[j], Part)
+                            and (self.moleculeList[i].before[j].scope == self)):
+                            result += str(self.moleculeList[i].before[j].scope.circuitName) + '.' + str(
+                                self.moleculeList[i].before[j]) \
+                                      + '->' + \
+                                      str(self.moleculeList[i].scope.circuitName) + '.' + str(
+                                self.moleculeList[i]) + '; '
                     else:
-                        result += ','.join(str(self.moleculeList[i].before[j][k].scope.circuitName)+ '.' + str(self.moleculeList[i].before[j][k])
-                                           for k in range(len(self.moleculeList[i].before[j])))\
+                        result += ','.join(str(self.moleculeList[i].before[j][k].scope.circuitName) + '.' + str(
+                            self.moleculeList[i].before[j][k])
+                                           for k in range(len(self.moleculeList[i].before[j]))) \
                                   + '->' \
-                                  + str(self.moleculeList[i].scope.circuitName)+ '.' +  str(self.moleculeList[i])+'; '
+                                  + str(self.moleculeList[i].scope.circuitName) + '.' + str(self.moleculeList[i]) + '; '
 
                 for j in range(len(self.moleculeList[i].after)):
-                    if((isinstance(self.moleculeList[i].after[j],Part) and self.moleculeList[i].after[j].scope != self)):
+                    if (
+                            (isinstance(self.moleculeList[i].after[j], Part) and self.moleculeList[i].after[j].scope != self)):
                         pass
                     else:
-                        result += str(self.moleculeList[i].scope.circuitName) + '.' + str(self.moleculeList[i])\
-                                  + '->' +\
-                                  str(self.moleculeList[i].after[j].scope.circuitName) + '.' + str(self.moleculeList[i].after[j])+'; '
+                        result += str(self.moleculeList[i].scope.circuitName) + '.' + str(self.moleculeList[i]) \
+                                  + '->' + \
+                                  str(self.moleculeList[i].after[j].scope.circuitName) + '.' + str(
+                            self.moleculeList[i].after[j]) + '; '
 
             return result
 
@@ -1840,11 +1844,12 @@ class Weaver(object):
                     setattr(self.weaverOutput, outputMethod.__name__,
                             types.MethodType(outputMethodWrapper(outputMethod), aspect))
 
-     # todo clean up, possible split lookup and creation
-    def getMoleculeObject(self, scope, moleculeClass,createIt = False):
+                    # todo clean up, possible split lookup and creation
+
+    def getMoleculeObject(self, scope, moleculeClass, createIt=False):
         for molecule in scope.moleculeList:
-            if isinstance(molecule,moleculeClass):
-                return molecule #TODO what about subclases?
+            if isinstance(molecule, moleculeClass):
+                return molecule  # TODO what about subclases?
 
         # molecule does not yet exist in the scope
         # (this means it's not been created or imported from another scope)
@@ -1853,7 +1858,7 @@ class Weaver(object):
         else:
             result = moleculeClass()
             result.scope = scope
-            result.additionStack = self.withinStack[:] #important: needs to be a deep copy!
+            result.additionStack = self.withinStack[:]  # important: needs to be a deep copy!
             scope.moleculeList.append(result)
             self.addElemTypeAdvice(result)
             return result
@@ -1862,7 +1867,7 @@ class Weaver(object):
         """Internal - adds type advice to a part"""
 
         list = self.partTypeAdviceList
-        if isinstance(elem,Molecule):
+        if isinstance(elem, Molecule):
             list = self.moleculeTypeAdviceList
 
         for typeAdvice in list:
@@ -1924,7 +1929,7 @@ class Weaver(object):
         """
 
         # after advice are ordered by ascending precedence
-        #the one with the lowest priority is executed
+        # the one with the lowest priority is executed
         #if precedenceLevel is set by a replacement advice, we will only
         #execute those advice with >= precedence
         for advice in self.afterAdviceList:
@@ -1935,10 +1940,10 @@ class Weaver(object):
         realFromMoleculeList = []
         realToMoleculeList = []
         for element in fromMoleculeList:
-            realFromMoleculeList.append(self.getMoleculeObject(self.currentWeaverOutput,element))
+            realFromMoleculeList.append(self.getMoleculeObject(self.currentWeaverOutput, element))
             # todo needs to be adapted to actually search scope ??? or report error
         for element in toMoleculeList:
-            realToMoleculeList.append(self.getMoleculeObject(self.currentWeaverOutput,element,True))
+            realToMoleculeList.append(self.getMoleculeObject(self.currentWeaverOutput, element, True))
 
         # todo each element in fromMoleculeList does not need toMoleculeList in its before...
         # need to show that here is a gate...
@@ -1953,11 +1958,11 @@ class Weaver(object):
             realFromMoleculeList[0].after.append(realToMoleculeList)
 
 
-
     class MoleculeReactionTo:
         """Class to represent the right hand side of a molecule reaction
         """
-        def __init__(self,molecules):
+
+        def __init__(self, molecules):
             self.molecules = molecules
 
     class MoleculeReactionFrom:
@@ -1975,14 +1980,15 @@ class Weaver(object):
         |         stack of Aspects and Circuits which are executing to add
         |         this node
         """
-        def __init__(self,weaver,callingObject, molecules):
+
+        def __init__(self, weaver, callingObject, molecules):
             self.weaver = weaver
             self.callingObject = callingObject
             self.fromMolecules = molecules
 
-        def __rshift__(self,other):
+        def __rshift__(self, other):
             # todo check type of other, should be MoleculeReactionTo
-            self.weaver.addReaction(self.callingObject,self.fromMolecules,other.molecules)
+            self.weaver.addReaction(self.callingObject, self.fromMolecules, other.molecules)
 
 
     def reactionFrom(self, callingObject, molecules):
@@ -1993,10 +1999,10 @@ class Weaver(object):
         |     callingObject - the circuit or aspect calling this
         |     molecules - the list of molecules on the lhs of the reaction
         """
-        return self.MoleculeReactionFrom(self,callingObject,molecules)
+        return self.MoleculeReactionFrom(self, callingObject, molecules)
 
 
-    def reactionTo(self, callingObject,  molecules):
+    def reactionTo(self, callingObject, molecules):
         """Used to add the right hand side of a molecule reaction to the design,
         called by either a circuit or aspect
 
@@ -2019,20 +2025,20 @@ class Weaver(object):
         # todo check that we are not in outest scope
         # todo rethink - why should getMOlecule... take an object?? it's creating them afterall... should take class name?
         # todo no? maybe?
-        importedMoleculeParent = self.getMoleculeObject(self.currentWeaverOutput.parentCircuit,molecule)
+        importedMoleculeParent = self.getMoleculeObject(self.currentWeaverOutput.parentCircuit, molecule)
 
         # case 1: molecule already exists in scope and needs to be merged
         for mol in self.currentWeaverOutput.moleculeList:
-            if isinstance(mol,molecule):
+            if isinstance(mol, molecule):
                 mol.before.append(importedMoleculeParent)
                 importedMoleculeParent.after.append(mol)
                 return
 
-        #otherwise:
+        # otherwise:
         #case 2: molecule doesn't exist yet
-        self.createMolecule(callingObject,molecule)
+        self.createMolecule(callingObject, molecule)
         # now we can add it via case 1:
-        self.importMolecule(callingObject,molecule)
+        self.importMolecule(callingObject, molecule)
 
 
     def exportMolecule(self, callingObject, molecule):
@@ -2048,18 +2054,18 @@ class Weaver(object):
         # todo error checking
         # e.g. if molecule already exists (but possible differnet instances?? warn of clash?
         # if parent doesn't exist
-        exportMolecule = self.getMoleculeObject(self.currentWeaverOutput,molecule)
+        exportMolecule = self.getMoleculeObject(self.currentWeaverOutput, molecule)
 
         # case 1: the molecule already exists in the outer scope and needs to be added to its graph
         for mol in self.currentWeaverOutput.parentCircuit.moleculeList:
-            if isinstance(mol,molecule):
+            if isinstance(mol, molecule):
                 mol.before.append(exportMolecule)
                 exportMolecule.after.append(mol)
                 return
-        #otherwise:
+        # otherwise:
         #case 2: molecule doens't exist yet in outer scope
-        self.getMoleculeObject(self.currentWeaverOutput.parentCircuit,molecule,True)
-        self.exportMolecule(callingObject,molecule)
+        self.getMoleculeObject(self.currentWeaverOutput.parentCircuit, molecule, True)
+        self.exportMolecule(callingObject, molecule)
 
 
     def createMolecule(self, callingObject, molecule):
@@ -2071,7 +2077,7 @@ class Weaver(object):
         |     molecule - the molecule to be present
         """
 
-        self.getMoleculeObject(self.currentWeaverOutput,molecule,True)
+        self.getMoleculeObject(self.currentWeaverOutput, molecule, True)
         # todo, if create is set to true, should actually report an error if molecule already exists.
 
 
@@ -2086,7 +2092,7 @@ class Weaver(object):
 
         # todo check circuit
         circuitObject = circuit()
-        newCircuit = self.WeaverOutput(circuitObject.__class__.__name__,self.currentWeaverOutput)
+        newCircuit = self.WeaverOutput(circuitObject.__class__.__name__, self.currentWeaverOutput)
         self.currentWeaverOutput.wovenCircuitList.append(newCircuit)
         self.currentWeaverOutput = newCircuit
 
@@ -2110,7 +2116,6 @@ class Weaver(object):
         # part.namespace = self.currentWeaverOutput
         part.scope = self.currentWeaverOutput
 
-
         self.withinStack.append(callingObject)
         part.additionStack = self.withinStack[:]
         continueAddingPart = self.runBeforeAndReplaceAdvice(callingObject, part)
@@ -2131,7 +2136,7 @@ class Weaver(object):
             # If the part is a composite, we unpack it here. otherwise we finally add the part  
             if isinstance(part, Circuit) == False:
 
-                #add before / after information
+                # add before / after information
                 if len(self.currentWeaverOutput.partList) > 0:
                     self.currentWeaverOutput.partList[-1].setAfterPart(part)
                     part.setBeforePart(self.currentWeaverOutput.partList[-1])
