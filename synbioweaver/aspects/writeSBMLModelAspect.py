@@ -101,7 +101,7 @@ class WriteSBMLModel(Aspect):
          if getattr(weaverOutput, "getReactions", None) != None:
             self.nspecies, self.nreactions, self.species, self.reactions, self.stoichiometry_matrix, self.parameters = weaverOutput.getReactions()
          else:
-            print "printReactionNetwork : Neither getContext() or getReactions() is available. Quitting"
+            print "writeSBMLModel : Neither getContext() or getReactions() is available. Quitting"
             exit()
 
       return self.printSBMLModel()
