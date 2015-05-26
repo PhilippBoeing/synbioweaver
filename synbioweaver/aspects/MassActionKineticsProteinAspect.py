@@ -2,7 +2,8 @@ from synbioweaver.core import *
 from synbioweaver.aspects.reactionDefinitions import *
 from synbioweaver.aspects.molecularReactions import *
 from synbioweaver.aspects.promoterMappingAspect import *
-import numpy, os, copy, sys
+import numpy, os, sys
+from copy import *
 
 class MassActionKineticsProtein(Aspect, MolecularReactions):
     
@@ -55,7 +56,8 @@ class MassActionKineticsProtein(Aspect, MolecularReactions):
        
             MassActionKineticsProtein.builtReactions = True
 
-        return [self.nspecies, self.nreactions, self.species, self.reactions, self.stoichiometry_matrix, self.parameters]
+        print "here: MA builtReactions returning", len(self.species), self.nspecies, len(self.reactions), self.nreactions
+        return [ deepcopy(self.nspecies), deepcopy(self.nreactions), deepcopy(self.species), deepcopy(self.reactions), deepcopy(self.stoichiometry_matrix), deepcopy(self.parameters)]
 
     def getReactionsMassActionProtein(self):
         for key in range( len(self.promoterMap) ):
@@ -68,7 +70,7 @@ class MassActionKineticsProtein(Aspect, MolecularReactions):
             if len(regulators) == 0:
                 # This is a const promoter
                 # Add the promoter itself, no need for complexes
-                prods = copy.deepcopy(codings)
+                prods = deepcopy(codings)
                 self.reactions.append( Reaction([], prods, "proteinExp") )
 
                 for p in codings:
@@ -90,7 +92,7 @@ class MassActionKineticsProtein(Aspect, MolecularReactions):
 
                     # if positive promoter then the bound complex expresses
                     if mapping.getPolarities()[i] == 1:
-                        prods = copy.deepcopy(codings)
+                        prods = deepcopy(codings)
                         prods.append(complx)
                         
                         self.reactions.append( Reaction([complx], prods, "proteinExp") )
@@ -101,7 +103,7 @@ class MassActionKineticsProtein(Aspect, MolecularReactions):
                     # if negative promoter then just the promoter expresses
                     else:
                         #print "here", codings
-                        prods = copy.deepcopy(codings)
+                        prods = deepcopy(codings)
                         prods.append(partname)
                         self.reactions.append( Reaction([partname], prods, "proteinExp") )
 

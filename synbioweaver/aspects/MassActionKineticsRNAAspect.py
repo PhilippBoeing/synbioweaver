@@ -1,7 +1,8 @@
 from synbioweaver.core import *
 from synbioweaver.aspects.reactionDefinitions import *
 from synbioweaver.aspects.molecularReactions import *
-import numpy, os, copy
+import numpy, os
+from copy import *
 
 class MassActionKineticsRNA(Aspect, MolecularReactions):
     
@@ -50,7 +51,7 @@ class MassActionKineticsRNA(Aspect, MolecularReactions):
             
             MassActionKineticsRNA.builtReactions = True
 
-        return [self.nspecies, self.nreactions, self.species, self.reactions, self.stoichiometry_matrix, self.parameters]
+        return [deepcopy(self.nspecies), deepcopy(self.nreactions), deepcopy(self.species), deepcopy(self.reactions), deepcopy(self.stoichiometry_matrix), deepcopy(self.parameters) ]
 
     
     def getReactionsMassActionRNA(self):
@@ -66,7 +67,7 @@ class MassActionKineticsRNA(Aspect, MolecularReactions):
                 # need to add:
                 # pr -> mX + pr, mX -> X, mX -> 0, X -> 0 
 
-                prods = copy.deepcopy(codings)
+                prods = deepcopy(codings)
 
                 # add species first
                 #self.species.append( partname )
@@ -105,7 +106,7 @@ class MassActionKineticsRNA(Aspect, MolecularReactions):
 
                     # if positive promoter then the bound complex expresses
                     if mapping.getPolarities()[i] == 1:
-                        prods = copy.deepcopy(codings)
+                        prods = deepcopy(codings)
                     
                         mprods = ["m"+str(x) for x in prods]
                         mprods.append(complx)
@@ -120,7 +121,7 @@ class MassActionKineticsRNA(Aspect, MolecularReactions):
 
                     # if negative promoter then just the promoter expresses
                     else:
-                        prods = copy.deepcopy(codings)
+                        prods = deepcopy(codings)
                     
                         mprods = ["m"+str(x) for x in prods]
                         mprods.append(partname)
