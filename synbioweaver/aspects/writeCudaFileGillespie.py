@@ -1,5 +1,5 @@
 from synbioweaver.core import *
-import numpy
+import numpy, StringIO
 
 
 class WriteCudaFileGillespie(Aspect):
@@ -8,9 +8,8 @@ class WriteCudaFileGillespie(Aspect):
         self.addWeaverOutput(self.writeCudaFileGillepsie)
 
     def writeCuda(self, stoichiometry_matrix, reaction_list, molecule_list, rates_list, params, nspecies, nreactions):
-        self.cuda_file = str('model.cu')
-        self.name = 'model'
-        out_file = open(self.cuda_file,'w')
+        out_file = StringIO.StringIO()
+        
         out_file.write("#define NSPECIES " + str(nspecies) + "\n")
         out_file.write("#define NPARAM " + str(len(params)+1) + "\n")
         out_file.write("#define NREACT " + str(len(reaction_list)) + "\n")
@@ -45,8 +44,8 @@ class WriteCudaFileGillespie(Aspect):
                 eq_count += 1
                 out_file.write("\t" + "h[" + str(eq_count) + "] = p0*" + str(i) + ';' +"\n")
         out_file.write("}"+"\n")
-        out_file.close()
-        return self.name
+        
+        return out_file.getvalue()
 
     def writeCudaFileGillespie(self, weaverOutput):
         if getattr(weaverOutput, "getContext", None) != None:
@@ -57,4 +56,5 @@ class WriteCudaFileGillespie(Aspect):
         self.rates = []
         for i in range(self.nreactions):
             self.rates.append(self.reactions[i].rate)
-        self.writeCuda(self.stoichiometry_matrix, self.reactions, self.species, self.rates, self.parameters, self.nspecies, self.nreactions)
+
+        return self.writeCuda(self.stoichiometry_matrix, self.reactions, self.species, self.rates, self.parameters, self.nspecies, self.nreactions)

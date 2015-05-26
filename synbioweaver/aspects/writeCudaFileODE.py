@@ -1,5 +1,5 @@
 from synbioweaver.core import *
-import numpy
+import numpy, StringIO
 
 
 class WriteCudaFileODE(Aspect):
@@ -8,9 +8,8 @@ class WriteCudaFileODE(Aspect):
         self.addWeaverOutput(self.writeCudaFileODE)
 
     def writeCuda(self, reaction_list, molecule_list, params, nspecies, nreactions):
-        self.cuda_file = str('model.cu')
-        self.name = 'model'
-        out_file = open(self.cuda_file,'w')
+        out_file = StringIO.StringIO()
+
         out_file.write("#define NSPECIES " + str(nspecies) + "\n")
         out_file.write("#define NPARAM " + str(len(params)+1) + "\n")
         out_file.write("#define NREACT " + str(len(reaction_list)) + "\n")
@@ -45,8 +44,8 @@ class WriteCudaFileODE(Aspect):
         out_file.write("struct myJex{" + "\n")
         out_file.write("__device__ void operator()(int *neq, double *t, double *y, int ml, int mu, double *pd, int nrowpd/*, void *otherData*/){"+"\n")
         out_file.write("return; "+"\n"+"}"+"\n"+"};"+"\n")
-        out_file.close()
-        return self.name
+        
+        return out_file.getvalue()
 
     def calculateODEs(self):
         self.odes = []
@@ -69,14 +68,24 @@ class WriteCudaFileODE(Aspect):
         return self.odes
 
     def writeCudaFileODE(self, weaverOutput):
+       
+        # We are expecting either a set of reactions or a context
+
         if getattr(weaverOutput, "getContext", None) != None:
             self.nspecies, self.nreactions, self.species, self.reactions, self.stoichiometry_matrix, self.parameters = weaverOutput.getContext()
-        elif getattr(weaverOutput, "getReactions", None) != None:
+            print "HERE:", self.species, self.nspecies
+        else:
+            if getattr(weaverOutput, "getReactions", None) != None:
                 self.nspecies, self.nreactions, self.species, self.reactions, self.stoichiometry_matrix, self.parameters = weaverOutput.getReactions()
+            else:
+                print " writeCudaFileODE : Neither getContext() or getReactions() is available. Quitting"
+                exit()
+
         self.rates = []
         for i in range(self.nreactions):
             self.rates.append(self.reactions[i].rate)
         self.calculateODEs()
-        self.writeCuda(self.reactions, self.species, self.parameters, self.nspecies, self.nreactions)
+
+        return self.writeCuda(self.reactions, self.species, self.parameters, self.nspecies, self.nreactions)
 
 
