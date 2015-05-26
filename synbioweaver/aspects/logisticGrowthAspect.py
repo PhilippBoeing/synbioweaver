@@ -1,6 +1,7 @@
 from synbioweaver.core import *
 from synbioweaver.aspects.reactionDefinitions import *
-import numpy, os, copy
+import numpy, os
+from copy import *
 
 class LogisticGrowth(Aspect):
     
@@ -9,15 +10,16 @@ class LogisticGrowth(Aspect):
         self.addWeaverOutput(self.getContext)
 
     def getContext(self,weaverOutput):
-        
-        # first access the existing reactions
-        if getattr(weaverOutput, "getReactions", None) != None:
-            self.nspecies, self.nreactions, self.species, self.reactions, self.stoichiometry_matrix, self.parameters = weaverOutput.getReactions()
-        else:
-            print "LogisticGrowth : getReactions() is available. Quitting"
-            exit()
 
         if LogisticGrowth.builtReactions == False:
+            
+            # first access the existing reactions
+            if getattr(weaverOutput, "getReactions", None) != None:
+                self.nspecies, self.nreactions, self.species, self.reactions, self.stoichiometry_matrix, self.parameters = weaverOutput.getReactions()
+            else:
+                print "LogisticGrowth : getReactions() is available. Quitting"
+                exit()
+
             self.addLogisticGrowth()
 
             LogisticGrowth.builtReactions = True

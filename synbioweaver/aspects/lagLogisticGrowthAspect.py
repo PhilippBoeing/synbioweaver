@@ -1,6 +1,7 @@
 from synbioweaver.core import *
 from synbioweaver.aspects.reactionDefinitions import *
-import numpy, os, copy
+import numpy, os
+from copy import *
 
 class LagLogisticGrowth(Aspect):
     
@@ -9,20 +10,21 @@ class LagLogisticGrowth(Aspect):
         self.addWeaverOutput(self.getContext)
 
     def getContext(self,weaverOutput):
-        
-        # first access the existing reactions
-        if getattr(weaverOutput, "getReactions", None) != None:
-            self.nspecies, self.nreactions, self.species, self.reactions, self.stoichiometry_matrix, self.parameters = weaverOutput.getReactions()
-        else:
-            print "LagLogisticGrowth : getReactions() is available. Quitting"
-            exit()
 
         if LagLogisticGrowth.builtReactions == False:
+        
+            # first access the existing reactions
+            if getattr(weaverOutput, "getReactions", None) != None:
+                self.nspecies, self.nreactions, self.species, self.reactions, self.stoichiometry_matrix, self.parameters = weaverOutput.getReactions()
+            else:
+                print "LagLogisticGrowth : getReactions() is not available. Quitting"
+                exit()
+
             self.addLagLogisticGrowth()
 
             LagLogisticGrowth.builtReactions = True
 
-        return [self.nspecies, self.nreactions, self.species, self.reactions, self.stoichiometry_matrix, self.parameters]
+        return [deepcopy(self.nspecies), deepcopy(self.nreactions), deepcopy(self.species), deepcopy(self.reactions), deepcopy(self.stoichiometry_matrix), deepcopy(self.parameters)]
 
     
     def addLagLogisticGrowth(self):
@@ -83,8 +85,9 @@ class LagLogisticGrowth(Aspect):
 
         # update number of species and reactions
         self.nreactions = len(self.reactions)
+        
         self.nspecies = len(self.species)
-
+      
         # recalculate stoichiometry matrix
         self.stoichiometry_matrix = stoichiometry(self.nspecies, self.nreactions, self.species, self.reactions)
         

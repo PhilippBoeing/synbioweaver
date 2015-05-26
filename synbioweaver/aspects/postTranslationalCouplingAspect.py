@@ -1,7 +1,8 @@
 from synbioweaver.core import *
 from synbioweaver.aspects.reactionDefinitions import *
 from synbioweaver.aspects.promoterMappingAspect import *
-import numpy, os, copy
+import numpy, os
+from copy import *
 
 class PostTranslationalCoupling(Aspect):
     
@@ -11,19 +12,19 @@ class PostTranslationalCoupling(Aspect):
 
     def getContext(self,weaverOutput):
         
-        # first access the existing reactions
-        if getattr(weaverOutput, "getReactions", None) != None:
-            self.nspecies, self.nreactions, self.species, self.reactions, self.stoichiometry_matrix, self.parameters = weaverOutput.getReactions()
-        else:
-            print "PostTranslationalCoupling : getReactions() is available. Quitting"
-            exit()
-
         if PostTranslationalCoupling.builtReactions == False:
+            # first access the existing reactions
+            if getattr(weaverOutput, "getReactions", None) != None:
+                self.nspecies, self.nreactions, self.species, self.reactions, self.stoichiometry_matrix, self.parameters = weaverOutput.getReactions()
+            else:
+                print "PostTranslationalCoupling : getReactions() is available. Quitting"
+                exit()
+        
             self.addPostTranslationalCoupling()
 
             PostTranslationalCoupling.builtReactions = True
 
-        return [self.nspecies, self.nreactions, self.species, self.reactions, self.stoichiometry_matrix, self.parameters]
+        return [deepcopy(self.nspecies), deepcopy(self.nreactions), deepcopy(self.species), deepcopy(self.reactions), deepcopy(self.stoichiometry_matrix), deepcopy(self.parameters)]
 
     
     def addPostTranslationalCoupling(self):
