@@ -1,5 +1,5 @@
 from synbioweaver.core import *
-from synbioweaver.aspects.reactionDefinitions import *
+from synbioweaver.aspects.modelDefinitions import *
 import numpy, os
 from copy import *
 
@@ -14,16 +14,16 @@ class ExpGrowth(Aspect):
         if ExpGrowth.builtReactions == False:
             # first access the existing reactions
             if getattr(weaverOutput, "getReactions", None) != None:
-                self.nspecies, self.nreactions, self.species, self.reactions, self.stoichiometry_matrix, self.parameters = weaverOutput.getReactions()
+                self.model = weaverOutput.getReactions()
             else:
-                print "ExpGrowth : getReactions() is available. Quitting"
+                print "ExpGrowth : getReactions() is not available. Quitting"
                 exit()
 
             self.addExpGrowth()
 
             ExpGrowth.builtReactions = True
 
-        return [deepcopy(self.nspecies), deepcopy(self.nreactions), deepcopy(self.species), deepcopy(self.reactions), deepcopy(self.stoichiometry_matrix), deepcopy(self.parameters) ]
+        return deepcopy(self.model)
 
     
     def addExpGrowth(self):
@@ -38,24 +38,24 @@ class ExpGrowth(Aspect):
         # in this particular example we should be able to modify the reactions in place
         # this probably isn't true in general
 
-        print self.parameters
-        for r in self.reactions:
+        print self.model.parameters
+        for r in self.model.reactions:
             if r.process == "proteinExp" or r.process == "rnaTransc":
-                r.products.append("N")
-                r.reactants.append("N")
+                r.products.append( Species("con","N") )
+                r.reactants.append( Species("con","N") )
                 r.rate = r.rate+"*N"
 
         # add new reactions
-        newreac =  Reaction(["N"], ["N","N"], "context")
+        newreac =  Reaction([Species("con","N")], [Species("con","N"),Species("con","N")], "context")
         newreac.assignMassAction()
-        self.reactions.append( newreac )
-        self.nreactions += 1
+        self.model.reactions.append( newreac )
+        self.model.nreactions += 1
         for k in newreac.param:
-            self.parameters.append( k )
+            self.model.parameters.append( k )
 
         # add new species
-        self.species.append("N")
-        self.nspecies += 1
+        self.model.species.append(Species("con","N"))
+        self.model.nspecies += 1
 
         # recalculate stoichiometry matrix
-        self.stoichiometry_matrix = stoichiometry(self.nspecies, self.nreactions, self.species, self.reactions)
+        self.model.stoichiometry_matrix = self.model.stoichiometry(self.model.nspecies, self.model.nreactions, self.model.species, self.model.reactions)

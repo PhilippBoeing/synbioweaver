@@ -1,5 +1,5 @@
 from synbioweaver.core import *
-from synbioweaver.aspects.reactionDefinitions import *
+from synbioweaver.aspects.modelDefinitions import *
 import numpy, os
 from copy import *
 
@@ -15,7 +15,7 @@ class LagLogisticGrowth(Aspect):
         
             # first access the existing reactions
             if getattr(weaverOutput, "getReactions", None) != None:
-                self.nspecies, self.nreactions, self.species, self.reactions, self.stoichiometry_matrix, self.parameters = weaverOutput.getReactions()
+                self.model = weaverOutput.getReactions()
             else:
                 print "LagLogisticGrowth : getReactions() is not available. Quitting"
                 exit()
@@ -24,7 +24,7 @@ class LagLogisticGrowth(Aspect):
 
             LagLogisticGrowth.builtReactions = True
 
-        return [deepcopy(self.nspecies), deepcopy(self.nreactions), deepcopy(self.species), deepcopy(self.reactions), deepcopy(self.stoichiometry_matrix), deepcopy(self.parameters)]
+        return deepcopy(self.model)
 
     
     def addLagLogisticGrowth(self):
@@ -41,16 +41,19 @@ class LagLogisticGrowth(Aspect):
         #     Nd -> N
         #     Nd -> 0
 
+        SN = Species("con","N")
+        SNd = Species("con","Nd")
+
         # modify exixting reactions : change products, reactants and rate - no new parameters
-        for r in self.reactions:
+        for r in self.model.reactions:
             if r.process == "proteinExp" or r.process == "rnaTransc":
-                r.products.append("N")
-                r.reactants.append("N")
+                r.products.append( SN )
+                r.reactants.append( SN )
                 r.rate = r.rate+"*N"
 
         ###
         # create new logistic growth reaction to model the growth
-        newreac =  Reaction(["N"], ["N","N"], "context")
+        newreac =  Reaction([SN], [SN,SN], "context")
         Reaction.param_counter += 1
         par1 = 'p'+str(Reaction.param_counter)
         Reaction.param_counter += 1
@@ -60,34 +63,34 @@ class LagLogisticGrowth(Aspect):
         newreac.param.append(par2)
 
         # add new reaction, species, params to list
-        self.reactions.append( newreac )
-        self.species.append("N")
+        self.model.reactions.append( newreac )
+        self.model.species.append(SN)
         for k in newreac.param:
-            self.parameters.append( k )
+            self.model.parameters.append( k )
 
         ###
         # add Nd species
-        self.species.append("Nd")
+        self.model.species.append(SNd)
 
         # add decay reaction mass action
-        newreac2 =  Reaction(["Nd"], [], "context")
+        newreac2 =  Reaction([SNd], [], "context")
         newreac2.assignMassAction()
         for k in newreac2.param:
-            self.parameters.append( k )
-        self.reactions.append( newreac2 )
+            self.model.parameters.append( k )
+        self.model.reactions.append( newreac2 )
 
         # add transition reaction mass action
-        newreac3 =  Reaction(["Nd"], ["N"], "context")
+        newreac3 =  Reaction([SNd], [SN], "context")
         newreac3.assignMassAction()
         for k in newreac3.param:
-            self.parameters.append( k )
-        self.reactions.append( newreac3 )
+            self.model.parameters.append( k )
+        self.model.reactions.append( newreac3 )
 
         # update number of species and reactions
-        self.nreactions = len(self.reactions)
+        self.model.nreactions = len(self.model.reactions)
         
-        self.nspecies = len(self.species)
+        self.model.nspecies = len(self.model.species)
       
         # recalculate stoichiometry matrix
-        self.stoichiometry_matrix = stoichiometry(self.nspecies, self.nreactions, self.species, self.reactions)
+        self.model.stoichiometry_matrix = self.model.stoichiometry(self.model.nspecies, self.model.nreactions, self.model.species, self.model.reactions)
         
