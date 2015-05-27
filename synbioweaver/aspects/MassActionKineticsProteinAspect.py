@@ -31,11 +31,10 @@ class MassActionKineticsProtein(Aspect, MolecularReactions):
             # assign mass action rates and parameters
             for r in self.reactions:
                 r.assignMassAction()
-                
                 for k in r.param:
                     self.parameters.append( k )
 
-            self.newModel = Model( self.species, self.reactions )
+            self.newModel = Model( self.species, self.reactions, self.parameters )
            
             MassActionKineticsProtein.builtReactions = True
 

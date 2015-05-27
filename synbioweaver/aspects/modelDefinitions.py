@@ -14,9 +14,10 @@ class Species:
         return str(self.scope) + "::" + str(self.name)
 
 class Model:
-    def __init__(self, listOfSpecies, listOfReactions):
+    def __init__(self, listOfSpecies, listOfReactions, listOfParameters):
         self.species = listOfSpecies
         self.reactions = listOfReactions
+        self.parameters = listOfParameters
 
         self.nspecies = len(self.species)
         self.nreactions = len(self.reactions)

@@ -40,7 +40,7 @@ class SheaAckersKineticsRNA(Aspect, MolecularReactions):
                     for k in r.param:
                         self.parameters.append( k )
 
-            self.newModel = Model( self.species, self.reactions )
+            self.newModel = Model( self.species, self.reactions, self.parameters )
 
             SheaAckersKineticsRNA.builtReactions = True
 
