@@ -1,5 +1,5 @@
 from synbioweaver.core import *
-from synbioweaver.aspects.reactionDefinitions import *
+from synbioweaver.aspects.modelDefinitions import *
 from synbioweaver.aspects.molecularReactions import *
 from synbioweaver.aspects.promoterMappingAspect import *
 import numpy, os, sys
@@ -12,10 +12,7 @@ class MassActionKineticsProtein(Aspect, MolecularReactions):
         self.addWeaverOutput(self.getReactions)
 
         self.reactions = []
-        self.nreactions = 0
         self.species = []
-        self.nspecies = 0
-        self.stoichiometry_matrix = 0
         self.parameters = []
 
     def getReactions(self, weaverOutput):
@@ -28,22 +25,9 @@ class MassActionKineticsProtein(Aspect, MolecularReactions):
             self.promoterMap = weaverOutput.buildPromoterMap()
             #self.locatedPromoters = weaverOutput.getLocatedParts()
 
-            #print "Multiple comps :", PromoterMapping.multiComp
-
             self.getReactionsMassActionProtein()
             self.getMolecules(weaverOutput)
           
-            # Remove duplicate species
-            self.species = list( set(self.species) ) 
-            
-            # Remove zero species
-            if "zero" in self.species:
-                self.species.remove("zero")
-
-            # Finalise number of species, reactions, parameters
-            self.nreactions = len(self.reactions)
-            self.nspecies = len(self.species)
-        
             # assign mass action rates and parameters
             for r in self.reactions:
                 r.assignMassAction()
@@ -51,13 +35,11 @@ class MassActionKineticsProtein(Aspect, MolecularReactions):
                 for k in r.param:
                     self.parameters.append( k )
 
-            # calculate stoichiometry
-            self.stoichiometry_matrix = stoichiometry(self.nspecies, self.nreactions, self.species, self.reactions)
-       
+            self.newModel = Model( self.species, self.reactions )
+           
             MassActionKineticsProtein.builtReactions = True
 
-        print "here: MA builtReactions returning", len(self.species), self.nspecies, len(self.reactions), self.nreactions
-        return [ deepcopy(self.nspecies), deepcopy(self.nreactions), deepcopy(self.species), deepcopy(self.reactions), deepcopy(self.stoichiometry_matrix), deepcopy(self.parameters)]
+        return deepcopy( self.newModel )
 
     def getReactionsMassActionProtein(self):
         for key in range( len(self.promoterMap) ):
@@ -66,16 +48,21 @@ class MassActionKineticsProtein(Aspect, MolecularReactions):
             partname = mapping.getId()
             regulators = mapping.getRegulators()
             codings = mapping.getCodings()
+            #print partname, regulators, codings
            
             if len(regulators) == 0:
                 # This is a const promoter
                 # Add the promoter itself, no need for complexes
-                prods = deepcopy(codings)
+
+                # create a list of species for the products
+                #prods = deepcopy(codings)
+                prods = [ Species(mapping.getScope(), x) for x in codings]
+
                 self.reactions.append( Reaction([], prods, "proteinExp") )
 
                 for p in codings:
-                    self.reactions.append( Reaction([p], [], "proteinDeg") )
-                    self.species.append( p )
+                    self.reactions.append( Reaction([ Species(mapping.getScope(),p) ], [], "proteinDeg") )
+                    self.species.append( Species(mapping.getScope(),p) )
                     
             else:
                 for i in range(len(regulators)):
@@ -84,32 +71,36 @@ class MassActionKineticsProtein(Aspect, MolecularReactions):
                     complx = partname + '_' + str(regulator)
 
                     # the binding/unbinding reactions Pr + R <-> Pr_R
-                    self.reactions.append( Reaction([partname, regulator], [complx], "dnaBind") )
-                    self.reactions.append( Reaction([complx], [partname, str(regulator) ], "dnaUnbind") )
-                    self.species.append( partname )
-                    self.species.append( str(regulator) )
-                    self.species.append( complx )
+                    newSpecies1 = Species(mapping.getScope(),partname)
+                    newSpecies2 = Species(mapping.getScope(),regulator)
+                    newSpecies3 = Species(mapping.getScope(),complx)
+                    
+                    self.reactions.append( Reaction([newSpecies1, newSpecies2], [newSpecies3], "dnaBind") )
+                    self.reactions.append( Reaction([newSpecies3], [newSpecies1, newSpecies2], "dnaUnbind") )
+                    self.species.append( newSpecies1 )
+                    self.species.append( newSpecies2 )
+                    self.species.append( newSpecies3 )
 
                     # if positive promoter then the bound complex expresses
                     if mapping.getPolarities()[i] == 1:
-                        prods = deepcopy(codings)
-                        prods.append(complx)
+                        #prods = deepcopy(codings)
+                        prods = [ Species(mapping.getScope(), x) for x in codings]
+                        prods.append( newSpecies3 )
                         
-                        self.reactions.append( Reaction([complx], prods, "proteinExp") )
+                        self.reactions.append( Reaction([newSpecies3], prods, "proteinExp") )
                         for p in codings:
-                            self.reactions.append( Reaction([p], [], "proteinDeg" ) )
-                            self.species.append( p )
+                            self.reactions.append( Reaction([Species(mapping.getScope(),p)], [], "proteinDeg" ) )
+                            self.species.append( Species(mapping.getScope(),p) )
 
                     # if negative promoter then just the promoter expresses
                     else:
-                        #print "here", codings
-                        prods = deepcopy(codings)
-                        prods.append(partname)
-                        self.reactions.append( Reaction([partname], prods, "proteinExp") )
+                        #prods = deepcopy(codings)
+                        prods = [ Species(mapping.getScope(), x) for x in codings]
+                        prods.append(newSpecies1)
 
+                        self.reactions.append( Reaction([newSpecies1], prods, "proteinExp") )
                         for p in codings:
-                            self.reactions.append( Reaction([p], [], "proteinDeg") )
-                            self.species.append( p )
-
-
+                            self.reactions.append( Reaction([Species(mapping.getScope(),p)], [], "proteinDeg") )
+                            self.species.append( Species(mapping.getScope(),p) )
   
+        return

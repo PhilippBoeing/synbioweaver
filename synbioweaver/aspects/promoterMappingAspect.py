@@ -1,5 +1,5 @@
 from synbioweaver.core import *
-from synbioweaver.aspects.reactionDefinitions import *
+from synbioweaver.aspects.modelDefinitions import *
 import numpy, os, copy
 
 # This helper class associates promoters with downstream coding regions, regulators and polarities
@@ -12,23 +12,26 @@ class promoterMapping:
         self.polarities = polarities
         self.coding = coding
 
+    def getScope(self):
+        return str(self.prmtr_scope)
+
     def getId(self):
-        if PromoterMapping.multiComp == True:
-            return str(self.prmtr_scope) + "." + str(self.prmtr_name)
-        else:
-            return str(self.prmtr_name)
+        #if PromoterMapping.multiComp == True:
+        #    return str(self.prmtr_scope) + "." + str(self.prmtr_name)
+        #else:
+        return str(self.prmtr_name)
 
     def getRegulators(self):
-        if PromoterMapping.multiComp == True:
-            return [ str(self.prmtr_scope) + "." + str(x) for x in self.regulators ]
-        else:
-            return [ str(x) for x in self.regulators ]
+        #if PromoterMapping.multiComp == True:
+        #    return [ str(self.prmtr_scope) + "-" + str(x) for x in self.regulators ]
+        #else:
+        return [ str(x) for x in self.regulators ]
             
     def getCodings(self):
-        if PromoterMapping.multiComp == True:
-            return [ str(self.prmtr_scope) + "." + str(x) for x in self.coding ]
-        else:
-            return [ str(x) for x in self.coding ]
+        #if PromoterMapping.multiComp == True:
+        #    return [ str(self.prmtr_scope) + "-" + str(x) for x in self.coding ]
+        #else:
+        return [ str(x) for x in self.coding ]
 
     def getPolarities(self):
         return self.polarities
@@ -55,6 +58,7 @@ class PromoterMapping(Aspect):
             regulators = part.getRegulatedBy()
             pols = []
             for regulator in regulators:
+                # print regulator
                 if isinstance(part,NegativePromoter) or (isinstance(part,HybridPromoter) and regulator in part.getRepressors()) :
                     pols.append(-1)
                 if isinstance(part,PositivePromoter) or (isinstance(part,HybridPromoter) and regulator in part.getInducers()) :
@@ -97,7 +101,7 @@ class PromoterMapping(Aspect):
                             part.generatePromoterMap()
             
             #for pr in self.promoterMap:
-            #    print pr.getId(), pr.getRegulators(), pr.getCodings(), pr.getPolarities()
+            #    print "PromoterMapping:", pr.getScope(), pr.getId(), pr.getRegulators(), pr.getCodings(), pr.getPolarities()
                             
             PromoterMapping.builtMap = True 
 
