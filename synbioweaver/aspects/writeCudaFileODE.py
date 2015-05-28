@@ -1,6 +1,6 @@
 from synbioweaver.core import *
+from synbioweaver.aspects.modelDefinitions import *
 import numpy, StringIO
-
 
 class WriteCudaFileODE(Aspect):
 
@@ -31,8 +31,14 @@ class WriteCudaFileODE(Aspect):
                 out_file.write("#define " + str(molecule_list[i]) + " y[" + str(i) + "]" + "\n")
         out_file.write("\n")
         out_file.write("#define p0 tex2D(param_tex,0,tid)" + "\n")
-        for i in range(len(params)):
-            out_file.write("#define " + str(params[i]) + " tex2D(param_tex," + str(i+1) + ",tid)" + "\n")
+
+        # write parameters out in order of reactions
+        parcount = 0
+        for i in range(len(reaction_list)):
+            for j in range(len(reaction_list[i].param)):
+                out_file.write("#define " + str(reaction_list[i].param[j]) + " tex2D(param_tex," + str(parcount+1) + ",tid)" + "\n")
+                parcount += 1
+                
         out_file.write("\n")
         out_file.write("struct myFex{" + '\n')
         out_file.write("__device__ void operator()(int *neq, double *t, double *y, double *ydot/*, void *otherData*/){ " + "\n")
@@ -49,20 +55,20 @@ class WriteCudaFileODE(Aspect):
 
     def calculateODEs(self):
         self.odes = []
-        for sp in range(self.nspecies):
+        for sp in range(self.model.nspecies):
             ode = ''
             for rt in range(len(self.rates)):
-                if self.stoichiometry_matrix.T[sp][rt] > 0:
+                if self.model.stoichiometry_matrix.T[sp][rt] > 0:
                     ode +='+'
-                    ode += str(self.stoichiometry_matrix.T[sp][rt])
+                    ode += str(self.model.stoichiometry_matrix.T[sp][rt])
                     ode +=' * '
                     ode += str(self.rates[rt])
-                elif self.stoichiometry_matrix.T[sp][rt] < 0:
+                elif self.model.stoichiometry_matrix.T[sp][rt] < 0:
                     ode +=' '
-                    ode += str(self.stoichiometry_matrix.T[sp][rt])
+                    ode += str(self.model.stoichiometry_matrix.T[sp][rt])
                     ode +='*'
                     ode += str(self.rates[rt])
-                elif self.stoichiometry_matrix.T[sp][rt] == 0:
+                elif self.model.stoichiometry_matrix.T[sp][rt] == 0:
                     pass
             self.odes.append(ode)
         return self.odes
@@ -72,20 +78,21 @@ class WriteCudaFileODE(Aspect):
         # We are expecting either a set of reactions or a context
 
         if getattr(weaverOutput, "getContext", None) != None:
-            self.nspecies, self.nreactions, self.species, self.reactions, self.stoichiometry_matrix, self.parameters = weaverOutput.getContext()
-            print "HERE:", self.species, self.nspecies
+            self.model = weaverOutput.getContext()
         else:
             if getattr(weaverOutput, "getReactions", None) != None:
-                self.nspecies, self.nreactions, self.species, self.reactions, self.stoichiometry_matrix, self.parameters = weaverOutput.getReactions()
+                self.model = weaverOutput.getReactions()
             else:
                 print " writeCudaFileODE : Neither getContext() or getReactions() is available. Quitting"
                 exit()
 
         self.rates = []
-        for i in range(self.nreactions):
-            self.rates.append(self.reactions[i].rate)
+        for i in range(self.model.nreactions):
+            self.rates.append(self.model.reactions[i].rate)
         self.calculateODEs()
 
-        return self.writeCuda(self.reactions, self.species, self.parameters, self.nspecies, self.nreactions)
+        #print "writeCudaFileODE:", self.model.parameters
+
+        return self.writeCuda(self.model.reactions, self.model.species, self.model.parameters, self.model.nspecies, self.model.nreactions)
 
 

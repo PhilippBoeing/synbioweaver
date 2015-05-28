@@ -1,5 +1,5 @@
 from synbioweaver.core import *
-from synbioweaver.aspects.reactionDefinitions import *
+from synbioweaver.aspects.modelDefinitions import *
 import numpy, os, copy
 from libsbml import *
 
@@ -96,10 +96,10 @@ class WriteSBMLModel(Aspect):
       # We are expecting either a set of reactions or a context
 
       if getattr(weaverOutput, "getContext", None) != None:
-         self.nspecies, self.nreactions, self.species, self.reactions, self.stoichiometry_matrix, self.parameters = weaverOutput.getContext()
+         self.model = weaverOutput.getContext()
       else:
          if getattr(weaverOutput, "getReactions", None) != None:
-            self.nspecies, self.nreactions, self.species, self.reactions, self.stoichiometry_matrix, self.parameters = weaverOutput.getReactions()
+            self.model = weaverOutput.getReactions()
          else:
             print "writeSBMLModel : Neither getContext() or getReactions() is available. Quitting"
             exit()
@@ -141,14 +141,18 @@ class WriteSBMLModel(Aspect):
       check(c1.setSpatialDimensions(3),         'set compartment dimensions')
       check(c1.setUnits('litre'),               'set compartment size units')
 
-      for sp in self.species:
-         addSpecies(model, str(sp) )
-         
-      for i in range(len(self.reactions)):
-         rn = self.reactions[i]
-         addReaction(model, "r"+str(i+1), rn.reactants, rn.products, rn.rate)
+      for sp in self.model.species:
+         addSpecies(model, str(sp.name) )
+      
+      for i in range(len(self.model.reactions)):
+         rn = self.model.reactions[i]
+         reacs = [str(x) for x in rn.reactants]
+         prods = [str(x) for x in rn.products]
+
+         #addReaction(model, "r"+str(i+1), rn.reactants, rn.products, rn.rate)
+         addReaction(model, "r"+str(i+1), reacs, prods, rn.rate)
        
-      for pt in self.parameters:
+      for pt in self.model.parameters:
          addParameter(model, pt)
          
       return writeSBMLToString(document)

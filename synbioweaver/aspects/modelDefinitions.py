@@ -3,15 +3,18 @@ import numpy
 from copy import *
 
 # Each reaction is assigned one of these processes
-processes = [ "dnaBind", "dnaUnbind", "rnaTransc", "rnaDeg", "proteinTransl", "proteinExp", "proteinDeg", "complexAss", "complexDiss", "complexDeg", "context" ]
+#processes = [ "dnaBind", "dnaUnbind", "rnaTransc", "rnaDeg", "proteinTransl", "proteinExp", "proteinDeg", "complexAss", "complexDiss", "complexDeg", "context" ]
+processes = { "rnaTransc":1, "rnaDeg":2, "proteinTransl":3, "proteinExp":4, "proteinDeg":5, "dnaBind":6, "dnaUnbind":7, "complexAss":8, "complexDiss":9, "complexDeg":10, "context":11 }
 
 class Species:
     def __init__(self, scope, name):
         self.scope = scope
         self.name = name
 
+    #def __str__(self):
+    #    return str(self.scope) + "::" + str(self.name)
     def __str__(self):
-        return str(self.scope) + "::" + str(self.name)
+        return str(self.name)
 
 class Model:
     def __init__(self, listOfSpecies, listOfReactions, listOfParameters):
@@ -29,7 +32,8 @@ class Model:
         self.stoichiometry_matrix = self.stoichiometry(self.nspecies, self.nreactions, self.species, self.reactions)
 
     def orderReactions(self):
-        pass
+        # order by namespace, process, alphabetical
+        self.reactions = sorted( self.reactions, key=lambda reac: processes[ reac.process ])
 
     def removeDuplicateSpecies(self):
         #print "before dup", map(str,self.species)
@@ -116,7 +120,7 @@ class Reaction:
         self.products = products
 
         # assign a process
-        if process in processes:
+        if process in processes.keys():
             self.process = process
         else:
             print "Error: process undefined:", process
