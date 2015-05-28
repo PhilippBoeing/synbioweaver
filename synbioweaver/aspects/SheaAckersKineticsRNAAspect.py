@@ -37,8 +37,8 @@ class SheaAckersKineticsRNA(Aspect, MolecularReactions):
                 if r.process == "rnaDeg" or r.process == "proteinDeg" or r.process == "proteinTransl" or r.process == "complexDiss"\
                    or r.process == "complexAss" or r.process == "complexDeg":
                     r.assignMassAction()
-                    for k in r.param:
-                        self.parameters.append( k )
+                for k in r.param:
+                    self.parameters.append( k )
 
             self.newModel = Model( self.species, self.reactions, self.parameters )
 
@@ -70,11 +70,10 @@ class SheaAckersKineticsRNA(Aspect, MolecularReactions):
                 # production of mRNAs
                 prods1 = [ Species(mapping.getScope(),"m"+str(x)) for x in codings]
                 R1 = Reaction([], prods1, "rnaTransc" )
-                if located == True:
-                    R1.rate = self.locatedParts[partname].transferFunction()
-                else:
-                    R1.assignMassAction()
-                
+                #if located == True:
+                #    R1.rate = self.locatedParts[partname].transferFunction()
+                #else:
+                #    R1.assignMassAction()
                 self.reactions.append(R1)
 
                 # translation
