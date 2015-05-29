@@ -25,14 +25,39 @@ class MassActionKineticsProtein(Aspect, MolecularReactions):
             self.promoterMap = weaverOutput.buildPromoterMap()
             #self.locatedPromoters = weaverOutput.getLocatedParts()
 
-            self.getReactionsMassActionProtein()
-            self.getMolecules(weaverOutput)
-          
-            # assign mass action rates and parameters
-            for r in self.reactions:
-                r.assignMassAction()
-                for k in r.param:
-                    self.parameters.append( k )
+            # get molecular reactions first
+            mmol = MolecularReactions()
+            mreactions, mspecies = mmol.getMolecules(weaverOutput)
+
+             # get the unique namespaces and generate reactions
+            nspaces = getNamespaces(self.promoterMap)
+            for ns in nspaces:
+                reactions = self.getReactionsMassActionProtein(ns)
+                
+                # assign mass action rates and parameters to all processes
+                for r in reactions:
+                    r.assignMassAction()
+                    for k in r.param:
+                        self.parameters.append( k )
+                
+                self.reactions = self.reactions + reactions
+
+                # assign mass action rates to molecular reactions
+                for r in mreactions:
+                    # get either reactant or product
+                    if len(r.reactants) != 0:
+                        scope = r.reactants[0].scope
+                    else:
+                        scope = r.products[0].scope
+        
+                    if scope == ns:
+                        r.assignMassAction()
+                        for k in r.param:
+                            self.parameters.append( k )
+                        
+            
+            self.reactions = self.reactions + mreactions 
+            self.species = self.species + mspecies
 
             self.newModel = Model( self.species, self.reactions, self.parameters )
            
@@ -40,9 +65,14 @@ class MassActionKineticsProtein(Aspect, MolecularReactions):
 
         return deepcopy( self.newModel )
 
-    def getReactionsMassActionProtein(self):
+    def getReactionsMassActionProtein(self, nspace):
+        reactions = []
+
         for key in range( len(self.promoterMap) ):
             mapping = self.promoterMap[key]
+
+            if mapping.getScope() != nspace:
+                continue
 
             partname = mapping.getId()
             regulators = mapping.getRegulators()
@@ -57,10 +87,10 @@ class MassActionKineticsProtein(Aspect, MolecularReactions):
                 #prods = deepcopy(codings)
                 prods = [ Species(mapping.getScope(), x) for x in codings]
 
-                self.reactions.append( Reaction([], prods, "proteinExp") )
+                reactions.append( Reaction([], prods, "proteinExp") )
 
                 for p in codings:
-                    self.reactions.append( Reaction([ Species(mapping.getScope(),p) ], [], "proteinDeg") )
+                    reactions.append( Reaction([ Species(mapping.getScope(),p) ], [], "proteinDeg") )
                     self.species.append( Species(mapping.getScope(),p, "protein") )
                     
             else:
@@ -74,8 +104,8 @@ class MassActionKineticsProtein(Aspect, MolecularReactions):
                     newSpecies2 = Species(mapping.getScope(),regulator, "protein" )
                     newSpecies3 = Species(mapping.getScope(),complx, "bindingDNA")
                     
-                    self.reactions.append( Reaction([newSpecies1, newSpecies2], [newSpecies3], "dnaBind") )
-                    self.reactions.append( Reaction([newSpecies3], [newSpecies1, newSpecies2], "dnaUnbind") )
+                    reactions.append( Reaction([newSpecies1, newSpecies2], [newSpecies3], "dnaBind") )
+                    reactions.append( Reaction([newSpecies3], [newSpecies1, newSpecies2], "dnaUnbind") )
                     self.species.append( newSpecies1 )
                     self.species.append( newSpecies2 )
                     self.species.append( newSpecies3 )
@@ -86,9 +116,9 @@ class MassActionKineticsProtein(Aspect, MolecularReactions):
                         prods = [ Species(mapping.getScope(), x) for x in codings]
                         prods.append( newSpecies3 )
                         
-                        self.reactions.append( Reaction([newSpecies3], prods, "proteinExp") )
+                        reactions.append( Reaction([newSpecies3], prods, "proteinExp") )
                         for p in codings:
-                            self.reactions.append( Reaction([Species(mapping.getScope(),p)], [], "proteinDeg" ) )
+                            reactions.append( Reaction([Species(mapping.getScope(),p)], [], "proteinDeg" ) )
                             self.species.append( Species(mapping.getScope(),p, "protein") )
 
                     # if negative promoter then just the promoter expresses
@@ -97,9 +127,9 @@ class MassActionKineticsProtein(Aspect, MolecularReactions):
                         prods = [ Species(mapping.getScope(), x) for x in codings]
                         prods.append(newSpecies1)
 
-                        self.reactions.append( Reaction([newSpecies1], prods, "proteinExp") )
+                        reactions.append( Reaction([newSpecies1], prods, "proteinExp") )
                         for p in codings:
-                            self.reactions.append( Reaction([Species(mapping.getScope(),p)], [], "proteinDeg") )
+                            reactions.append( Reaction([Species(mapping.getScope(),p)], [], "proteinDeg") )
                             self.species.append( Species(mapping.getScope(),p, "protein") )
   
-        return
+        return reactions

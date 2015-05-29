@@ -4,7 +4,7 @@ from synbioweaver.aspects.molecularReactions import *
 import numpy, os
 from copy import *
 
-class SheaAckersKineticsRNA(Aspect, MolecularReactions):
+class SheaAckersKineticsRNA(Aspect):
     
     def mainAspect(self):
         SheaAckersKineticsRNA.builtReactions = False
@@ -29,16 +29,42 @@ class SheaAckersKineticsRNA(Aspect, MolecularReactions):
             else:
                 self.locatedParts = []
 
-            self.getReactionsSheaAckersRNA()
-            self.getMolecules(weaverOutput)
+            # get molecular reactions first
+            mmol = MolecularReactions()
+            mreactions, mspecies = mmol.getMolecules(weaverOutput)
+
+            # get the unique namespaces and generate reactions
+            nspaces = getNamespaces(self.promoterMap)
+            for ns in nspaces:
+                reactions = self.getReactionsSheaAckersRNA(ns)
+                
+                # assign mass action rates and parameters to certain processes
+                for r in reactions:
+                    if r.process == "rnaDeg" or r.process == "proteinDeg" or r.process == "proteinTransl" or r.process == "complexDiss"\
+                           or r.process == "complexAss" or r.process == "complexDeg":
+                        r.assignMassAction()
+
+                    for k in r.param:
+                        self.parameters.append( k )
+                
+                self.reactions = self.reactions + reactions
+
+                # assign mass action rates to molecular reactions
+                for r in mreactions:
+                    # get either reactant or product
+                    if len(r.reactants) != 0:
+                        scope = r.reactants[0].scope
+                    else:
+                        scope = r.products[0].scope
+        
+                    if scope == ns:
+                        r.assignMassAction()
+                        for k in r.param:
+                            self.parameters.append( k )
+                        
             
-            # assign mass action rates and parameters to certain processes
-            for r in self.reactions:
-                if r.process == "rnaDeg" or r.process == "proteinDeg" or r.process == "proteinTransl" or r.process == "complexDiss"\
-                   or r.process == "complexAss" or r.process == "complexDeg":
-                    r.assignMassAction()
-                for k in r.param:
-                    self.parameters.append( k )
+            self.reactions = self.reactions + mreactions 
+            self.species = self.species + mspecies
 
             self.newModel = Model( self.species, self.reactions, self.parameters )
 
@@ -46,9 +72,15 @@ class SheaAckersKineticsRNA(Aspect, MolecularReactions):
 
         return deepcopy(self.newModel)
 
-    def getReactionsSheaAckersRNA(self):
+    def getReactionsSheaAckersRNA(self, nspace):
+
+        reactions = []
+        
         for key in range( len(self.promoterMap) ):
             mapping = self.promoterMap[key]
+
+            if mapping.getScope() != nspace:
+                continue
 
             partname = mapping.getId()
             regulators = mapping.getRegulators()
@@ -74,16 +106,16 @@ class SheaAckersKineticsRNA(Aspect, MolecularReactions):
                 #    R1.rate = self.locatedParts[partname].transferFunction()
                 #else:
                 #    R1.assignMassAction()
-                self.reactions.append(R1)
+                reactions.append(R1)
 
                 # translation
                 for p in codings:
                     # translation
-                    self.reactions.append( Reaction( [Species(mapping.getScope(),"m"+str(p))], [Species(mapping.getScope(),str(p))], "proteinTransl" ) )
+                    reactions.append( Reaction( [Species(mapping.getScope(),"m"+str(p))], [Species(mapping.getScope(),str(p))], "proteinTransl" ) )
                     # decay of mRNAs
-                    self.reactions.append( Reaction([Species(mapping.getScope(),"m"+str(p))], [], "rnaDeg") )
+                    reactions.append( Reaction([Species(mapping.getScope(),"m"+str(p))], [], "rnaDeg") )
                     # decay of proteins
-                    self.reactions.append( Reaction([Species(mapping.getScope(),str(p))], [], "proteinDeg") )
+                    reactions.append( Reaction([Species(mapping.getScope(),str(p))], [], "proteinDeg") )
 
             else:
 
@@ -91,16 +123,13 @@ class SheaAckersKineticsRNA(Aspect, MolecularReactions):
                 mprods = [Species(mapping.getScope(),"m"+str(x)) for x in codings]
                 Rprod = Reaction([], mprods, "rnaTransc")
                 Rprod.assignSA(mapping)
-                self.reactions.append(Rprod)
+                reactions.append(Rprod)
                 
-                for i in range(len(regulators)):
-                    regulator = regulators[i]
+                for p in codings:
+                    reactions.append( Reaction([Species(mapping.getScope(),str(p))], [], "proteinDeg") )
+                    reactions.append( Reaction([Species(mapping.getScope(),"m"+str(p))], [], "rnaDeg") )
+                    reactions.append( Reaction([Species(mapping.getScope(),"m"+str(p))], [Species(mapping.getScope(),str(p))], "proteinTransl") )
+                    self.species.append( Species(mapping.getScope(),str(p), "protein" ) )
+                    self.species.append( Species(mapping.getScope(),"m"+str(p), "mRNA" ) )
 
-                    complx = partname + '_' + str(regulator)
-                    for p in codings:
-                        self.reactions.append( Reaction([Species(mapping.getScope(),str(p))], [], "proteinDeg") )
-                        self.reactions.append( Reaction([Species(mapping.getScope(),"m"+str(p))], [], "rnaDeg") )
-                        self.reactions.append( Reaction([Species(mapping.getScope(),"m"+str(p))], [Species(mapping.getScope(),str(p))], "proteinTransl") )
-                        self.species.append( Species(mapping.getScope(),str(p), "protein" ) )
-                        self.species.append( Species(mapping.getScope(),"m"+str(p), "mRNA" ) )
-
+        return reactions

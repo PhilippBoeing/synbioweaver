@@ -15,6 +15,7 @@ class Species:
 
     #def __str__(self):
     #    return str(self.scope) + "::" + str(self.name)
+
     def __str__(self):
         return str(self.name)
 
@@ -25,7 +26,7 @@ def sort_react( x ):
     else:
         tosort = x.products[0]
         
-    return ( processes[ x.process ], str(tosort) )
+    return ( tosort.scope, processes[ x.process ], tosort.name )
 
 class Model:
     def __init__(self, listOfSpecies, listOfReactions, listOfParameters):
@@ -38,14 +39,16 @@ class Model:
 
         self.removeDuplicateSpecies()
         self.removeZeros()
-        #self.orderReactions()
+        self.orderReactions()
         self.orderSpecies()
+
+        # Assign parameters based on current ordering
 
         self.stoichiometry_matrix = self.stoichiometry(self.nspecies, self.nreactions, self.species, self.reactions)
 
     def orderSpecies(self):
         # order alphabetically, could order by species type in the future
-        self.species = sorted( self.species, key=lambda spc: (species_type[ spc.type ], str(spc.name)) )
+        self.species = sorted( self.species, key=lambda spc: ( str(spc.scope), species_type[ spc.type ], str(spc.name)) )
         #print [x.name for x in self.species]
 
     def orderReactions(self):
@@ -129,6 +132,7 @@ class Model:
 
 
 class Reaction:
+    # a global parameter counter to number parameters
     param_counter = 0
 
     def __init__(self, reactants, products, process):
@@ -159,7 +163,6 @@ class Reaction:
         return ', '.join(self.param)
 
     def assignMassAction(self):
-        # assign a parameter number
         Reaction.param_counter += 1
         
         # here there is only one parameter per reactions

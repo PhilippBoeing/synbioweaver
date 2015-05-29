@@ -10,7 +10,8 @@ from synbioweaver.aspects.promoterMappingAspect import *
 class MolecularReactions:
     
     def __init__(self):
-        pass
+        self.reactions = []
+        self.species = []
 
     # Helper function
     def examineContext(self, mol):
@@ -107,5 +108,6 @@ class MolecularReactions:
 
         # transfer reactions A -> B will appear twice so may need to remove duplicate reactions
         self.removeDuplicateReactions()
-         
+
+        return [self.reactions, self.species]
                     

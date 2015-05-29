@@ -36,6 +36,16 @@ class promoterMapping:
     def getPolarities(self):
         return self.polarities
 
+def getNamespaces(pmap):
+    seen = set() 
+    uniq = []   
+    for key in pmap:
+        if str( key.getScope() ) not in seen:
+            uniq.append( key.getScope() )
+            seen.add( key.getScope() )
+
+    return uniq
+
 class PromoterMapping(Aspect):
     
     def mainAspect(self):
@@ -56,6 +66,7 @@ class PromoterMapping(Aspect):
         
         if not isinstance(part,ConstitutivePromoter):
             regulators = part.getRegulatedBy()
+            #print "promoterCoding:", part, regulators
             pols = []
             for regulator in regulators:
                 # print regulator
