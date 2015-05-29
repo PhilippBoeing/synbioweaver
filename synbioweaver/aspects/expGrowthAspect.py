@@ -38,7 +38,7 @@ class ExpGrowth(Aspect):
         # in this particular example we should be able to modify the reactions in place
         # this probably isn't true in general
 
-        print self.model.parameters
+        #print self.model.parameters
         for r in self.model.reactions:
             if r.process == "proteinExp" or r.process == "rnaTransc":
                 r.products.append( Species("con","N") )

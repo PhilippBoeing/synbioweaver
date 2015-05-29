@@ -40,7 +40,7 @@ class MolecularReactions:
         #    return str(mol.scope.circuitName) + "-" + str(mol)
         #else:
         #    return str(mol)
-        return( Species(mol.scope.circuitName, str(mol)) )
+        return( Species(mol.scope.circuitName, str(mol), "molecule") )
 
     def addMolecularReaction(self, mol):
         # BEFORE -> mol

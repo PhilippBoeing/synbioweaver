@@ -23,6 +23,8 @@ class WriteCudaFileODE(Aspect):
         out_file.write('#define and_(a,b) a&&b' + '\n')
         out_file.write('#define or_(a,b) a||b' + '\n')
         out_file.write("\n")
+        out_file.write('#define zero 1' + '\n') # hack
+        
         for i in range(len(molecule_list)):
             if '(' in str(molecule_list[i]):
                 name, regulator = str(molecule_list[i]).split('(')
