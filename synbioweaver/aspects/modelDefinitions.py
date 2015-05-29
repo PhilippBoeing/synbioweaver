@@ -38,7 +38,7 @@ class Model:
 
         self.removeDuplicateSpecies()
         self.removeZeros()
-        self.orderReactions()
+        #self.orderReactions()
         self.orderSpecies()
 
         self.stoichiometry_matrix = self.stoichiometry(self.nspecies, self.nreactions, self.species, self.reactions)

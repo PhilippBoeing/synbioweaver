@@ -23,7 +23,7 @@ class WriteCudaFileODE(Aspect):
         out_file.write('#define and_(a,b) a&&b' + '\n')
         out_file.write('#define or_(a,b) a||b' + '\n')
         out_file.write("\n")
-        out_file.write('#define zero 1' + '\n') # hack
+        out_file.write('#define zero 1.0' + '\n') # hack
         
         for i in range(len(molecule_list)):
             if '(' in str(molecule_list[i]):
@@ -35,11 +35,19 @@ class WriteCudaFileODE(Aspect):
         out_file.write("#define p0 tex2D(param_tex,0,tid)" + "\n")
 
         # write parameters out in order of reactions
-        parcount = 0
-        for i in range(len(reaction_list)):
-            for j in range(len(reaction_list[i].param)):
-                out_file.write("#define " + str(reaction_list[i].param[j]) + " tex2D(param_tex," + str(parcount+1) + ",tid)" + "\n")
-                parcount += 1
+        #parcount = 0
+        #for i in range(len(reaction_list)):
+        #    for j in range(len(reaction_list[i].param)):
+        #        out_file.write("#define " + str(reaction_list[i].param[j]) + " tex2D(param_tex," + str(parcount+1) + ",tid)" + "\n")
+        #        parcount += 1
+
+        # write parameters out in order of params list
+        #for i in range(len(params)):
+        #    out_file.write("#define " + str(params[i]) + " tex2D(param_tex," + str(i+1) + ",tid)" + "\n")
+
+        # write out parameters in numerical order
+        for i in range(len(params)):
+            out_file.write("#define " + "p" + str(i+1) + " tex2D(param_tex," + str(i+1) + ",tid)" + "\n")
                 
         out_file.write("\n")
         out_file.write("struct myFex{" + '\n')
