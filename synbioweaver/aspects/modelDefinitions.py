@@ -3,18 +3,29 @@ import numpy
 from copy import *
 
 # Each reaction is assigned one of these processes
-#processes = [ "dnaBind", "dnaUnbind", "rnaTransc", "rnaDeg", "proteinTransl", "proteinExp", "proteinDeg", "complexAss", "complexDiss", "complexDeg", "context" ]
 processes = { "rnaTransc":1, "rnaDeg":2, "proteinTransl":3, "proteinExp":4, "proteinDeg":5, "dnaBind":6, "dnaUnbind":7, "complexAss":8, "complexDiss":9, "complexDeg":10, "context":11 }
 
+species_type = { "mRNA":1, "protein":2, "promoter":3, "bindingDNA":4, "molecule":5, "general":6 }
+
 class Species:
-    def __init__(self, scope, name):
+    def __init__(self, scope, name, type="general"):
         self.scope = scope
         self.name = name
+        self.type = type
 
     #def __str__(self):
     #    return str(self.scope) + "::" + str(self.name)
     def __str__(self):
         return str(self.name)
+
+def sort_react( x ):
+    # get either reactant or product
+    if len(x.reactants) != 0:
+        tosort = x.reactants[0]
+    else:
+        tosort = x.products[0]
+        
+    return ( processes[ x.process ], str(tosort) )
 
 class Model:
     def __init__(self, listOfSpecies, listOfReactions, listOfParameters):
@@ -28,12 +39,19 @@ class Model:
         self.removeDuplicateSpecies()
         self.removeZeros()
         self.orderReactions()
+        self.orderSpecies()
 
         self.stoichiometry_matrix = self.stoichiometry(self.nspecies, self.nreactions, self.species, self.reactions)
 
+    def orderSpecies(self):
+        # order alphabetically, could order by species type in the future
+        self.species = sorted( self.species, key=lambda spc: (species_type[ spc.type ], str(spc.name)) )
+        #print [x.name for x in self.species]
+
     def orderReactions(self):
         # order by namespace, process, alphabetical
-        self.reactions = sorted( self.reactions, key=lambda reac: processes[ reac.process ])
+        #self.reactions = sorted( self.reactions, key=lambda reac: (processes[ reac.process ], str(reac.reactants[0])) )
+        self.reactions = sorted( self.reactions, key=sort_react )
 
     def removeDuplicateSpecies(self):
         #print "before dup", map(str,self.species)

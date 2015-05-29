@@ -64,8 +64,8 @@ class SheaAckersKineticsRNA(Aspect, MolecularReactions):
                 # pr -> mX + pr, mX -> X, mX -> 0, X -> 0 
 
                 for p in codings:
-                    self.species.append( Species(mapping.getScope(),str(p)) )
-                    self.species.append( Species(mapping.getScope(),"m"+str(p)) )
+                    self.species.append( Species(mapping.getScope(),str(p), "protein") )
+                    self.species.append( Species(mapping.getScope(),"m"+str(p), "mRNA") )
 
                 # production of mRNAs
                 prods1 = [ Species(mapping.getScope(),"m"+str(x)) for x in codings]
@@ -101,6 +101,6 @@ class SheaAckersKineticsRNA(Aspect, MolecularReactions):
                         self.reactions.append( Reaction([Species(mapping.getScope(),str(p))], [], "proteinDeg") )
                         self.reactions.append( Reaction([Species(mapping.getScope(),"m"+str(p))], [], "rnaDeg") )
                         self.reactions.append( Reaction([Species(mapping.getScope(),"m"+str(p))], [Species(mapping.getScope(),str(p))], "proteinTransl") )
-                        self.species.append( Species(mapping.getScope(),str(p)) )
-                        self.species.append( Species(mapping.getScope(),"m"+str(p)) )
+                        self.species.append( Species(mapping.getScope(),str(p), "protein" ) )
+                        self.species.append( Species(mapping.getScope(),"m"+str(p), "mRNA" ) )
 

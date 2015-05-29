@@ -52,8 +52,8 @@ class MassActionKineticsRNA(Aspect, MolecularReactions):
                 # pr -> mX + pr, mX -> X, mX -> 0, X -> 0 
                 
                 for p in codings:
-                    self.species.append( Species(mapping.getScope(),str(p)) )
-                    self.species.append( Species(mapping.getScope(),"m"+str(p)) )
+                    self.species.append( Species(mapping.getScope(),str(p), "protein") )
+                    self.species.append( Species(mapping.getScope(),"m"+str(p), "mRNA") )
 
                 # production of mRNAs
                 prods1 = [Species(mapping.getScope(),"m"+str(x)) for x in codings]
@@ -74,9 +74,9 @@ class MassActionKineticsRNA(Aspect, MolecularReactions):
 
                     complx = partname + '_' + str(regulator)
 
-                    Spartname = Species( mapping.getScope(),partname )
-                    Sregulator = Species( mapping.getScope(), str(regulator) )
-                    Scomplx = Species( mapping.getScope(), complx )
+                    Spartname = Species( mapping.getScope(),partname, "promoter" )
+                    Sregulator = Species( mapping.getScope(), str(regulator), "protein" )
+                    Scomplx = Species( mapping.getScope(), complx, "bindingDNA" )
                 
                     # the binding/unbinding reactions Pr + R <-> Pr_R
                     self.reactions.append( Reaction([Spartname, Sregulator], [Scomplx], "dnaBind" ) )
@@ -95,8 +95,8 @@ class MassActionKineticsRNA(Aspect, MolecularReactions):
                             self.reactions.append( Reaction([Species(mapping.getScope(),p)], [], "proteinDeg") )
                             self.reactions.append( Reaction([Species(mapping.getScope(),"m"+str(p))], [], "rnaDeg") )
                             self.reactions.append( Reaction([Species(mapping.getScope(),"m"+str(p))], [Species(mapping.getScope(),p)], "proteinTransl") )
-                            self.species.append( Species(mapping.getScope(),p) )
-                            self.species.append( Species(mapping.getScope(),"m"+str(p)) )
+                            self.species.append( Species(mapping.getScope(),p, "protein") )
+                            self.species.append( Species(mapping.getScope(),"m"+str(p), "mRNA") )
 
                     # if negative promoter then just the promoter expresses
                     else:
@@ -108,6 +108,6 @@ class MassActionKineticsRNA(Aspect, MolecularReactions):
                             self.reactions.append( Reaction([Species(mapping.getScope(),p)], [], "proteinDeg") )
                             self.reactions.append( Reaction([Species(mapping.getScope(),"m"+str(p))], [], "rnaDeg") )
                             self.reactions.append( Reaction([Species(mapping.getScope(),"m"+str(p))], [Species(mapping.getScope(),p)], "proteinTransl") )
-                            self.species.append( Species(mapping.getScope(),p) )
-                            self.species.append( Species(mapping.getScope(),"m"+str(p)) )
+                            self.species.append( Species(mapping.getScope(),p, "protein") )
+                            self.species.append( Species(mapping.getScope(),"m"+str(p), "mRNA") )
 

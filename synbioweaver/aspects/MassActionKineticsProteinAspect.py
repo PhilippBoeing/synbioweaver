@@ -61,7 +61,7 @@ class MassActionKineticsProtein(Aspect, MolecularReactions):
 
                 for p in codings:
                     self.reactions.append( Reaction([ Species(mapping.getScope(),p) ], [], "proteinDeg") )
-                    self.species.append( Species(mapping.getScope(),p) )
+                    self.species.append( Species(mapping.getScope(),p, "protein") )
                     
             else:
                 for i in range(len(regulators)):
@@ -70,9 +70,9 @@ class MassActionKineticsProtein(Aspect, MolecularReactions):
                     complx = partname + '_' + str(regulator)
 
                     # the binding/unbinding reactions Pr + R <-> Pr_R
-                    newSpecies1 = Species(mapping.getScope(),partname)
-                    newSpecies2 = Species(mapping.getScope(),regulator)
-                    newSpecies3 = Species(mapping.getScope(),complx)
+                    newSpecies1 = Species(mapping.getScope(),partname, "promoter")
+                    newSpecies2 = Species(mapping.getScope(),regulator, "protein" )
+                    newSpecies3 = Species(mapping.getScope(),complx, "bindingDNA")
                     
                     self.reactions.append( Reaction([newSpecies1, newSpecies2], [newSpecies3], "dnaBind") )
                     self.reactions.append( Reaction([newSpecies3], [newSpecies1, newSpecies2], "dnaUnbind") )
@@ -89,7 +89,7 @@ class MassActionKineticsProtein(Aspect, MolecularReactions):
                         self.reactions.append( Reaction([newSpecies3], prods, "proteinExp") )
                         for p in codings:
                             self.reactions.append( Reaction([Species(mapping.getScope(),p)], [], "proteinDeg" ) )
-                            self.species.append( Species(mapping.getScope(),p) )
+                            self.species.append( Species(mapping.getScope(),p, "protein") )
 
                     # if negative promoter then just the promoter expresses
                     else:
@@ -100,6 +100,6 @@ class MassActionKineticsProtein(Aspect, MolecularReactions):
                         self.reactions.append( Reaction([newSpecies1], prods, "proteinExp") )
                         for p in codings:
                             self.reactions.append( Reaction([Species(mapping.getScope(),p)], [], "proteinDeg") )
-                            self.species.append( Species(mapping.getScope(),p) )
+                            self.species.append( Species(mapping.getScope(),p, "protein") )
   
         return
