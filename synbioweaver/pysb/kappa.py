@@ -240,6 +240,8 @@ def run_kasim(model, time=10000, points=200, output_dir='.', cleanup=False,
     args = ['-i', kappa_filename, '-t', str(time), '-p', str(points),
             '-o', out_filename]
 
+    print args
+    
     try:
         kappa_file = open(kappa_filename, 'w')
         # Generate the Kappa model code from the PySB model and write it to
