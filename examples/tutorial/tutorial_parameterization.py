@@ -4,6 +4,7 @@ declareNewMolecule('GFP')
 
 class CodingGFP(Circuit):
     def __init__(self, regulator=None):
+        super(CodingGFP,self).__init__()
         self.regulator = regulator
 
     def mainCircuit(self):
@@ -17,6 +18,7 @@ class CodingGFP(Circuit):
 
 class DesignRules(Aspect):
     def __init__(self, numberOfTerminators = 1):
+        super(DesignRules,self).__init__()
         self.numberOfTerminators = numberOfTerminators
 
     def mainAspect(self):
