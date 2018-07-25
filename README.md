@@ -14,7 +14,7 @@ An overview and tutorial is provided at the following location
 ### Examples
 A number of simple examples to illustrate how the package works are included in the folder examples/tutorial
 
-**Specifying different gene circuit designs and generating models**
+**Specifying different gene circuit designs and generating models**  
 examples/model-generation
 The circuits include: 
 * simple implementations of constitutive and inducible GFP expression
@@ -23,14 +23,14 @@ The circuits include:
 * the toggle-switch system found in Litcofsky et. al. Iterative plug-and-play methodology for constructing and modifying synthetic gene networks (2012) <https://www.nature.com/articles/nmeth.2205>
 * the oscillator from Stricker et. al. A fast, robust and tunable synthetic gene oscillator (2008) <https://www.nature.com/articles/nature07389>
 
-**Multicellular logic gates**
+**Multicellular logic gates**  
 examples/logic-gates
 This example is based on the XOR gate described in Tamsir et. al. Robust multicellular computing using genetically encoded NOR gates and chemical ‘wires’ (2011) <https://www.nature.com/articles/nature09565>
 
-**Rule-based modelling**
+**Rule-based modelling**  
 examples/rule-based-model. 
 A design for the repressilator is converted into a rule-based model specified in the Kappa language and then subsequently simulated stochastically using `KaSim`. This example requires `KaSim` version 3.5 to be installed in /usr/local/share. This can be downloaded as a binary from <https://github.com/Kappa-Dev/KaSim/releases>
 
-**Automated model generation and simulation using GPUs**
+**Automated model generation and simulation using GPUs**  
 This example is found in examples/context-simulation. For GPU based biochemical network simulation `CUDA`, `PyCUDA` and `cuda-sim` must be installed.
 
