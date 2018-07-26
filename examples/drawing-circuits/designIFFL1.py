@@ -18,11 +18,21 @@ declareNewPart('cTetR',CodingRegion,moleculesAfter=[TetR])
 declareNewPart('cGFP',CodingRegion,moleculesAfter=[GFP])
 declareNewPart('Pc', ConstitutivePromoter)
 declareNewPart('P_lux', PositivePromoter, [LuxR] )
-declareNewPart('P_LtetO', NegativePromoter, [TetR] )
 declareNewPart('P_luxtet', HybridPromoter, [LuxR,TetR], regulatorInfoMap={LuxR:True,TetR:False} )
+
+declareNewMolecule('aTc')
+declareNewMolecule('TetR_aTc')
+declareNewMolecule('AHL')
+declareNewMolecule('LuxR_AHL')
+declareNewMolecule('zero')
 
 class simpleCircuit(Circuit):
     def mainCircuit(self):
+        self.createMolecule(aTc)
+        self.createMolecule(TetR_aTc)
+        self.createMolecule(AHL)
+        self.createMolecule(LuxR_AHL)
+        self.createMolecule(zero)
 
         self.addPart(Pc)
         self.addPart(r1)
@@ -37,7 +47,10 @@ class simpleCircuit(Circuit):
         self.addPart(cGFP)
         self.addPart(t3)
         
-#compiledDesign = Weaver(constGFP, DesignRules, PrintStack, PigeonOutput).output()
+        self.reactionFrom(aTc, TetR) >> self.reactionTo( TetR_aTc )
+        self.reactionFrom(TetR_aTc) >> self.reactionTo( zero )
+        self.reactionFrom(AHL, LuxR) >> self.reactionTo( LuxR_AHL )
+
 compiledDesign = Weaver(simpleCircuit, PigeonOutput).output()
 
 compiledDesign.printPigeonOutput()
