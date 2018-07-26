@@ -31,7 +31,10 @@ This example is based on the XOR gate described in Tamsir et. al. Robust multice
 examples/rule-based-model   
 A design for the repressilator is converted into a rule-based model specified in the Kappa language and then subsequently simulated stochastically using `KaSim`. This example requires `KaSim` version 3.5 to be installed in /usr/local/share. This can be downloaded as a binary from <https://github.com/Kappa-Dev/KaSim/releases>
 
-**Automated model generation and simulation using GPUs**  
+**Automated model generation and simulation using cuda-sim**  
 examples/context-simulation  
-For GPU based biochemical network simulation `CUDA`, `PyCUDA` and `cuda-sim` must be installed.
+For GPU based biochemical network simulation requires a suitable Nvidia GPU device, `CUDA`, `PyCUDA` must be installed and `cuda-sim` must be on PYTHONPATH
 
+**Bayesain inference using ABC-SysBio**  
+examples/characterisation  
+This currently uses `cuda-sim`. In addition it requires the module `abcsysbio` to be on the PYTHONPATH
