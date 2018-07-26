@@ -85,5 +85,19 @@ class RunCudaSim(Aspect):
             plt.fill_between(self.times,res[0,:,k],res[2,:,k], alpha=0.5)
             plt.savefig("plot-res-"+self.name+"-o"+str(k+1)+".pdf",bbox_inches='tight')
             plt.close()
+
+        out = open("data-res-"+self.name+".txt",'w')
+        print >>out, "time", 
+        for k in range(nobs):
+                print >>out, 'obs'+str(k)+'-5', 'obs'+str(k)+'-50', 'obs'+str(k)+'-95',
+        print >>out,  ""
+
+        for j in range(len(self.times)):
+            print >>out, self.times[j], 
+            for k in range(nobs):
+                print >>out, res[0,j,k], res[1,j,k], res[2,j,k],
+            print >>out,  ""
+        out.close()
+
         
         #print "##### RunCudaSim Success"
