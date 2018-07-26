@@ -23,6 +23,11 @@ class constGFP(Circuit):
         self.addPart(ConstitutivePromoter)
         self.addPart(CodingRegion(GFP))
 
+#print "####### circuit"                                                                                                                                                            
+#compiledDesign1 = Weaver(constGFP, DesignRules, PromoterMapping, MassActionKineticsProtein, ExpGrowth, PrintReactionNetwork, WriteSBMLModel).output()
+#compiledDesign1.printReactionNetwork()
+#modelStr = compiledDesign1.writeSBMLModel()
+
 #print "####### circuit + exp growth"
 compiledDesign1 = Weaver(constGFP, DesignRules, PromoterMapping, MassActionKineticsProtein, ExpGrowth, PrintReactionNetwork, WriteSBMLModel).output()
 compiledDesign1.printReactionNetwork()
