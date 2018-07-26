@@ -599,6 +599,16 @@ def declareNewPart(classname, parent=Part, moleculesBefore=[], moleculesAfter=[]
                     super(realself, self).__init__(moleculesBeforeAggregate, regulatorInfoMapAggregate)
                     # at moment: only allow one output molecule, others are lost
                     # todo: allow multiple?
+                elif realself.__bases__[0] is RBS:
+                    super(realself, self).__init__()
+                    # in this case, we'll just add both to follow what the users wants
+                    self.precompileMoleculesBefore += moleculesBeforeAggregate
+                    self.precompileMoleculesAfter += moleculesAfterAggregate
+                elif realself.__bases__[0] is Terminator:
+                    super(realself, self).__init__()
+                    # in this case, we'll just add both to follow what the users wants
+                    self.precompileMoleculesBefore += moleculesBeforeAggregate
+                    self.precompileMoleculesAfter += moleculesAfterAggregate
                 elif realself.__bases__[0] is Part:
                     super(realself, self).__init__()
                     # in this case, we'll just add both to follow what the users wants
