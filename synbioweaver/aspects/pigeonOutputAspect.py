@@ -11,6 +11,8 @@ def flatten(lis):
             new_lis.append(item)
     return new_lis
 
+#def format_promoter
+
 class PigeonOutput(Aspect):
 
     def mainAspect(self):
@@ -23,11 +25,13 @@ class PigeonOutput(Aspect):
         for p in weaverOutput.partList:
             name = p.__class__.__name__
             if( isinstance(p,Promoter) ):
-                print 'p', name, '1'
+                print 'p',  name, '1'
+                #print 'p',  str(p), '1'
             elif( isinstance(p,RBS) ):
                 print 'r', name, '1'
             elif( isinstance(p,CodingRegion) ):
-                print 'c', name, '1'
+                 print 'c', name, '1'
+                #print 'c', str(p.getCodingFor()[0]), '1'
             elif( isinstance(p,Terminator) ):
                 print 't', name, '1'
 
@@ -40,56 +44,71 @@ class PigeonOutput(Aspect):
             if( isinstance(pr,NegativePromoter) ):
                 for neg in pr.getRegulatedBy():
                     if len(neg.getBeforeNodes(Part)) > 0:
-                        print neg.getBeforeNodes(Part)[0].__class__.__name__,  "rep", name   
-                        arcs.append( [neg.__class__.__name__, neg.getBeforeNodes(Part)[0].__class__.__name__, name] )
+                        #arcStart = str(neg.getBeforeNodes(Part)[0].getCodingFor()[0])
+                        arcStart = neg.getBeforeNodes(Part)[0].__class__.__name__
+                        
+                        print arcStart,  "rep", name
+                        arcs.append( [neg.__class__.__name__, arcStart, name] )
                     else:
                         print neg.__class__.__name__, "rep", name
 
             if( isinstance(pr,PositivePromoter) ):
                 for pos in pr.getRegulatedBy():
                     if len(pos.getBeforeNodes(Part)) > 0:
-                        print pos.getBeforeNodes(Part)[0].__class__.__name__,  "ind", name
-                        arcs.append( [pos.__class__.__name__,pos.getBeforeNodes(Part)[0].__class__.__name__, name] )
+                        #arcStart = str(pos.getBeforeNodes(Part)[0].getCodingFor()[0])
+                        arcStart = pos.getBeforeNodes(Part)[0].__class__.__name__
+                       
+                        print arcStart,  "ind", name
+                        arcs.append( [pos.__class__.__name__, arcStart, name] )
                     else:
                         print pos.__class__.__name__, "ind", name
 
             if( isinstance(pr,HybridPromoter) ):
                 for neg in pr.getRepressors():
                     if len(neg.getBeforeNodes(Part)) > 0:
-                        print neg.getBeforeNodes(Part)[0].__class__.__name__,  "rep", name
-                        arcs.append( [neg.__class__.__name__,neg.getBeforeNodes(Part)[0].__class__.__name__, name] )
+                        #arcStart = str(neg.getBeforeNodes(Part)[0].getCodingFor()[0])
+                        arcStart = neg.getBeforeNodes(Part)[0].__class__.__name__
+                        
+                        print arcStart,  "rep", name
+                        arcs.append( [neg.__class__.__name__, arcStart, name] )
                     else:
                         print neg.__class__.__name__, "rep", name
 
                 for pos in pr.getInducers():
                     if len(pos.getBeforeNodes(Part)) > 0:
-                        print pos.getBeforeNodes(Part)[0].__class__.__name__,  "ind", name
-                        arcs.append( [pos.__class__.__name__,pos.getBeforeNodes(Part)[0].__class__.__name__, name] )
+                        #arcStart = str(pos.getBeforeNodes(Part)[0].getCodingFor()[0])
+                        arcStart = pos.getBeforeNodes(Part)[0].__class__.__name__
+                        
+                        print arcStart,  "ind", name
+                        arcs.append( [pos.__class__.__name__, arcStart, name] )
                     else:
                         print pos.__class__.__name__, "ind", name
 
         # Look for inducer molecule regulations
-        #print "arcs:", arcs
+        # Currently needs further work to make it more robust
+        if 1:
+            #print "arcs:", arcs
 
-        for mol in weaverOutput.moleculeList:
-            #print mol, mol.after, mol.before
+            for mol in weaverOutput.moleculeList:
+                #print mol, mol.after, mol.before
             
-            # skip reactions involving promoters
-            if len(mol.after) > 0:
-                if isinstance(mol.after[0],Promoter):
-                    continue
+                # skip reactions involving promoters
+                if len(mol.after) > 0:
+                    if isinstance(mol.after[0],Promoter):
+                        continue
             
-            flat_list = [mol] + flatten(mol.after) + flatten(mol.before)
-            flat_list = [str(x) for x in flat_list]
-            #print flat_list
+                flat_list = [mol] + flatten(mol.after) + flatten(mol.before)
+                flat_list = [str(x) for x in flat_list]
+                #print "FL:", flat_list
 
-            for a in arcs:
-                if a[0] in flat_list:  
-                    #print "\tfound:", a, flat_list
-                    if 'zero' in flat_list:
-                        print flat_list[2], 'rep', a[1]+"-"+a[2]
-                    else:
-                        print flat_list[1], 'ind', a[1]+"-"+a[2]
+                for a in arcs:
+                    if a[0] in flat_list:  
+                        #print "\tfound:", a, flat_list
+                        if 'zero' in flat_list:
+                            print flat_list[2], 'rep', a[1]+"-"+a[2]
+                        else:
+                            print flat_list[1], 'ind', a[1]+"-"+a[2]
 
         print "\n"
 
+        return

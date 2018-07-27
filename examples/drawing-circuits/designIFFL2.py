@@ -1,7 +1,7 @@
 from synbioweaver.core import *
 from synbioweaver.aspects.designRulesAspect import *
 from synbioweaver.aspects.printStackAspect import *
-from pigeonOutputAspect import *
+from synbioweaver.aspects.pigeonOutputAspect import *
 
 declareNewMolecule('A')
 declareNewMolecule('B')
