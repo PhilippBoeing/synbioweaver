@@ -53,8 +53,14 @@ class PromoterMapping(Aspect):
         PromoterMapping.builtMap = False
         PromoterMapping.multiComp = False
        
+        # adds a method isPromoter() to all parts. Third argument is the name of the advice associated
         self.addTypeAdvice(PartSignature('*.*'), self.isPromoter, 'isPromoter')
+        
+        # adds a method promoterCoding() to all parts
         self.addTypeAdvice(PartSignature('*.Promoter+'), self.promoterCoding, 'generatePromoterMap')
+        
+        # adds an output advice since the promoter map is an additional structure not contained within the circuit
+        # To do: investigate whether the models can be build part by part 
         self.addWeaverOutput(self.buildPromoterMap)
         
         self.promoterMap = []
@@ -91,7 +97,6 @@ class PromoterMapping(Aspect):
             nextpart = nextpart.getAfterPart()
             
     def isPromoter(self, part):
-        #print "part", part
         if isinstance(part,Promoter):
             return True
 
