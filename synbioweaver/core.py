@@ -418,6 +418,7 @@ class Circuit(Part):
     __metaclass__ = ABCMeta
 
     def __init__(self):
+        super(Circuit,self).__init__()
         self.weaver = None
 
 
@@ -1918,6 +1919,7 @@ class Weaver(object):
                     while numberOfMatchingParts > 1:
                         self.currentWeaverOutput.partList.pop()
                         numberOfMatchingParts -= 1
+                    
                     # Advice should return False if not replaced, True if Replaced
                     AdviceResult = advice.adviceMethod(PointCutContext(self.withinStack, part))
 
