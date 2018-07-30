@@ -1,52 +1,47 @@
 from synbioweaver.core import *
 from synbioweaver.aspects.pigeonOutputAspect import *
+from synbioweaver.aspects.printStackAspect import *
+from synbioweaver.aspects.designRulesAspect import *
 
 # GFP circuit definitions
-declareNewMolecule('AbstractMolecule')
-declareNewMolecule('externalInducer')
+declareNewMolecule('exIn')
 declareNewMolecule('GFP')
 declareNewPart('cGFP', CodingRegion, moleculesAfter=[GFP] )
 
-class InduceGFP(Circuit):
-    # code GFP dependent on an external inducer
-    def mainCircuit(self):
-        self.createMolecule(externalInducer)
-        self.addPart(PositivePromoter(externalInducer))
-        self.addPart(cGFP)
-        
 class CodingGFP(Circuit):
     # constitutively code gfp
     def mainCircuit(self):
-        self.addPart(ConstitutivePromoter)
+        declareNewPart('Pconst',ConstitutivePromoter)
+        self.addPart(Pconst)
         self.addPart(cGFP)
-        
-class InstantiateAbstractMolecules(Aspect):
-    # from a list of non-cross-talking transcription factors
-    # instantiate abstract molecules
-    def mainAspect(self):
-        self.independentMolecules = [declareNewMolecule('TetR'),declareNewMolecule('LacL'),declareNewMolecule('cl')]
-        
-        self.abstractConcreteMapping = {}
-        self.addAdvice(PointCut('*.*(AbstractMolecule+)',PointCut.BEFORE),self.makeConcrete,30)
-        
-    def makeConcrete(self,context):
-        if not context.part.moleculeConnection in self.abstractConcreteMapping:
-            if len(self.independentMolecules) > 0:
-                self.abstractConcreteMapping[context.part.moleculeConnection] = self.independentMolecules.pop()
-            else:
-                raise Exception('No more independent molecules')
-        
-        context.part.moleculeConnection = self.abstractConcreteMapping[context.part.moleculeConnection]
-        
-class AbstractRepressilatorComposite(Circuit):
-    declareNewMolecule('A')
-    declareNewMolecule('B')
-    declareNewMolecule('C')
 
+class InduceGFP(Circuit):
+    # code GFP dependent on an external inducer
+    
+    def getSignal(self):
+        return exIn
+
+    def getOutputName():
+        return cGFP
+
+    def mainCircuit(self):
+        self.createMolecule(exIn)
+        declareNewPart('Pin', PositivePromoter, [exIn] )
+        self.addPart(Pin)
+        self.addPart(cGFP)
+                
+class AbstractRepressilatorComposite(Circuit):
     def getSignal(self):
         return A
         
     def mainCircuit(self):
+        declareNewMolecule('A')
+        declareNewMolecule('B')
+        declareNewMolecule('C')
+        self.createMolecule(A)
+        self.createMolecule(B)
+        self.createMolecule(C)
+
         declareNewPart('p1', NegativePromoter, [C] )
         declareNewPart('p2', NegativePromoter, [A] )
         declareNewPart('p3', NegativePromoter, [B] )
@@ -77,112 +72,156 @@ class AndGate(Circuit):
 
         declareNewMolecule('HrpR')
         declareNewMolecule('HrpS')
-        declareNewMolecule('HrpSandR') # not ideal...
-        declareNewPart('hrpL', PositivePromoter, [HrpSandR] ) # not ideal...
+        declareNewPart('hrpL', HybridPromoter, [HrpS, HrpR], regulatorInfoMap={HrpS:True,HrpR:True} )
 
         if self.promoterOnePositive:
-            self.addPart(PositivePromoter(self.moleculeInputOne))
+            declareNewPart('pos1', PositivePromoter, [self.moleculeInputOne] )
+            self.addPart(pos1)
         else:
-            self.addPart(NegativePromoter(self.moleculeInputOne))
-        
-        self.addPart(CodingRegion(HrpR))     
+            declareNewPart('neg1', NegativePromoter, [self.moleculeInputOne] )
+            self.addPart(neg1)
+       
+        declareNewPart('cHrpR', CodingRegion, moleculesAfter=[HrpR] ) 
+        self.addPart(cHrpR) 
         
         if self.promoterTwoPositive:
-            self.addPart(PositivePromoter(self.moleculeInputTwo))
+            declareNewPart('pos2', PositivePromoter, [self.moleculeInputTwo] )
+            self.addPart(pos2)
         else:
-            self.addPart(NegativePromoter(self.moleculeInputTwo))
-        
-        self.addPart(CodingRegion(HrpS))
-        
+            declareNewPart('neg2', NegativePromoter, [self.moleculeInputTwo] )
+            self.addPart(neg2)
+
+        declareNewPart('cHrpS', CodingRegion, moleculesAfter=[HrpS] )
+        self.addPart(cHrpS)
+
         self.addPart(hrpL)
-        self.addPart(CodingRegion(self.moleculeOutput))
+        self.addPart(cGFP)
+
+class ConcreteAndGate(Circuit):
+    def mainCircuit(self):
+        # same AND gate but a concrete version for plotting
+
+        declareNewMolecule('HrpR')
+        declareNewMolecule('HrpS')
+        declareNewPart('hrpL', HybridPromoter, [HrpS, HrpR], regulatorInfoMap={HrpS:True,HrpR:True} )
+
+        declareNewMolecule('input1')
+        declareNewMolecule('input2')
+        self.createMolecule(input1)
+        self.createMolecule(input2)
+
+        declareNewPart('pos1', PositivePromoter, [input1] )
+        self.addPart(pos1)
+        declareNewPart('cHrpR', CodingRegion, moleculesAfter=[HrpR] ) 
+        self.addPart(cHrpR) 
+        
+        declareNewPart('pos2', PositivePromoter, [input2] )
+        self.addPart(pos2)
+        declareNewPart('cHrpS', CodingRegion, moleculesAfter=[HrpS] )
+        self.addPart(cHrpS)
+
+        self.addPart(hrpL)
+        self.addPart(cGFP)
 
 class Repressilation(Aspect):    
     # weave repressilator into a one-protein coding circuit
     def mainAspect(self):
         self.repressilatorComposite = AbstractRepressilatorComposite()
         
-        # promoter is unregulated
-        # (not from this aspect or the composite)
+        # promoter is unregulated (not from this aspect or the composite)
         unregulatedPromoterReplace = PointCut(
             PartSignature('!AbstractRepressilatorComposite.Promoter+()') &
             PartSignature('!Repressilation.Promoter+()'),PointCut.REPLACE)
         self.addAdvice(unregulatedPromoterReplace, self.insertRegulatedBySignalPromoter, 10)
+        
         # regulated case
-        #regulatedCodingExpressionReplace = PointCut(
-        #(PartSignature('!AbstractRepressilatorComposite.Promoter+(Molecule+)') &
-        #PartSignature('!Aspect+.Promoter+(Molecule+)') & 
-        #PartSignature('!AndGate.Promoter+(Molecule+)')) % PartSignature('*.CodingRegion+(Molecule+)'), PointCut.REPLACE)
-        #self.addAdvice(regulatedCodingExpressionReplace, self.insertBooleanAndSignal, 10)
+        regulatedCodingExpressionReplace = PointCut(
+            (PartSignature('InduceGFP.PositivePromoter+') &
+             PartSignature('!AbstractRepressilatorComposite.Promoter+(Molecule+)') & 
+             PartSignature('!Aspect+.Promoter+(Molecule+)') & 
+             PartSignature('!AndGate.Promoter+(Molecule+)')) % PartSignature('*.CodingRegion+(Molecule+)'), 
+            PointCut.REPLACE)
+        self.addAdvice(regulatedCodingExpressionReplace, self.insertBooleanAndSignal, 10)
 
         # add repressilatior composite
-        #promoterAndCodingRegion = PartSignature('Repressilation.Promoter+') % PartSignature('*.RBS+') % PartSignature('*.CodingRegion')
-        #afterMainCoding = PointCut(promoterAndCodingRegion | PartSignature('Repressilation.AndGate'),PointCut.AFTER)
+        promoterAndCodingRegion = PartSignature('Repressilation.Promoter+') % PartSignature('*.RBS+') % PartSignature('*.CodingRegion+') % PartSignature('*.Terminator+') 
+        andGateRegion = PartSignature('Repressilation.AndGate')
+        afterCircuit = PointCut(andGateRegion | promoterAndCodingRegion, PointCut.AFTER)
+        self.addAdvice(afterCircuit, self.insertComposite, 10)
 
-        promoterAndCodingRegion = PartSignature('Repressilation.Promoter+') % PartSignature('*.RBS+') % PartSignature('*.CodingRegion+')
-        afterMainCoding = PointCut(promoterAndCodingRegion,PointCut.AFTER)
-
-        self.addAdvice(afterMainCoding, self.insertComposite, 10)
-        
     def insertRegulatedBySignalPromoter(self,context):
+        #print "Fired! Simple system"
+        
         signal = self.repressilatorComposite.getSignal()
         context.within[0].createMolecule( signal )
         declareNewPart('ppA', PositivePromoter, [signal] )
+        
         self.addPart(ppA)
         return True
 
     def insertBooleanAndSignal(self,context):        
-        originalpromoter = context.part.before
-        originalsignal = originalpromoter.moleculeConnection
-        originaloutput = context.part.moleculeConnection
+        #print "Fired! Boolean And Signal"
+        #print "insertBooleanAndSignal:", context.part, context.part.before,  context.part.before[0].getRegulatedBy(), context.part.getCodingFor()
+        
+        originalpromoter = context.part.before[0]
+        originalsignal = context.part.before[0].getRegulatedBy()[0]
+        originaloutput = context.part.getCodingFor()[0]
+
         andGate = AndGate()
-        andGate.moleculeInputOne = originalsignal
-        if isinstance(context.part,PositivePromoter):
+        
+        # Creat first input for AND gate    
+        context.within[0].createMolecule( exIn )
+        andGate.moleculeInputOne = exIn 
+
+        if isinstance(originalpromoter,PositivePromoter):
             andGate.setInputOneRepressing = False
         else:
             andGate.setInputOneRepressing = True
-        andGate.moleculeInputTwo = self.repressilatorComposite.getSignal()
+
+        # Create second input for AND gate
+        in2 = self.repressilatorComposite.getSignal()
+        context.within[0].createMolecule( in2 )
+        andGate.moleculeInputTwo = in2
+       
         andGate.setInputOneRepressing = True
         andGate.moleculeOutput = originaloutput
+
         self.addPart(andGate)
         return True
 
     def insertComposite(self,context):
-        print "insertComposite"
-        print context, context.part
-        #self.addPart(self.repressilatorComposite)
+        #print "insertComposite:", context, context.part
         context.within[0].createMolecule( A )
         context.within[0].createMolecule( B )
         context.within[0].createMolecule( C )
-        self.addPart(AbstractRepressilatorComposite)
+        self.addPart(self.repressilatorComposite)
         return True
-        
-class DesignRules(Aspect):
-    beforeCodingRegion = PointCut('*.CodingRegion+',PointCut.BEFORE)
-    afterCodingRegion = PointCut('*.CodingRegion+',PointCut.AFTER)
-    
-    def insertRBS(self,context):
-        self.addPart(RBS)
-    
-    def insertTerminator(self,context):
-        self.addPart(Terminator)
-        
-    def mainAspect(self):
-        self.addAdvice(self.beforeCodingRegion,self.insertRBS,1)
-        self.addAdvice(self.afterCodingRegion,self.insertTerminator,1)
-        
-# repressilator with GFP output
-print "\n\nRUNNING"
-#print Weaver(CodingGFP,DesignRules).output()
-out = Weaver(CodingGFP,Repressilation,DesignRules,PigeonOutput).output() #.printPigeonOutput()
+                
+print "\n\n"
+out = Weaver(CodingGFP,DesignRules,PigeonOutput).output()
+print out
+print out.printPigeonOutput()
+
+out = Weaver(InduceGFP,DesignRules,PigeonOutput).output()
+print out
+print out.printPigeonOutput()
+
+out = Weaver(AbstractRepressilatorComposite,DesignRules,PigeonOutput).output()
+print out
+print out.printPigeonOutput()
+
+#out = Weaver(ConcreteAndGate,DesignRules,PigeonOutput).output()
+#print out
+#print out.printPigeonOutput()
+
+
+print "\n\nRUNNING UNINDUCED"
+out = Weaver(CodingGFP,DesignRules,Repressilation,PrintStack,PigeonOutput).output()
 print out
 print out.printPigeonOutput()
 
 # repressilator with inducible output
-#print Weaver(InduceGFP,Repressilation,DesignRules).output()
-
-# repressilator with GFP output
-#print Weaver(CodingGFP,Repressilation,DesignRules,InstantiateAbstractMolecules).output()
-
-# repressilator with inducible output
-#print Weaver(InduceGFP,Repressilation,DesignRules,InstantiateAbstractMolecules).output()
+print "\n\nRUNNING INDUCED"
+out = Weaver(InduceGFP,DesignRules,Repressilation,PrintStack,PigeonOutput).output()
+print out
+print out.printPigeonOutput()
