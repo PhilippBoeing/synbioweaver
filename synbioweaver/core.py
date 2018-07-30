@@ -831,8 +831,7 @@ class PointCutExpressionOr(PointCutExpressionOperator):
     def match(self, part, within=None):
         """see PointCutExpressionNode definition"""
 
-        return self.left.match(part, within) or self.right.match(part, within)
-
+        return self.left.match(part) or self.right.match(part)
 
 class PointCutExpressionAnd(PointCutExpressionOperator):
     """A PointCutExpressionOperator which is an And"""
