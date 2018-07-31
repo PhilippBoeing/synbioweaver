@@ -396,12 +396,14 @@ class CodingRegion(Part):
 
 class RBS(Part):
     """Class for parts that are Ribosome BindingSites"""
-    pass
+    def __init__(self):
+        super(RBS,self).__init__()
 
 
 class Terminator(Part):
     """Class for parts that are Terminators"""
-    pass
+    def __init__(self):
+        super(Terminator,self).__init__()
 
 
 class Circuit(Part):
