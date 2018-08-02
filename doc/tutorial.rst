@@ -94,12 +94,13 @@ can be added in the normal Python way, potentially defining additional attribute
     
     # Parts Registry RBS (http://parts.igem.org/Help:Ribosome_Binding_Site)
     class BBa_B0030	(RBS):
+        super(BBa_B0030, self).__init__()
         sequence = "attaaagaggagaaa"
         bindingEfficiency = 0.6
         
     # declare that a class of Proteins called exists that are used as markers
     class ReporterProtein (Protein):
-        pass
+        super(ReporterProtein, self).__init__()
 
 Creating new, specialized Parts and Molecules will be a frequent occurance in an 
 SynBioWeaver program,
@@ -141,8 +142,8 @@ Design Rules Example
 A simple example shows how an Aspect can be used to automatically weave RBS and
 Terminator parts around Coding Regions:
 
-    .. literalinclude:: /tutorialcode/tutorial_designrules.py
-    
+    .. literalinclude:: ../examples/tutorial/tutorial_designrules.py
+
 The output of this program is::
     
     Promoter+RBS+CodingRegion(codesFor = GFP)+Terminator
@@ -291,7 +292,7 @@ Example: Print Advice Stack
 
 Based on the previous `Design Rules Example`_ we can quickly add an aspect to print a stack trace:
 
-.. literalinclude:: /tutorialcode/tutorial_printstack.py
+.. literalinclude:: ../examples/tutorial/tutorial_printstack.py
 
 This will give the following output::
 
@@ -393,7 +394,7 @@ Type Advice Example
 
 Here is a simple example to add a method to Promoter types to print if they are regulated or not.
 
-.. literalinclude:: /tutorialcode/tutorial_typeadvice.py
+.. literalinclude:: ../examples/tutorial/tutorial_typeadvice.py
 
 The output will be::
 
