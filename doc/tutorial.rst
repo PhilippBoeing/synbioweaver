@@ -432,7 +432,7 @@ automatically have the same name.
 Example: Print number of parts
 ------------------------------
 
-.. literalinclude:: /tutorialcode/tutorial_weaveroutput.py
+.. literalinclude:: ../examples/tutorial/tutorial_weaveroutput.py
         
 
     

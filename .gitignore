@@ -1,4 +1,7 @@
 *.xml
 *.pyc
 .*
+_build
+_static
+_templates
 !/.gitignore
