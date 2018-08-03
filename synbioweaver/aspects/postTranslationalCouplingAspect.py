@@ -8,6 +8,10 @@ class PostTranslationalCoupling(Aspect):
     
     def mainAspect(self):
         PostTranslationalCoupling.builtReactions = False
+        self.reactions = []
+        self.species = []
+        self.parameters = []
+
         self.addWeaverOutput(self.getContext)
 
     def getContext(self,weaverOutput):
@@ -15,17 +19,23 @@ class PostTranslationalCoupling(Aspect):
         if PostTranslationalCoupling.builtReactions == False:
             # first access the existing reactions
             if getattr(weaverOutput, "getReactions", None) != None:
-                self.nspecies, self.nreactions, self.species, self.reactions, self.stoichiometry_matrix, self.parameters = weaverOutput.getReactions()
+                self.model = weaverOutput.getReactions()
             else:
                 print "PostTranslationalCoupling : getReactions() is available. Quitting"
                 exit()
-        
+
+            #print "running coupling"
+            self.reactions = self.model.reactions
+            self.species = self.model.species
+            self.parameters = self.model.parameters
+            
             self.addPostTranslationalCoupling()
+
+            self.newModel = Model( self.species, self.reactions, self.parameters )
 
             PostTranslationalCoupling.builtReactions = True
 
-        return [deepcopy(self.nspecies), deepcopy(self.nreactions), deepcopy(self.species), deepcopy(self.reactions), deepcopy(self.stoichiometry_matrix), deepcopy(self.parameters)]
-
+        return deepcopy(self.newModel)
     
     def addPostTranslationalCoupling(self):
         # modify the reactions to add enzymatic decay of tagged proteins
@@ -35,8 +45,8 @@ class PostTranslationalCoupling(Aspect):
             tag_marker = "_tag"
             mRNA_marker = "m"
 
-            if tag_marker in sp and mRNA_marker not in sp:
-                print "Found tag:", sp
+            if tag_marker in sp.name  and mRNA_marker not in sp.name:
+                print "PostTranslationalCoupling : Found tag:", sp
                 tagged_proteins.append( sp )
 
         # Create new reactions
@@ -45,7 +55,7 @@ class PostTranslationalCoupling(Aspect):
         for i in range(len(tagged_proteins)):
 
             newreac =  Reaction([ tagged_proteins[i] ], [], "context")
-            print rates[i]
+            print "PostTranslationalCoupling : rates:", rates[i]
             newreac.rate = rates[i]
             newreac.param = params[i]
 
@@ -53,24 +63,14 @@ class PostTranslationalCoupling(Aspect):
                 self.parameters.append( k )
             self.reactions.append( newreac )
 
-        # update number of species and reactions
-        self.nreactions = len(self.reactions)
-        self.nspecies = len(self.species)
-
-        # recalculate stoichiometry matrix
-        self.stoichiometry_matrix = stoichiometry(self.nspecies, self.nreactions, self.species, self.reactions)
-
-        #for r in self.reactions:
-        #    print r.rate
+        #
 
 # assign enzymatic degradation
 def assignEnzDeg(tagged_proteins):
     totalregs = len( tagged_proteins )
         
-    #Reaction.param_counter += 1
-    #par = "p"+str(Reaction.param_counter)
-
-    #self.param.append( par )
+    #print "tagged_proteins:"
+    #print tagged_proteins
 
     params = [[] for i in range(totalregs)]
     num = "( ";
@@ -81,10 +81,10 @@ def assignEnzDeg(tagged_proteins):
     for i in range(0,totalregs):
         Reaction.param_counter += 1
         par = "p"+str(Reaction.param_counter)
-        terms.append( par + "*" + tagged_proteins[i] )
+        terms.append( par + "*" + tagged_proteins[i].name )
         params[i].append( par )
         
-        denom = denom + " + " + par + "*" + tagged_proteins[i]
+        denom = denom + " + " + par + "*" + tagged_proteins[i].name
     denom = denom + " )"
 
     rates = []
@@ -94,14 +94,5 @@ def assignEnzDeg(tagged_proteins):
         params[i].append( par )
         
         rates.append(  par + "* " + terms[i] + denom )
-
-    #num = num + " )"
-    #denom = denom + " )"
-    
-    #Reaction.param_counter += 1
-    #par = "p"+str(Reaction.param_counter)
-    #params.append( par )
-
-    #rate = par + "* " +  num+denom + ")"
 
     return [rates, params]
