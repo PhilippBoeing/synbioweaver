@@ -31,7 +31,12 @@ The circuits include:
 
 **Multicellular logic gates**  
 examples/logic-gates  
-This example is based on the XOR gate described in Tamsir et. al. Robust multicellular computing using genetically encoded NOR gates and chemical ‘wires’ (2011) <https://www.nature.com/articles/nature09565>
+This example is based on the XOR gate described in Tamsir
+et. al. Robust multicellular computing using genetically encoded NOR
+gates and chemical ‘wires’ (2011)
+<https://www.nature.com/articles/nature09565>. It also shows how
+aspects can be used to generate input-output transfer curves for different circuits
+using characterisation data.
 
 **Rule-based modelling**  
 examples/rule-based-model   
@@ -41,6 +46,6 @@ A design for the repressilator is converted into a rule-based model specified in
 examples/context-simulation  
 For GPU based biochemical network simulation requires a suitable Nvidia GPU device, `CUDA`, `PyCUDA` must be installed and `cuda-sim` must be on PYTHONPATH
 
-**Bayesain inference using ABC-SysBio**  
+**Bayesian inference using ABC-SysBio**  
 examples/characterisation  
 This currently uses `cuda-sim`. In addition it requires the module `abcsysbio` to be on the PYTHONPATH
