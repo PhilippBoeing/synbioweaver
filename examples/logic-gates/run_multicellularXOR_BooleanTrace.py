@@ -1,6 +1,6 @@
 from synbioweaver.core import *
 from synbioweaver.aspects.designRulesAspect import DesignRules
-from synbioweaver.aspects.booleanTraceAspect import BooleanLogicTrace
+from booleanTraceAspect import BooleanLogicTrace
 from systemSetup import SystemCircuit
 
 compiledSystem = Weaver(SystemCircuit,DesignRules,BooleanLogicTrace).output()

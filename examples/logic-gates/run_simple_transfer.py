@@ -1,6 +1,6 @@
 from synbioweaver.core import *
 from synbioweaver.aspects.designRulesAspect import DesignRules
-from synbioweaver.aspects.transferFunctionAspect import MoleculeExpressionTrace
+from transferFunctionAspect import MoleculeExpressionTrace
 
 import numpy as np
 import matplotlib.pyplot as plt
