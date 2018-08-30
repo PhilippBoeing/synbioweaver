@@ -2235,3 +2235,15 @@ class AspectValueError(ValueError):
 
 class CircuitValueError(ValueError):
     """A Circuit class was expected, but something else given"""
+
+class RNACodingRegion(Part):
+    def __init__(self, codesFor):
+        super(RNACodingRegion, self).__init__()
+        self.precompileMoleculesAfter.append(checkAndSetMolecule(codesFor))
+
+    def getCodingFor(self):
+        result = self.getAfterNodes(Molecule)
+        if len(result) > 0:
+            return result
+
+        return self.precompileMoleculesAfter

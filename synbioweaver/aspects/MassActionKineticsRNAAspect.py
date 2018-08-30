@@ -26,7 +26,7 @@ class MassActionKineticsRNA(Aspect, MolecularReactions):
             mmol = MolecularReactions()
             mreactions, mspecies = mmol.getMolecules(weaverOutput)
 
-             # get the unique namespaces and generate reactions
+            # get the unique namespaces and generate reactions
             nspaces = getNamespaces(self.promoterMap)
             for ns in nspaces:
                 reactions = self.getReactionsMassActionRNA(ns)
@@ -76,28 +76,43 @@ class MassActionKineticsRNA(Aspect, MolecularReactions):
             regulators = mapping.getRegulators()
             codings = mapping.getCodings()
 
+            # Before proceeding, see if we have any RNACodingRegions
+            RNAcodings = []
+            for i, part in enumerate(mapping.parts):
+                if isinstance(part,RNACodingRegion) == True:
+                    RNAcodings.append( codings[i] )
+            #print "RNAcodings:", RNAcodings
+            
             if len(regulators) == 0:
                 # This is a const promoter
                 # need to add:
                 # pr -> mX + pr, mX -> X, mX -> 0, X -> 0 
-                
+
+                # create species
                 for p in codings:
-                    self.species.append( Species(mapping.getScope(),str(p), "protein") )
-                    self.species.append( Species(mapping.getScope(),"m"+str(p), "mRNA") )
-
+                    if p not in RNAcodings: 
+                        self.species.append( Species(mapping.getScope(),str(p), "protein") )
+                        self.species.append( Species(mapping.getScope(),"m"+str(p), "mRNA") )
+                    else:
+                        self.species.append( Species(mapping.getScope(), str(p), "mRNA") )
+                        
                 # production of mRNAs
-                prods1 = [Species(mapping.getScope(),"m"+str(x)) for x in codings]
+                #prods1 = [Species(mapping.getScope(),"m"+str(x)) for x in codings]
+                prods1 = [Species(mapping.getScope(),"m"+str(x)) for x in codings if x not in RNAcodings]
+                prods1 = prods1 + [Species(mapping.getScope(),str(x)) for x in RNAcodings]
                 reactions.append( Reaction([], prods1, "rnaTransc" ) )
-
+                        
                 # translation
                 for p in codings:
-                    # translation
-                    reactions.append( Reaction( [Species(mapping.getScope(),"m"+str(p))], [Species(mapping.getScope(),str(p))], "proteinTransl" ) )
-                    # decay of mRNAs
-                    reactions.append( Reaction( [Species(mapping.getScope(),"m"+str(p))], [], "rnaDeg") )
-                    # decay of proteins
-                    reactions.append( Reaction([Species(mapping.getScope(),str(p))], [], "proteinDeg") )
-
+                    if p not in RNAcodings: 
+                        # translation
+                        reactions.append( Reaction( [Species(mapping.getScope(),"m"+str(p))], [Species(mapping.getScope(),str(p))], "proteinTransl" ) )
+                        # decay of mRNAs
+                        reactions.append( Reaction( [Species(mapping.getScope(),"m"+str(p))], [], "rnaDeg") )
+                        # decay of proteins
+                        reactions.append( Reaction([Species(mapping.getScope(),str(p))], [], "proteinDeg") )
+                    else:
+                        reactions.append( Reaction([Species(mapping.getScope(),str(p))], [], "rnaDeg") )
             else:
                 for i in range(len(regulators)):
                     regulator = regulators[i]
@@ -117,28 +132,38 @@ class MassActionKineticsRNA(Aspect, MolecularReactions):
 
                     # if positive promoter then the bound complex expresses
                     if mapping.getPolarities()[i] == 1:
-                        mprods = [Species(mapping.getScope(), "m"+str(x)) for x in codings]
+                        mprods = [Species(mapping.getScope(), "m"+str(x)) for x in codings if x not in RNAcodings]
+                        mprods = mprods + [Species(mapping.getScope(),str(x)) for x in RNAcodings]
                         mprods.append(Scomplx)
-
                         reactions.append( Reaction([Scomplx], mprods, "rnaTransc") )
-                        for p in codings:
-                            reactions.append( Reaction([Species(mapping.getScope(),p)], [], "proteinDeg") )
-                            reactions.append( Reaction([Species(mapping.getScope(),"m"+str(p))], [], "rnaDeg") )
-                            reactions.append( Reaction([Species(mapping.getScope(),"m"+str(p))], [Species(mapping.getScope(),p)], "proteinTransl") )
-                            self.species.append( Species(mapping.getScope(),p, "protein") )
-                            self.species.append( Species(mapping.getScope(),"m"+str(p), "mRNA") )
 
+                        for p in codings:
+                            if p not in RNAcodings: 
+                                reactions.append( Reaction([Species(mapping.getScope(),p)], [], "proteinDeg") )
+                                reactions.append( Reaction([Species(mapping.getScope(),"m"+str(p))], [], "rnaDeg") )
+                                reactions.append( Reaction([Species(mapping.getScope(),"m"+str(p))], [Species(mapping.getScope(),p)], "proteinTransl") )
+                                self.species.append( Species(mapping.getScope(),p, "protein") )
+                                self.species.append( Species(mapping.getScope(),"m"+str(p), "mRNA") )
+                            else:
+                                reactions.append( Reaction([Species(mapping.getScope(),str(p))], [], "rnaDeg") )
+                                self.species.append( Species(mapping.getScope(),str(p), "mRNA") )
+                                
                     # if negative promoter then just the promoter expresses
                     else:
-                        mprods = [Species(mapping.getScope(),"m"+str(x)) for x in codings]
+                        mprods = [Species(mapping.getScope(),"m"+str(x)) for x in codings if x not in RNAcodings]
+                        mprods = mprods + [Species(mapping.getScope(),str(x)) for x in RNAcodings]
                         mprods.append(Spartname)
                         reactions.append( Reaction([Spartname], mprods,"rnaTransc") )
 
                         for p in codings:
-                            reactions.append( Reaction([Species(mapping.getScope(),p)], [], "proteinDeg") )
-                            reactions.append( Reaction([Species(mapping.getScope(),"m"+str(p))], [], "rnaDeg") )
-                            reactions.append( Reaction([Species(mapping.getScope(),"m"+str(p))], [Species(mapping.getScope(),p)], "proteinTransl") )
-                            self.species.append( Species(mapping.getScope(),p, "protein") )
-                            self.species.append( Species(mapping.getScope(),"m"+str(p), "mRNA") )
-
+                            if p not in RNAcodings: 
+                                reactions.append( Reaction([Species(mapping.getScope(),p)], [], "proteinDeg") )
+                                reactions.append( Reaction([Species(mapping.getScope(),"m"+str(p))], [], "rnaDeg") )
+                                reactions.append( Reaction([Species(mapping.getScope(),"m"+str(p))], [Species(mapping.getScope(),p)], "proteinTransl") )
+                                self.species.append( Species(mapping.getScope(),p, "protein") )
+                                self.species.append( Species(mapping.getScope(),"m"+str(p), "mRNA") )
+                            else:
+                                reactions.append( Reaction([Species(mapping.getScope(),str(p))], [], "rnaDeg") )
+                                self.species.append( Species(mapping.getScope(),str(p), "mRNA") )
+                                
         return reactions

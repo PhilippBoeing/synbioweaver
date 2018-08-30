@@ -2,16 +2,18 @@ from synbioweaver.core import *
 from synbioweaver.aspects.modelDefinitions import *
 import numpy, os, copy
 
+
 # This helper class associates promoters with downstream coding regions, regulators and polarities
 class promoterMapping:
 
-    def __init__(self, prmtr_name, prmtr_scope, regulators, polarities, coding):
+    def __init__(self, prmtr_name, prmtr_scope, regulators, polarities, coding, parts):
         self.prmtr_name = prmtr_name
         self.prmtr_scope = prmtr_scope
         self.regulators = regulators
         self.polarities = polarities
         self.coding = coding
-
+        self.parts = parts
+        
     def getScope(self):
         return str(self.prmtr_scope)
 
@@ -82,17 +84,18 @@ class PromoterMapping(Aspect):
                     pols.append(+1)
                 
             # print prmtr_name, regulator, pol
-            self.promoterMap.append( promoterMapping( prmtr_name, prmtr_scope, regulators, pols, [] ) )
+            self.promoterMap.append( promoterMapping( prmtr_name, prmtr_scope, regulators, pols, coding=[], parts=[] ) )
         else:
-            self.promoterMap.append( promoterMapping( prmtr_name, prmtr_scope, [],[],[] ) )
+            self.promoterMap.append( promoterMapping( prmtr_name, prmtr_scope, regulators=[], polarities=[], coding=[], parts=[] ) )
 
         # loop over and get all coding regions until at end of parts list or we reach another promoter        
         nextpart = part.getAfterPart()
         while nextpart != None and isinstance(nextpart,Promoter) == False:
             
-            if isinstance(nextpart,CodingRegion) == True:
+            if isinstance(nextpart,CodingRegion) == True or isinstance(nextpart,RNACodingRegion) == True:
                 coding_name = nextpart.getCodingFor()[0]
                 self.promoterMap[-1].coding.append( coding_name )
+                self.promoterMap[-1].parts.append( nextpart )
     
             nextpart = nextpart.getAfterPart()
             
