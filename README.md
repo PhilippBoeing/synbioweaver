@@ -21,7 +21,13 @@ The circuits include:
 * the lux-AHL system
 * the sender-receiver system found in Basu et. al. Spatiotemporal control of gene expression with pulse-generating networks (2004) <http://www.pnas.org/content/101/17/6355>
 * the toggle-switch system found in Litcofsky et. al. Iterative plug-and-play methodology for constructing and modifying synthetic gene networks (2012) <https://www.nature.com/articles/nmeth.2205>
-* the oscillator from Stricker et. al. A fast, robust and tunable synthetic gene oscillator (2008) <https://www.nature.com/articles/nature07389>
+* the oscillator from Stricker et. al. A fast, robust and tunable
+  synthetic gene oscillator (2008) <https://www.nature.com/articles/nature07389>
+* the system described in Ceroni et. al. (2018)
+  <https://www.nature.com/articles/nmeth.4635> which uses combination
+  of guide RNA and dCas9 to provide burdern driven negative feedback
+* a generic design for a whole-cell biosensor that makes use of a an
+  expressed two component system to drive expression of a reporter
 
 **Multicellular logic gates**  
 examples/logic-gates  
