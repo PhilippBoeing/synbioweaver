@@ -50,7 +50,7 @@ class MoleculeExpressionTrace(Aspect):
             return result*codingRegion.codingRate
 
         else:
-             # are there molecules connected to this molecule via import export?
+            # are there molecules connected to this molecule via import export?
             moleculeCandidates = molecule.getBeforeNodes(Molecule)
             if len(moleculeCandidates) > 0:
                 result = 0
