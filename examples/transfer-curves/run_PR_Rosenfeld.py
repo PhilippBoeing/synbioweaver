@@ -1,28 +1,70 @@
 from synbioweaver.core import *
 from synbioweaver.aspects.designRulesAspect import DesignRules
-from transferLibraryTamsir2010 import MoleculeExpressionTrace
+from transferLibraryRosenfeld2005 import MoleculeExpressionTrace
 
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
 
+def plot_transfer_curve(inputMol,outputMol,filename):
+    print "input/output:", inputMol, outputMol
+
+    molInputRange = np.logspace(1, 3,100, endpoint=True)
+    Output= []
+
+    for i in range(0,len(molInputRange)):
+        inputMol.signal = molInputRange[i]
+        Output.append( outputMol.calculateTransfer() )
+
+    fig = plt.figure()
+    plt.plot( np.log10(molInputRange), np.log10(Output) )
+    plt.xlabel('Input')
+    plt.ylabel('Ouput')
+    plt.savefig(filename, bbox_inches='tight')
+    plt.close()
+
 declareNewMolecule('aTc')
 declareNewMolecule('CFP')
 declareNewMolecule('YFP')
-declareNewMolecule('cI')
+declareNewMolecule('CI')
 
-declareNewPart('PR', NegativePromoter, [cI])
+declareNewPart('PR', NegativePromoter, [CI])
+declareNewPart('PR_OR2', NegativePromoter, [CI])
 
-class WildType(Circuit):
+class circuitPR(Circuit):
     def mainCircuit(self):
-        self.createMolecule(aTc)
-        self.addPart(PositivePromoter(aTc))
-        self.addPart(CodingRegion(cI))
-        self.addPart(CodingRegion(YFP))
+        self.createMolecule(CI)
         self.addPart(PR)
         self.addPart(CodingRegion(CFP))
 
+class circuitPR_OR2(Circuit):
+    def mainCircuit(self):
+        self.createMolecule(CI)
+        self.addPart(PR_OR2)
+        self.addPart(CodingRegion(CFP))
+
 ##
-print "Running SystemCircuit1"
-compiledSystem = Weaver(WildType,DesignRules).output()
+print "Running wildtype"
+compiledSystem = Weaver(circuitPR,MoleculeExpressionTrace).output()
 print compiledSystem
+plot_transfer_curve(compiledSystem.moleculeList[0],compiledSystem.moleculeList[1],"plot-rosenfeld-transfer-PR.pdf")
+
+##
+print "Running mutant"
+compiledSystem = Weaver(circuitPR_OR2,MoleculeExpressionTrace).output()
+print compiledSystem
+plot_transfer_curve(compiledSystem.moleculeList[0],compiledSystem.moleculeList[1],"plot-rosenfeld-transfer-PR-OR2.pdf")
+
+## simple example of how parts can be mutated
+class MutatePR(Aspect):
+    def mainAspect(self):
+        self.addAdvice(PointCut(PartSignature('*.PR+(CI)'),PointCut.REPLACE),self.insertPR_OR2)
+
+    def insertPR_OR2(self,context):
+        self.addPart(PR_OR2)
+        return True
+
+print "Running mutation"
+compiledSystem = Weaver(circuitPR,MutatePR,MoleculeExpressionTrace).output()
+print compiledSystem
+plot_transfer_curve(compiledSystem.moleculeList[0],compiledSystem.moleculeList[1],"plot-rosenfeld-transfer-PR-mutated.pdf")
