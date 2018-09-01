@@ -177,6 +177,16 @@ class Reaction:
         else:
             self.rate = par 
 
+    def assignMassActionExisting(self, par):
+        self.param.append( par )
+
+        # assign a rate
+        if len(self.reactants) > 0:
+            rt = '*'.join(map(str, self.reactants))
+            self.rate = rt+'*' + par
+        else:
+            self.rate = par
+
     def assignSA(self, prmtrMapping):
         totalregs = len( prmtrMapping.getRegulators() )
         totalpos = 0
