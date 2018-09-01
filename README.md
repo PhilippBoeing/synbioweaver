@@ -14,11 +14,11 @@ An overview and tutorial is provided at the following location
 ### Examples
 A number of simple examples to illustrate how the package works are included in the folder examples/tutorial. More involved examples demonstrating the flexibility and applicability of the framework are given in the other folders in examples. These include:
 
-**Weaving together gene circuits**
-examples/weaving-circuits
+**Weaving together gene circuits**  
+examples/weaving-circuits  
 
-**Generation of transfer curves based on part libraries**
-examples/transfer-curves 
+**Generation of transfer curves based on part libraries**  
+examples/transfer-curves  
 
 **Specifying different gene circuit designs and generating models**  
 examples/model-generation  
@@ -56,7 +56,7 @@ For GPU based biochemical network simulation requires a suitable Nvidia GPU devi
 examples/characterisation  
 In this example the OD and fluorescence of a simple constitutive GFP circuit are simulated over time. The resultant data are fit to an ODE model of the system using Bayesian statistics. This currently uses `cuda-sim`. In addition it requires the module `abcsysbio` to be on the PYTHONPATH. 
 
-**Reverse engineering context dependence**
-examples/context-inference
+**Reverse engineering context dependence**  
+examples/context-inference  
 This example is inspired by Catanach et. al. <https://www.biorxiv.org/content/early/2018/07/03/360040>. Multiple models are generated of a circuit under two contexts. Bayesian model selection is applied to formally test whether the systems have the same parameters. 
 
