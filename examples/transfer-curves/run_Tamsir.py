@@ -1,6 +1,6 @@
 from synbioweaver.core import *
 from synbioweaver.aspects.designRulesAspect import DesignRules
-from transferLibraryTamsir2010 import MoleculeExpressionTrace
+from transferLibraryTamsir2010Aspect import LibraryTamsir2010
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -27,7 +27,7 @@ class SystemCircuit2(Circuit):
         
 ##
 print "Running SystemCircuit1"
-compiledSystem1 = Weaver(SystemCircuit1,DesignRules,MoleculeExpressionTrace).output()
+compiledSystem1 = Weaver(SystemCircuit1,DesignRules,LibraryTamsir2010).output()
 inputMol1 = compiledSystem1.moleculeList[0]
 outputMol = compiledSystem1.moleculeList[1]
 print "input/outputs:", inputMol1, outputMol
@@ -48,7 +48,7 @@ plt.close()
 
 ##
 print "Running SystemCircuit2"
-compiledSystem2 = Weaver(SystemCircuit2,DesignRules,MoleculeExpressionTrace).output()
+compiledSystem2 = Weaver(SystemCircuit2,DesignRules,LibraryTamsir2010).output()
 inputMol1 = compiledSystem2.moleculeList[0]
 outputMol = compiledSystem2.moleculeList[2]
 print "input/outputs:", inputMol1, outputMol

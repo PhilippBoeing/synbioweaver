@@ -1,6 +1,6 @@
 from synbioweaver.core import *
 from synbioweaver.aspects.designRulesAspect import DesignRules
-from transferLibraryRosenfeld2005 import MoleculeExpressionTrace
+from transferLibraryRosenfeld2005Aspect import LibraryRosenfeld2005
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -23,9 +23,7 @@ def plot_transfer_curve(inputMol,outputMol,filename):
     plt.savefig(filename, bbox_inches='tight')
     plt.close()
 
-declareNewMolecule('aTc')
 declareNewMolecule('CFP')
-declareNewMolecule('YFP')
 declareNewMolecule('CI')
 
 declareNewPart('PR', NegativePromoter, [CI])
@@ -45,13 +43,13 @@ class circuitPR_OR2(Circuit):
 
 ##
 print "Running wildtype"
-compiledSystem = Weaver(circuitPR,MoleculeExpressionTrace).output()
+compiledSystem = Weaver(circuitPR,LibraryRosenfeld2005).output()
 print compiledSystem
 plot_transfer_curve(compiledSystem.moleculeList[0],compiledSystem.moleculeList[1],"plot-rosenfeld-transfer-PR.pdf")
 
 ##
 print "Running mutant"
-compiledSystem = Weaver(circuitPR_OR2,MoleculeExpressionTrace).output()
+compiledSystem = Weaver(circuitPR_OR2,LibraryRosenfeld2005).output()
 print compiledSystem
 plot_transfer_curve(compiledSystem.moleculeList[0],compiledSystem.moleculeList[1],"plot-rosenfeld-transfer-PR-OR2.pdf")
 
@@ -65,6 +63,6 @@ class MutatePR(Aspect):
         return True
 
 print "Running mutation"
-compiledSystem = Weaver(circuitPR,MutatePR,MoleculeExpressionTrace).output()
+compiledSystem = Weaver(circuitPR,MutatePR,LibraryRosenfeld2005).output()
 print compiledSystem
 plot_transfer_curve(compiledSystem.moleculeList[0],compiledSystem.moleculeList[1],"plot-rosenfeld-transfer-PR-mutated.pdf")

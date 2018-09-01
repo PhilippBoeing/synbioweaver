@@ -1,7 +1,8 @@
 from synbioweaver import *
+from moleculeExpressionTrace import *
 import math
 
-class MoleculeExpressionTrace(Aspect):
+class LibraryTamsir2010(Aspect, MoleculeExpressionTrace):
     def mainAspect(self):
         everyMoleculeSelector = MoleculeSignature('*.*')
         regulatedPromoterSelector = PartSignature('*.Promoter+(Molecule+)')
@@ -20,41 +21,6 @@ class MoleculeExpressionTrace(Aspect):
         self.addTypeAdvice(PartSignature('*.CodingRegion+(RhlI)'),20,'codingRate') # codingRate compared to YFP
         self.addTypeAdvice(PartSignature('*.CodingRegion+(Cl)'),9,'codingRate') # codingRate compared to YFP
         self.addTypeAdvice(PartSignature('*.CodingRegion+(YFP)'),1,'codingRate') # codingRate compared to YFP
-
-    def calculateTransfer(self,molecule):
-        result = 0
-        # is this molecule expressed by a coding site?
-        partCandidates = molecule.getBeforeNodes(CodingRegion)
-        if (len(partCandidates) > 0):
-            # ok, need to check if the coding region is expressed
-            for part in partCandidates:
-                codingRegion = part
-                while True:
-                    partCandidates = part.getBeforeNodes(Part)
-                    if len(partCandidates) == 0:
-                        break #the while...
-                    part = partCandidates[0]
-                    if isinstance(part,Terminator):
-                        break #the while...
-                    elif isinstance(part,PositivePromoter):
-                        result = result + part.calculateTransfer()
-                    elif isinstance(part,NegativePromoter):
-                        # negative promoter transfer curve:
-                        result = result + part.calculateTransfer()
-
-            return result*codingRegion.codingRate
-
-        else:
-            # are there molecules connected to this molecule via import export?
-            moleculeCandidates = molecule.getBeforeNodes(Molecule)
-            if len(moleculeCandidates) > 0:
-                result = 0
-                for mol in moleculeCandidates:
-                    result += mol.calculateTransfer()
-                return result
-
-            # otherwise...
-            return molecule.signal
 
     def transferfuncplas(self,part):
         l = part.getBeforeNodes(Molecule)[0].calculateTransfer()
