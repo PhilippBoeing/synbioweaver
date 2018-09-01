@@ -30,9 +30,6 @@ class ContextGenerator(Aspect):
             for p in self.context_models:
                 self.models.append( self.createModel(p) )
 
-            #self.models.append( self.createModel(0) )
-            #self.models.append( self.createModel(1) )
-
             ContextGenerator.builtReactions = True
 
         return deepcopy(self.models)
@@ -43,10 +40,13 @@ class ContextGenerator(Aspect):
 
         newModel = deepcopy(self.originalModel)
 
+        # reset the global reaction counter
+        Reaction.param_counter = len(set(self.originalModel.parameters))
+
         # order the reactions based on parameters so that the dual system is assigned the same parameters to reactions
         self.originalModel.reactions = sorted( self.originalModel.reactions, key=sort_react_by_param )
 
-        if mgen == "all":
+        if mgen == "full-context-dep":
             # create a supermodel with double the number of parameters
             newreacs = []
             for r in self.originalModel.reactions: 
@@ -74,7 +74,7 @@ class ContextGenerator(Aspect):
                 newModel.species.append(s)
                 newModel.nspecies += 1
 
-        elif mgen == "free":
+        elif mgen == "context-ind":
             # create a supermodel with the same number of parameters
             newreacs = []
             for r in self.originalModel.reactions:
@@ -99,7 +99,38 @@ class ContextGenerator(Aspect):
             for s in newspecies:
                 newModel.species.append(s)
                 newModel.nspecies += 1
-                
+
+        elif mgen in ["rnaTransc","rnaDeg","proteinTransl","proteinDeg"]:
+            # create a supermodel with different parameters for rnaTransc
+            newreacs = []
+            for r in self.originalModel.reactions:
+                nreact = [ Species("con", 'cc'+x.name) for x in r.reactants ]
+                nprods = [ Species("con",'cc'+x.name) for x in r.products ]
+                newreacs.append(Reaction( nreact, nprods, "context"))
+
+                if r.process != mgen:
+                    newreacs[-1].assignMassActionExisting(r.param[0])
+                else:
+                    print Reaction.param_counter
+                    newreacs[-1].assignMassAction()
+                    #freeparams = list(set(self.))
+                    
+                    
+            for r in newreacs:
+                newModel.reactions.append( r )
+                newModel.nreactions += 1
+
+                for k in r.param:
+                    newModel.parameters.append( k )
+
+            newspecies = []
+            for s in self.originalModel.species:
+                newspecies.append( Species("con",'cc'+s.name) )
+
+            for s in newspecies:
+                newModel.species.append(s)
+                newModel.nspecies += 1
+
         else:
             print "ContextGenerator : process unknown :", mgen, "Quitting"
             exit()
