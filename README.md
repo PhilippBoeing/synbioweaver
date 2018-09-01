@@ -58,5 +58,5 @@ In this example the OD and fluorescence of a simple constitutive GFP circuit are
 
 **Reverse engineering context dependence**  
 examples/context-inference  
-This example is inspired by Catanach et. al. <https://www.biorxiv.org/content/early/2018/07/03/360040>. Multiple models are generated of a circuit under two contexts. Bayesian model selection is applied to formally test whether the systems have the same parameters. 
+This example is inspired by Catanach et. al. Context Dependence of Biological Circuits (2018) <https://www.biorxiv.org/content/early/2018/07/03/360040>. Multiple models are generated of a circuit under two contexts. Bayesian model selection is applied to formally test whether the systems have the same parameters. 
 
